@@ -1,24 +1,13 @@
 <?php
 
-
-// Rotas do painel 
-
-Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), function () {
-    
-    // (View painel admin)
-    Route::group(['prefix' => 'admin/libs', 'middleware' => 'auth.admin'], function () {
-        Route::get('/example_vuejs', array('as' => 'webAdminFinance', 'uses' => 'FinanceController@getExampleVuejs'));
-    });
-
-});
-
-// Rotas dos apps
+// Rotas do app provider
 Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), function () {
 
-    Route::group(['prefix' => 'libs/finance'], function () {
+    Route::group(['prefix' => 'libs/finance/provider', 'middleware' => 'auth.provider_api:api'], function () {
 
-        Route::get('/example', 'FinanceController@getAppApiExample');
-    
+        Route::get('/profits', 'FinanceController@getProviderProfits');
+        Route::get('/financial/summary/{id}', 'FinanceController@getFinancialSummaryByTypeAndDate');
+        
     });
 
 });

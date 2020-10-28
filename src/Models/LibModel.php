@@ -1,6 +1,6 @@
 <?php
 
-namespace Codificar\Finance\Models;
+namespace Codificar\LibModel\Models;
 
 use Illuminate\Database\Eloquent\Relations\Model;
 use Illuminate\Http\Request;
@@ -11,7 +11,7 @@ use Finance;
 use DB;
 
 
-class Finance extends Eloquent
+class LibModel extends Eloquent
 {
 
     // protected $table = 'admin';

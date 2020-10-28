@@ -1,0 +1,76 @@
+<?php
+
+namespace Codificar\Finance\Http\Resources;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+/**
+ * Class ProviderProfitsResource
+ *
+ * @package Uber Clone
+ *
+ * @OA\Schema(
+ *      schema="ProviderProfitsResource",
+ *      type="object",
+ *      description="Retorna os ganhos a cada mês no ano informado",
+ *      title="Profits Resource",
+ *      allOf={
+ *          @OA\Schema(ref="#/components/schemas/ProviderProfitsResource"),
+ *          @OA\Schema(
+ *              required={"success"},
+ *               @OA\Property(property="success", format="boolean", type="boolean"),
+ *               @OA\Property(property="finance", format="array", type="array", items="object"),
+ *               @OA\Property(property="current_balance", format="integer", type="integer"),
+ *               @OA\Property(property="total", format="string", type="string"),
+ *          )
+ *      }
+ * )
+ */
+class ProviderProfitsResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    public function toArray($request)
+    {
+        $finance = [];
+        
+		for ($i=1; $i <= 7; $i++) { 
+			$finance[$i-1] = [
+                "day" => "" . $i,
+                "value" => 0.0,
+                "value_text" => currency_format(0.0)
+            ];
+        }
+        
+        $total = 0;
+        
+		foreach ($this["finance"]->get() as $item) {
+			$total += $item->value;
+			$item->value = round($item->value, 2);
+			$item->value_text = currency_format(abs(round($item->value, 2)));
+			$finance[$item->day - 1] = $item;
+        }
+
+        $total = number_format($total, 2, '.', '');
+        $totalMoney = number_format($this["total_money"], 2, '.', '');
+
+		return [
+			"success" => true,
+			"finance" => $finance,
+			"current_balance" => $this["current_balance"],
+			"current_balance_text" => currency_format(abs($this["current_balance"])),
+            "total_week" => $total,
+            "total_week_text" => currency_format(abs($total)),
+            "total_money_week" => $totalMoney,
+            "total_money_week_text" => currency_format(abs($totalMoney)),
+            "online_time" => $this["available"],
+            "online_time_text" => formatTime($this["available"]),
+            "rides_count" => $this["rides"],
+            "is_withdraw_enabled" => $this["is_withdraw_enabled"],
+		];
+    }
+}
