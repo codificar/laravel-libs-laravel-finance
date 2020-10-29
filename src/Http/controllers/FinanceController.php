@@ -18,7 +18,7 @@ use Codificar\Finance\Http\Resources\ProviderProfitsResource;
 use Codificar\Finance\Http\Resources\GetFinancialSummaryByTypeAndDateResource;
 
 use Input, Validator, View, Response;
-use Provider, Settings, Ledger, Finance, Bank, LedgerBankAccount, Requests, ProviderAvail;
+use Finance;
 
 class FinanceController extends Controller {
 
@@ -32,17 +32,17 @@ class FinanceController extends Controller {
     public function getProviderProfits(ProviderProfitsRequest $request)
     {
 		$ledgerId = $request->provider->ledger->id;
-		$finance = Requests::getProviderProfitsOfWeek($request->provider->id);
-		$totalMoney = Requests::getProviderProfitsOfWeekMoneyValue($request->provider->id);
+		$finance = LibModel::getProviderProfitsOfWeek($request->provider->id);
+		$totalMoney = LibModel::getProviderProfitsOfWeekMoneyValue($request->provider->id);
 		$currentBalance = Finance::sumValueByLedgerId($ledgerId);
-		$isWithdrawEnabled = Settings::getWithDrawEnabled();
+		$isWithdrawEnabled = LibModel::getWithDrawEnabled();
 		
 		return new ProviderProfitsResource([
 			"finance" => $finance,
 			"total_money" => $totalMoney,
 			"current_balance" => $currentBalance,
-			"available" => ProviderAvail::getWeekOnlineTime($request->provider->id),
-			"rides" => Requests::getWeekRidesCount($request->provider->id),
+			"available" => LibModel::getWeekOnlineTime($request->provider->id),
+			"rides" => LibModel::getWeekRidesCount($request->provider->id),
 			"is_withdraw_enabled" => $isWithdrawEnabled
 		]);
     }
@@ -58,7 +58,7 @@ class FinanceController extends Controller {
 		$holder = $request->holder;
 		
         // Realiza busca do extrato
-        $balance = Finance::getLedgerDetailedBalanceByPeriod(
+        $balance = LibModel::getLedgerDetailedBalanceByPeriod(
 			$holder->ledger->id, 
 			$request->typeEntry, 
 			$request->start_date, 
