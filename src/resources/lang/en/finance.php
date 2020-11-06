@@ -130,6 +130,12 @@ return array(
 	
 	'holder_name_info' 				=> 'Insert the same name informed by your bank',
 	
+	'occurrence_date'				=> 'Occurrence',
+	'no_data_found'					=> 'No data found',
+	'try_again_later'				=> 'Try again later.',
+	'indexing'						=> 'Indexing',
+	'items'							=> 'Items',
+	'of'							=> 'of',
 	
 	'save'							=> 'Save',
 	'cancel'						=> 'Cancel',
