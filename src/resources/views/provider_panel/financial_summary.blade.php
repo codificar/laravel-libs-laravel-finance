@@ -37,6 +37,6 @@
 
 @section('javascripts')
 <script type="text/javascript" src="/js/lang.trans/finance,dashboard,empty_box,keywords"></script>
-<script type="text/javascript" src="/js/env.js"></script> 
-<script src="{{ elixir('js/main.vue.js') }}"></script> 
+<script src="/libs/finance/lang.trans/finance"> </script> 
+<script src="{{ elixir('vendor/codificar/finance/finance.vue.js') }}"> </script>
 @stop

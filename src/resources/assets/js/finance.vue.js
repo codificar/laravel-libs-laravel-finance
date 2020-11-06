@@ -4,10 +4,6 @@ require('lodash');
 
 import Vue from 'vue';
 
-
-// Finance settings
-import FinanceVuejs from './pages/example.vue';
-
 import VueTheMask from 'vue-the-mask';
 
 import Loading from 'vue-loading-overlay';
@@ -49,7 +45,7 @@ new Vue({
     },
 
     components: {
-        financevuejs: FinanceVuejs
+
     },
 
     created: function () {

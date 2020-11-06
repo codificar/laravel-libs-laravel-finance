@@ -1,4 +1,4 @@
-@extends('layout.corp.master')
+@extends('layout.master')
 
 @section('breadcrumbs')
 <div class="row page-titles">
@@ -11,27 +11,25 @@
 	</div>
 </div>	
 @stop
-
-@section('vue_content')
-<financial-account-statement 
-		:holder="{{ $holder }}"
-		login-type="{{ $login_type }}"
-		:finance-types="{{ json_encode($types) }}"
-		:balance-data="{{ json_encode($balance) }}"
-		:bank-accounts="{{ json_encode($bankaccounts) }}"
-		:banks="{{ $banks }}"
-		:account-types="{{ json_encode($account_types) }}"
-		:with-draw-settings="{{ json_encode($withdrawsettings) }}"
-		currency-symbol="{{ $currency_symbol }}"
-		holder-type="{{ $holder_type }}"
-	></financial-account-statement>
-@stop
-
 @section('content')
-@stop
-
-@section('styles')
+<div id="VueJs">
+<financial-account-statement 
+	:holder="{{ $holder }}"
+	login-type="{{ $login_type }}"
+	:finance-types="{{ json_encode($types) }}"
+	:balance-data="{{ json_encode($balance) }}"
+	:bank-accounts="{{ json_encode($bankaccounts) }}"
+	:banks="{{ $banks }}"
+	:account-types="{{ json_encode($account_types) }}"
+	:with-draw-settings="{{ json_encode($withdrawsettings) }}"
+	currency-symbol="{{ $currency_symbol }}"
+	holder-type="{{ $holder_type }}"
+></financial-account-statement>
+</div>
 @stop
 
 @section('javascripts')
+<script type="text/javascript" src="/js/lang.trans/finance,dashboard,empty_box,keywords"></script>
+<script src="/libs/finance/lang.trans/finance"> </script> 
+<script src="{{ elixir('vendor/codificar/finance/finance.vue.js') }}"> </script>
 @stop

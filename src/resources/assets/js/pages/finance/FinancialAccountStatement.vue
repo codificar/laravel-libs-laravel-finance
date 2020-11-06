@@ -385,7 +385,7 @@ export default {
             cardTitle: "",
             balance: "",
             language: "",
-            dateFormat: env.defaultDatePickerFormat,
+            dateFormat: "DD/MM/YYYY",
             startDate: "",
             endDate: "",
             page: 1,
@@ -406,8 +406,8 @@ export default {
             return totalizer;
         },
         setTitles() {
-            let initialDate = moment(this.startDate).format(env.defaultDateFormat);
-            let finalDate = moment(this.endDate).format(env.defaultDateFormat);
+            let initialDate = moment(this.startDate).format("DD/MM/YYYY");
+            let finalDate = moment(this.endDate).format("DD/MM/YYYY");
 
             this.cardTitle = this.trans("finance.vue_title_statement");
             this.cardTitle += initialDate;
@@ -424,8 +424,8 @@ export default {
             this.isLoading = true;
 
             // Trata datas para enviar ao servidor
-            let initialDate = moment(this.startDate).format(env.defaultDateFormat);
-            let finalDate = moment(this.endDate).format(env.defaultDateFormat);
+            let initialDate = moment(this.startDate).format("DD/MM/YYYY");
+            let finalDate = moment(this.endDate).format("DD/MM/YYYY");
 
             // Realiza a requisição
             axios.get('/api/v3/financial/summary/' + this.holder.id, {
@@ -476,8 +476,8 @@ export default {
             this.isLoading = true;
 
             // Trata datas para enviar ao servidor
-            let initialDate = moment(this.startDate).format(env.defaultDateFormat);
-            let finalDate = moment(this.endDate).format(env.defaultDateFormat);
+            let initialDate = moment(this.startDate).format("DD/MM/YYYY");
+            let finalDate = moment(this.endDate).format("DD/MM/YYYY");
 
             // Realiza a requisição
             axios.get(window.location.pathname, {
@@ -545,22 +545,10 @@ export default {
             });
         },
         setLocale() {
-            if (env.defaultLanguage == "en") {
-                this.language = "en";
-            } else if(env.defaultLanguage == "es") {
-                this.language = "es";
-            } else {
-                this.language = "pt-br";
-            }
+            this.language = "pt-br";
         },
         setDateFormat(){
-            if (env.defaultLanguage == "en") {
-                this.language = env.defaultDatePickerFormatEN;
-            } else if(env.defaultLanguage == "es") {
-                this.dateFormat = env.defaultDatePickerFormatES;
-            } else {
-                this.dateFormat = env.defaultDatePickerFormatPT;
-            }            
+            this.dateFormat = "DD/MM/YYYY";
         },
         formatCurrency(value) {
             if (value != undefined || value != "") {                
