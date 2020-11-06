@@ -165,7 +165,7 @@ class FinancialController extends Controller
 				$id = \Auth::guard("clients")->user()->id;
 				$holder = User::find($id);
 				$holder->full_name = $holder->getFullName();
-				$page = 'user_panel.userFinancial_summary';
+				$page = 'finance::user_panel.userFinancial_summary';
 				$notfound = 'user_panel.userLogin';
 				$loginType = 'user';
 				$holderType = Finance::TYPE_USER;
@@ -174,7 +174,7 @@ class FinancialController extends Controller
 				$id = \Auth::guard("providers")->user()->id;
 				$holder = Provider::find($id);
 				$holder->full_name = $holder->getFullName();
-				$page = 'provider_panel.financial_summary';
+				$page = 'finance::provider_panel.financial_summary';
 				$notfound = 'provider_panel.login';
 				$loginType = 'provider';
 				$holderType = Finance::TYPE_PROVIDER;		
@@ -186,7 +186,7 @@ class FinancialController extends Controller
 				$holder = AdminInstitution::getUserByAdminId($admin_id);
 				$holder->full_name = $institution->name;
 				$id = $holder->id;
-				$page = 'corp.financial_summary';
+				$page = 'finance::corp.financial_summary';
 				$notfound = 'corp.login';
 				$loginType = 'corp';
 				$holderType = Finance::TYPE_CORP;

@@ -24,6 +24,27 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/{type}/{id}/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'LedgerBankAccountController@createUserBankAccount'));
     });
 
+    //Rotas do provider (web)
+    Route::group(['prefix' => '/provider/libs/finance', 'middleware' => 'auth.provider'], function () {
+        Route::get('/', array('as' => 'webProviderAccountStatement', 'uses' => 'FinancialController@userProviderCheckingAccount'));
+        Route::post('/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
+        Route::post('/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'LedgerBankAccountController@createUserBankAccount'));    
+    });
+    
+    //Rotas do user (web)
+    Route::group(['prefix' => '/user/libs/finance', 'middleware' => 'auth.user'], function () {
+        Route::get('/', array('as' => 'webUserAccountStatement', 'uses' => 'FinancialController@userProviderCheckingAccount'));
+        Route::get('/summary', array('as' => 'userAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));
+        Route::post('/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
+        Route::post('/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'LedgerBankAccountController@createUserBankAccount'));    
+    });
+
+    Route::group(['prefix' => '/corp/libs/finance' ,'middleware' => ['auth.corp_api', 'cors']], function (){
+        Route::get('/financial-report', array('as' => 'corpAccountStatement', 'uses' => 'FinancialController@userProviderCheckingAccount'));
+        Route::get('/financial-report/summary', array('as' => 'corpAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));
+        Route::post('/financial-report/withdraw-request', array('as' => 'corpAddWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
+    });
+
 });
 
 

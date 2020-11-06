@@ -2,8 +2,8 @@
     <div class="col-lg-12">
         <div class="card card-outline-info box">
             <img class="box-picture" src="/images/box.svg" alt="">
-            <h2>{{ trans('empty_box.no_data_found') }}</h2>
-            <p>{{ trans('empty_box.try_again_later') }}</p>
+            <h2>{{ trans('finance.no_data_found') }}</h2>
+            <p>{{ trans('finance.try_again_later') }}</p>
         </div>
     </div>
 </template>

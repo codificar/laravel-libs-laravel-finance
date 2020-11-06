@@ -13,17 +13,23 @@ import VueTheMask from 'vue-the-mask';
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
 import pagination from 'laravel-vue-pagination';
+import VueResource from 'vue-resource';
+import VueSweetalert2 from 'vue-sweetalert2';
+
 
 Vue.component('financial-account-statement', require('./pages/finance/FinancialAccountStatement.vue'));
 Vue.component('empty-box', require('./pages/empty_box/EmptyBoxComponent.vue'));
 Vue.component('paginator-counter', require('./pages/paginator/Counter.vue'));
 Vue.component('pagination', pagination);
+Vue.component('loading', Loading);
+
 
 Vue.use(VueTheMask);
 Vue.use(require('vue-moment'));
-
+Vue.use(VueResource);
+Vue.use(VueSweetalert2);
 Vue.use(Loading);
-Vue.component('loading', Loading);
+
 
 //Allows localization using trans()
 Vue.prototype.trans = (key) => {

@@ -79,7 +79,7 @@
                                             <!--span-->
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="daterange">{{trans('dashboard.occurrence_date') }}</label>
+                                                    <label for="daterange">{{trans('finance.occurrence_date') }}</label>
                                                     <div class="input-daterange input-group">
                                                         <datepicker 
                                                             class="datepicker-box" 
@@ -89,7 +89,7 @@
                                                             :format="dateFormat"
                                                             input-class="mx-input"
                                                         ></datepicker>
-                                                        <span class="input-group-addon bg-info b-0 text-white">{{trans('dashboard.to') }}</span>
+                                                        <span class="input-group-addon bg-info b-0 text-white">{{trans('finance.to') }}</span>
                                                         <datepicker 
                                                             class="datepicker-box" 
                                                             v-model="endDate" 
@@ -253,7 +253,7 @@
                                 :count-items="balance.detailed_balance_count"
                                 :total-items="balance.detailed_balance_total"
                             ></paginator-counter>
-                            <p>{{ trans('keywords.indexing') }}</p>
+                            <p>{{ trans('finance.indexing') }}</p>
                         </div>
                         <!-- Paginate and counter -->
 

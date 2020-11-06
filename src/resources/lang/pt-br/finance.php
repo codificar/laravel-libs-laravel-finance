@@ -129,6 +129,12 @@ return array(
 	
 	'holder_name_info' 				=> 'Insira o nome do favorecido tal como informado pelo banco',
 
+	'occurrence_date'				=> 'Ocorrência',
+	'no_data_found'					=> 'Não encontramos registros',
+	'try_again_later'				=> 'Tente novamente mais tarde ou experimente outros filtros.',
+	'indexing'						=> 'Mostrando',
+	'items'							=> 'registros',
+	'of'							=> 'de',
 	
     'save'							=> 'Salvar Dados',
 	'cancel'						=> 'Cancelar',

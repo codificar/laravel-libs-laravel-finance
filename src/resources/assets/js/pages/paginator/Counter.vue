@@ -1,6 +1,6 @@
 <template>
     <div>
-        <p>{{ trans('keywords.indexing') }} {{ dataCountItems }} {{trans('keywords.of')}} {{ dataTotalItems }} {{trans('keywords.items')}}.</p>
+        <p>{{ trans('finance.indexing') }} {{ dataCountItems }} {{trans('finance.of')}} {{ dataTotalItems }} {{trans('finance.items')}}.</p>
     </div>
 </template>
 
