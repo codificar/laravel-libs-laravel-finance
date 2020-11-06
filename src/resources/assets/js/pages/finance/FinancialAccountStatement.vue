@@ -199,8 +199,8 @@
                                     </tr>
 
                                     <tr v-for="entry in balance.current_compensations" v-bind:key="entry.id" total="0">
-                                        <td>{{ entry.compensation_date | moment(env('defaultDateFormat')) }}</td>
-                                        <td class="hide-small">{{ entry.compensation_date | moment(env('defaultTimeFormat')) }}</td>
+                                        <td>{{ entry.compensation_date | moment("DD/MM/YYYY") }}</td>
+                                        <td class="hide-small">{{ entry.compensation_date | moment("hh:mm:ss") }}</td>
                                         <td v-if="entry.reason">{{ trans("finance.op_"+entry.reason.toLowerCase()) }}</td>
                                         <td v-else>{{ trans('finance.reason_not_found') }}</td>
                                         <td class="hide-small">
@@ -303,8 +303,8 @@
                                     </th>
                                 </tr>
                                 <tr v-for="entry in balance.future_compensations" v-bind:key="entry.id">
-                                    <td>{{ entry.compensation_date | moment(env('defaultDateFormat')) }}</td>
-                                    <td class="hide-small">{{ entry.compensation_date | moment(env('defaultTimeFormat')) }}</td>
+                                    <td>{{ entry.compensation_date | moment("DD/MM/YYYY") }}</td>
+                                    <td class="hide-small">{{ entry.compensation_date | moment("hh:mm:ss") }}</td>
                                     <td v-if="entry.reason">{{ trans("finance.op_"+entry.reason.toLowerCase()) }}</td>
                                     <td v-else>{{ trans('finance.reason_not_found') }}</td>
                                     <td class="hide-small">

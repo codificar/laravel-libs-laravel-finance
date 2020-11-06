@@ -14,7 +14,7 @@
 @stop
 @section('content')
 <div id="VueJs">
-	<financial-account-statements 
+	<financial-account-statement 
 		:holder="{{ $holder }}"
 		login-type="{{ $login_type }}"
 		:finance-types="{{ json_encode($types) }}"
@@ -25,12 +25,12 @@
 		:with-draw-settings="{{ json_encode($withdrawsettings) }}"
 		currency-symbol="{{ \Settings::getFormattedCurrency() }}"
 		holder-type="{{ $holder_type }}"
-	></financial-account-statements>
+	></financial-account-statement>
 </div>
 @stop
         
 @section('javascripts')
 <script type="text/javascript" src="/js/lang.trans/finance,dashboard,empty_box,keywords"></script>
-<script type="text/javascript" src="/js/env.js"></script> 
+<script src="/libs/finance/lang.trans/finance"> </script> 
 <script src="{{ elixir('vendor/codificar/finance/finance.vue.js') }}"> </script>
 @stop
