@@ -194,8 +194,8 @@ class FinancialController extends Controller
 		}
 		$label = Input::has('label-range') ? Input::get('label-range') : trans('finance.monthNames.'.date('n').'', array('y' => date('Y')));
 		if($holder && $holder->ledger){
-			if (Input::get('start-date') != ''){
-				$startDate = Carbon::createFromFormat('d/m/Y', Input::get('start-date')); 
+			if (Input::get('start_date') != ''){
+				$startDate = Carbon::createFromFormat('d/m/Y', Input::get('start_date'))->format('Y-m-d 00:00:00');
 			} else {
 				$startDate = Carbon::today();
 				if ($startDate->day == 1) {
@@ -204,8 +204,8 @@ class FinancialController extends Controller
 					$startDate->day = 1;
 				}
 			}
-			if (Input::get('end-date') != ''){
-				$endDate = Carbon::createFromFormat('d/m/Y', Input::get('end-date'));
+			if (Input::get('end_date') != ''){
+				$endDate = Carbon::createFromFormat('d/m/Y', Input::get('end_date'));
 			} else {
 				$endDate = Carbon::today();
 			}
@@ -306,8 +306,8 @@ class FinancialController extends Controller
 		}
 
 		if($holder && $holder->ledger){
-			$startDate = Input::get('start-date');
-			$endDate = Input::get('end-date');
+			$startDate = Input::get('start_date');
+			$endDate = Input::get('end_date');
 
 			// Define data inicial
 			if ($startDate != '') {
@@ -390,7 +390,6 @@ class FinancialController extends Controller
 			$startDate = Carbon::parse($startDate);
 			$endDate = Carbon::parse($endDate);
 			$endDate = $endDate->addDay(1);
-			//Expected request from ../{type}/{id}/{start-date}/{end-date}
 			/** $type can be user or provider */
 			switch($type){
 				case Finance::TYPE_USER:
@@ -477,7 +476,11 @@ class FinancialController extends Controller
 
 
 	public function downloadFinancialReport($type, $holder, $balance, $startDate, $endDate){
-		$filename = "relatorio-conta-".$type."-".$holder->first_name."-".$holder->last_name.".csv";
+		if(isset($holder->last_name) && $holder->last_name) {
+			$filename = "relatorio-conta-".$type."-".$holder->first_name."-".$holder->last_name.".csv";
+		} else {
+			$filename = "relatorio-conta-".$type."-".$holder->first_name."-".".csv";
+		}
 		$handle = fopen(storage_path("framework/views/").$filename, 'w');
 		$entries 				= $balance['current_compensations'];
 		$futureCompensations 	= $balance['future_compensations'];
@@ -521,7 +524,7 @@ class FinancialController extends Controller
 					";"
 				);
 			}
-			fputcsv($handle, array(trans('finance.current_balance'), $currentBalance),";");
+			fputcsv($handle, array(trans('financeTrans::finance.current_balance'), $currentBalance),";");
 		}
 		if(sizeof($futureCompensations) > 0){
 			fputcsv($handle, array(),";");

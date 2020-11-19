@@ -53,9 +53,9 @@
 										<div class="form-group">
 											<label for="daterange"> {{trans('dashboard.period_date') }} </label>
 											<div class="input-daterange input-group" id="date-range">											
-												<input type="text" class="form-control" name="start-date" placeholder="{{trans('dashboard.start_date')}}" value="{{ Input::get('start-date') }}"/>
+												<input type="text" class="form-control" name="start_date" placeholder="{{trans('dashboard.start_date')}}" value="{{ Input::get('start_date') }}"/>
 												<span class="input-group-addon bg-info b-0 text-white">{{trans('dashboard.to') }}</span>
-												<input type="text" class="form-control" name="end-date" placeholder="{{trans('dashboard.end_date') }}" value="{{ Input::get('end-date') }}"/>
+												<input type="text" class="form-control" name="end_date" placeholder="{{trans('dashboard.end_date') }}" value="{{ Input::get('end_date') }}"/>
 											</div>
 										</div>
 									</div>

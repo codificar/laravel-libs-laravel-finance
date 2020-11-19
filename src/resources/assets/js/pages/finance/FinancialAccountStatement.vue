@@ -503,7 +503,8 @@ export default {
                 const link = document.createElement("a");
 
                 link.href = url;
-                link.setAttribute("download", this.holder.first_name + " " + this.holder.last_name + " financial_summary.csv"); // alterar nome do download
+                var lastName = this.holder.last_name ? this.holder.last_name : "";
+                link.setAttribute("download", this.holder.first_name + " " + lastName + " financial_summary.csv"); // alterar nome do download
                 document.body.appendChild(link);
 
                 link.click();
