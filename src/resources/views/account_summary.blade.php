@@ -118,7 +118,8 @@
 			</form>
 		</div>
 	</div>
-
+</div>
+<div class="col-12 tbl-box">
 	<div class="card card-outline-info">
 		<div class="card-header">
 			<h4 class="m-b-0 text-white">{{ trans('notification.debit_notification_all') }}</h4>

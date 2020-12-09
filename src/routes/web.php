@@ -7,6 +7,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
     Route::group(['prefix' => 'libs/finance/provider', 'middleware' => 'auth.provider_api:api'], function () {
         Route::get('/profits', 'FinanceController@getProviderProfits');
         Route::get('/financial/summary/{id}', 'FinanceController@getFinancialSummaryByTypeAndDate');
+        Route::get('/financial/provider_summary', 'FinanceController@getProviderSummaryByTypeAndDate');
     });
 
     // Rotas do painel web

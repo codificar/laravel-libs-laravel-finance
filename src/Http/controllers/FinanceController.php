@@ -11,6 +11,7 @@ use Codificar\Finance\Models\LibModel;
 
 //FormRequest
 use Codificar\Finance\Http\Requests\ProviderProfitsRequest;
+use Codificar\Finance\Http\Requests\GetProviderSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
 
 //Resource
@@ -31,9 +32,12 @@ class FinanceController extends Controller {
      */
     public function getProviderProfits(ProviderProfitsRequest $request)
     {
-		$ledgerId = $request->provider->ledger->id;
-		$finance = LibModel::getProviderProfitsOfWeek($request->provider->id);
-		$totalMoney = LibModel::getProviderProfitsOfWeekMoneyValue($request->provider->id);
+		$providerId = $request->provider_id ? $request->provider_id : $request->id;
+		$provider = Provider::where('id', $providerId)->first();
+		$ledgerId = $provider->ledger->id;
+
+		$finance = LibModel::getProviderProfitsOfWeek($provider->id);
+		$totalMoney = LibModel::getProviderProfitsOfWeekMoneyValue($provider->id);
 		$currentBalance = Finance::sumValueByLedgerId($ledgerId);
 		$isWithdrawEnabled = LibModel::getWithDrawEnabled();
 		
@@ -41,18 +45,45 @@ class FinanceController extends Controller {
 			"finance" => $finance,
 			"total_money" => $totalMoney,
 			"current_balance" => $currentBalance,
-			"available" => LibModel::getWeekOnlineTime($request->provider->id),
-			"rides" => LibModel::getWeekRidesCount($request->provider->id),
+			"available" => LibModel::getWeekOnlineTime($provider->id),
+			"rides" => LibModel::getWeekRidesCount($provider->id),
 			"is_withdraw_enabled" => $isWithdrawEnabled
 		]);
     }
     
      /**
+	 * API ANTIGA. DEVERA SER REMOVIDA FUTURAMENTE. NAO FOI REMOVIDA AINDA, POIS SE ATUALIZAR O PAINEL, PODERA QUEBRAR OS APPS QUE NAO FORAM ATUALIZADOS.
+	 * REMOVER EM UM MOMENTO OPORTUNO.
+	 *
      * @api {get} /libs/finance/provider/financial/summary/{id}
      * @apiDescription Permite buscar o extrato de contas com datas pré-definidas e filtros
      * @return Json
      */	
 	public function getFinancialSummaryByTypeAndDate(GetFinancialSummaryByTypeAndDateFormRequest $request)
+	{
+        // Pega holder
+		$holder = $request->holder;
+		
+        // Realiza busca do extrato
+        $balance = LibModel::getLedgerDetailedBalanceByPeriod(
+			$holder->ledger->id, 
+			$request->typeEntry, 
+			$request->start_date, 
+			$request->end_date, 
+			$request->page,
+			$request->itemsPerPage
+		);
+
+        // Retorno de dados
+        return new GetFinancialSummaryByTypeAndDateResource(['balance' => $balance]);
+	}
+
+	 /**
+     * @api {get} /libs/finance/provider/financial/provider_summary
+     * @apiDescription Permite buscar o extrato de contas com datas pré-definidas e filtros
+     * @return Json
+     */	
+	public function getProviderSummaryByTypeAndDate(GetProviderSummaryByTypeAndDateFormRequest $request)
 	{
         // Pega holder
 		$holder = $request->holder;
@@ -238,7 +269,7 @@ class FinanceController extends Controller {
 
 		if(ProviderStatus::where('name', $status)->first())
 			$statusId = ProviderStatus::where('name', $status)->first()->id;
-		$providers = Provider::search($id, $name, $email, $state, $city, $plate, null, $statusId, $order, $type, $this->partnersId, $locationId, $cnh, $phone, $start_date_compensation, $end_date_compensation, null, null, $registerStep,$providerExtract, $start_date_created, $end_date_created, $sendDocs, $orderBalance);
+		$providers = LibModel::providerSearch($id, $name, $email, $state, $city, $plate, null, $statusId, $order, $type, $this->partnersId, $locationId, $cnh, $phone, $start_date_compensation, $end_date_compensation, null, null, $registerStep,$providerExtract, $start_date_created, $end_date_created, $sendDocs, $orderBalance);
 		
 		$title = ucwords(trans('customize.Provider') . " | " . trans('adminController.search_result'));
 		if(!$providerExtract && Input::get('submit') && Input::get('submit') == 'Download_Report'){						
@@ -287,7 +318,7 @@ class FinanceController extends Controller {
 		$isPartnerProfile = Admin::isPartnerProfile();
 		Session::forget("tab");
 		$language = Settings::getLocale();
-		$providers = Provider::search(null, null, null, null, null, null, null, null, null, null, $this->partnersId, null, null, null, null, null, null, null, null);
+		$providers = LibModel::providerSearch(null, null, null, null, null, null, null, null, null, null, $this->partnersId, null, null, null, null, null, null, null, null);
 		if (!$providerExtract) {
 			return View::make('providers.list')
 					->with('locations', $locations)

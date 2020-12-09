@@ -13,7 +13,7 @@
 </div>	
 @stop
 @section('content')
-<div id="VueJs">
+<div id="VueJs" class="col-sm-12">
 	<financial-account-statement 
 		:holder="{{ $holder }}"
 		login-type="{{ $login_type }}"

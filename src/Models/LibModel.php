@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Eloquent;
 use Finance;
 use Ledger;
+use Provider;
 use RequestCharging;
 use DB;
 
@@ -211,6 +212,169 @@ class LibModel extends Eloquent
 			$response = "Ledger not found";
 		}
 		return $response;
+	}
+
+
+	public static function providerSearch($id, $name, $email, $state, $city, $brand, $partnerId, $statusId, $order, $type, $arrPartner, $locationId, $cnh, $phone, $startDateCompensation, $endDateCompensation, $startedBy=null, $approvedBy=null, $registerStep=null,$providerExtract=null, $startDateCreated=null, $endDateCreated=null, $sendDocs=null, $orderBalance = null)
+	{
+		if($partnerId != "") $arrPartner = array($partnerId);
+		
+		if (is_array($arrPartner) && count($arrPartner)) {
+			$query = Provider::byPartners($arrPartner);
+		}
+		else {			
+			$query = LibModel::prepareQuery();
+		}
+
+		if($providerExtract && ($startDateCompensation && $endDateCompensation) || ($startDateCreated && $endDateCreated )){
+			$query = LibModel::prepareQueryExtract();
+		}
+		
+		if($providerExtract && $startDateCompensation && $endDateCompensation ){					
+			$startDateCompensation = date("Y-m-d 00:00:00", strtotime(str_replace('/', '-', $startDateCompensation)));			
+			$endDateCompensation = date("Y-m-d 23:59:59", strtotime(str_replace('/', '-', $endDateCompensation)));					
+			$query->whereBetween('compensation_date', array($startDateCompensation, $endDateCompensation));
+		}
+		
+		if($providerExtract && $startDateCreated && $endDateCreated ){
+			$startDateCreated = date("Y-m-d 00:00:00", strtotime(str_replace('/', '-', $startDateCreated)));			
+			$endDateCreated = date("Y-m-d 23:59:59", strtotime(str_replace('/', '-', $endDateCreated)));			
+			$query->whereBetween('finance.created_at', array($startDateCreated, $endDateCreated));
+		}
+
+		if ($locationId != 0){
+			$query->where("provider.location_id", "=", $locationId);
+		}
+		
+		if ($id != ""){
+			$query->where('provider.id', '=', $id);
+		}
+		if ($name != ""){
+			$query->where(DB::raw('CONCAT_WS(" ", first_name, last_name)'), 'like', '%' . $name . '%');
+		}
+		if ($email != ""){
+			$query->where('email', 'like', '%' . $email . '%');
+		}
+
+		if($phone != ""){
+			$query->where('phone','like','%' . $phone . '%');
+		}
+
+		if ($state != ""){
+			$query->where('state', 'like', '%' . $state . '%');
+		}
+
+		if ($city != ""){
+			$query->where('address_city', 'like', '%' . $city . '%');
+		}
+
+		if ($brand != ""){
+			$query->where('car_number', 'like', '%' . $brand . '%');
+		}
+
+		if (is_array($statusId) || $statusId != 0){
+			if(is_array($statusId)){
+				$query->whereIn('provider_status.id', $statusId);
+			} else{
+				$query->where('provider_status.id', '=', $statusId);	
+			}
+		}
+		
+		if($cnh){
+			$query->where('cnh_number','like','%'.$cnh.'%');
+		}
+		//data de inicio
+		if ($startDateCompensation && !$providerExtract) {
+			$startDateCompensation = date("Y-m-d H:i:s", strtotime(str_replace('/', '-', $startDateCompensation)));
+			$query = $query->where('provider.created_at', '>=', $startDateCompensation);
+					
+		}
+		//data de fim
+		if($endDateCompensation && !$providerExtract){
+			$query = $query->where('provider.created_at', '<=', $endDateCompensation);
+			$endDateCompensation = date("Y-m-d H:i:s", strtotime(str_replace('/', '-', $endDateCompensation)));				
+		}
+
+		if(isset($startedBy) && $startedBy != ""){
+			$query->where('provider.started_by', "=", $startedBy);
+		}
+
+		if(isset($approvedBy) && $approvedBy != ""){
+			$query->where('provider.approved_by', "=", $approvedBy);
+		}
+		
+		// Verificar aqui
+		if(isset($registerStep) && $registerStep != ""){
+			$query->where('provider.register_step', "=", $registerStep);
+		}
+
+		if (isset($sendDocs) && $sendDocs != "") {
+			$query->where('provider.all_docs', "=", $sendDocs);
+		}
+
+		// Filtro para saldo total
+		if ( isset($orderBalance) && $orderBalance != "" ) {
+			$query->addSelect( DB::raw("COALESCE((SELECT SUM(value) from finance WHERE finance.ledger_id = ledger.id), 0) AS total") );
+		}
+		
+		$query->groupBy('provider.id');
+
+		if ($order == "") {
+
+			if ($orderBalance == "positive") {
+				$query->having('total', ">", 0);
+				$query->orderBy('total', 'desc');
+			} else if ($orderBalance == "negative") {
+				$query->having('total', "<", 0);
+				$query->orderBy('total', 'asc');
+			} else {
+				$query->orderBy('provider.id', 'DESC');
+			}
+			
+		} else {
+			if ($order == 0 && $providerExtract)				
+				$query->orderBy($type, 'asc');
+			else if ($order == 1)
+				$query->orderBy($type, 'desc');
+		}
+		return $query->distinct();
+	}
+
+	private static function prepareQuery()
+	{
+		$subQuery = DB::table('request_meta')
+			->select(DB::raw('count(*)'))
+			->whereRaw('provider_id = provider.id and status != 0');
+
+		$subQuery1 = DB::table('request_meta')
+			->select(DB::raw('count(*)'))
+			->whereRaw('provider_id = provider.id and status = 1');
+
+		$query = Provider::select('provider.*', 'ledger.id as ledger_id', 'provider_status.name as status_name', DB::raw("(" . $subQuery->toSql() . ") as 'total_requests'"), DB::raw("(" . $subQuery1->toSql() . ") as 'accepted_requests'"))
+					->leftJoin('provider_status', 'provider.status_id', '=', 'provider_status.id');
+
+		$query->leftJoin('ledger as ledger', 'provider.id', '=', 'ledger.provider_id');
+
+		return $query ;
+	}
+
+	private static function prepareQueryExtract(){
+
+		$subQuery = DB::table('request_meta')
+			->select(DB::raw('count(*)'))
+			->whereRaw('provider_id = provider.id and status != 0');
+
+		$subQuery1 = DB::table('request_meta')
+			->select(DB::raw('count(*)'))
+			->whereRaw('provider_id = provider.id and status = 1');
+
+		$query = Provider::select('finance.compensation_date','finance.created_at','provider.*', 'ledger.id as ledger_id', 'provider_status.name as status_name', DB::raw("(" . $subQuery->toSql() . ") as 'total_requests'"), DB::raw("(" . $subQuery1->toSql() . ") as 'accepted_requests'"))
+					->leftJoin('provider_status', 'provider.status_id', '=', 'provider_status.id');
+
+		$query->leftJoin('ledger as ledger', 'provider.id', '=', 'ledger.provider_id')
+				->join('finance', 'finance.ledger_id','=', 'ledger.id');
+
+		return $query ;
 	}
     
 }
