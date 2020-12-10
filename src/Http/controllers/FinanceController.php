@@ -18,6 +18,8 @@ use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Resources\ProviderProfitsResource;
 use Codificar\Finance\Http\Resources\GetFinancialSummaryByTypeAndDateResource;
 
+use Carbon\Carbon;
+
 use Input, Validator, View, Response, Session;
 use Finance, Admin, Settings, Provider, ProviderStatus;
 
@@ -182,11 +184,11 @@ class FinanceController extends Controller {
 				}
 				if($holder && $holder->ledger){
 					$startDate =  Input::has('start_date_created') ? 
-						date('Y-m-d 00:00:00', strtotime($this->parseDate($start_date_created))) :
+						Carbon::createFromFormat('d/m/Y', $start_date_created)->format('Y-m-d 00:00:00') :
 						date('Y-m-d', strtotime($holder->created_at));
 
 					$endDate = Input::has('end_date_created') ? 
-						date("Y-m-d 23:59:59", strtotime($this->parseDate($end_date_created))) : 
+						Carbon::createFromFormat('d/m/Y', $end_date_created)->format('Y-m-d 23:59:59') :
 						date('Y-m-d 23:59:59');
 
 					$startDateCompensation = Input::has('start-date-compensation') ? date("Y-m-d 0:0:0", strtotime(Input::get('start-date-compensation'))) : date('Y-m-d 23:59:59');
@@ -198,7 +200,7 @@ class FinanceController extends Controller {
 		}
 
 		if (count($providers->simplePaginate(20)) > 0) {				
-		return View::make('provider_extract.account_summary')
+			return View::make('finance::account_summary')
 					->with('locations', $locations)
 					->with('providers', $providersss)
 					->with('partners', $this->partners)
@@ -208,7 +210,7 @@ class FinanceController extends Controller {
 					->with('order',1)
 					->with('balances',$balances);
 		}else{
-			return View::make('provider_extract.account_summary')
+			return View::make('finance::account_summary')
 					->with('locations', $locations)
 					->with('providers', $providersss)
 					->with('partners', $this->partners)

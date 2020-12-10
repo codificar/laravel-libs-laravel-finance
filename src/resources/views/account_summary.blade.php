@@ -11,7 +11,7 @@
 	</div>
 </div>
 @stop @section('content')
-<div class="col-lg-12">
+<div class="col-12 tbl-box">
 	<div class="card card-outline-info">
 		<div class="card-header">
 			<h4 class="m-b-0 text-white">{{ trans('dashboard.filter') }}</h4>
@@ -92,29 +92,27 @@
 						</div>
 					</div>
 
-				</div>												
-					<!-- <div class="col-md-4 col-sm-3">
-						<div class="form-group">
-							{!! Form::label('institution_id', trans('document.sent_documents'), ['class'=>'control-label']) !!}
-							{!! Form::select('send_docs', array('0' => trans('document.sent_documents'), 'approved' => 'Sim', 'docs' => 'Não'), 0, ['class'=> 'form-control']) !!}
+				</div>	
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="box-footer">
+							<a href="{{ URL::Route('AdminProviderExtract') }}" class="btn btn-danger">
+								<i class="fa fa-trash"></i>
+								{{trans('dashboard.clear_form')}}
+							</a>
+							<div class="pull-right">
+								<button type="submit" name="submit" class="btn btn-info right" value="Download_Report">
+									<i class="mdi mdi-download"></i> {{trans('dashboard.down_report')}}
+								</button>
+								<button type="submit" name="btnsearch" class="btn btn-success" value="Filter_Data">
+									<i class="fa fa-search"></i>
+									{{trans('provider.search') }}
+								</button>
+							</div>
 						</div>
-					</div> -->
-				</div>
-				<div class="box-footer">
-					<a href="{{ URL::Route('AdminProviderExtract') }}" class="btn btn-danger">
-						<i class="fa fa-trash"></i>
-						{{trans('dashboard.clear_form')}}
-					</a>
-					<div class="pull-right">
-						<button type="submit" name="submit" class="btn btn-info right" value="Download_Report">
-							<i class="mdi mdi-download"></i> {{trans('dashboard.down_report')}}
-						</button>
-						<button type="submit" name="btnsearch" class="btn btn-success" value="Filter_Data">
-							<i class="fa fa-search"></i>
-							{{trans('provider.search') }}
-						</button>
 					</div>
-				</div>
+				</div>	
+					
 			</form>
 		</div>
 	</div>
@@ -195,7 +193,12 @@
 						<th>{{ trans('provider.agency_grid') }}</th>
 						<th>{{ trans('provider.account_grid') }}</th>
 						<th>{{ trans('provider.total_request_grid') }}</th>
-						<th>{{ trans('finance.current_balance') }}</th>
+						
+
+						@if(Input::get('start_date_created') && Input::get('end_date_created'))
+							<th>{{ trans('financeTrans::finance.period_balance') }}</th>
+						@endif
+
 						<th>{{ trans('finance.total_compensations') }}</th>
 						<th colspan="2">{{ trans('finance.total')}}</th>
 						<th>{{ trans('provider.status_grid') }}</th>
@@ -255,27 +258,16 @@
 							$total = 0;
 						?> 
 
-						<td style="text-align:center;" >
-							<?php
-							$totalizer=0;									
-							$entries = $balances[$key];
-								if(Input::get('start_date_created')){	
-									$var = Input::get('start_date_created');
-									$date = str_replace('/', '-', $var); 
-									$newStartDate = date('Y-m-d', strtotime($date));
-										if (Input::get('end_date_created')){
-											$var = Input::get('end_date_created');
-											$date = str_replace('/', '-', $var); 
-											$newEndDate = date('Y-m-d', strtotime($date));
-										}
-									$tipoClass = ($entries['period_balance'] >= 0) ? 'text-success': "text-danger";
-									echo"<span class='$tipoClass'>$currency_symbol ".number_format($entries['period_balance'], 2, ',', ' ')."</span>";
-								}else{			
-									$tipoClass = ($entries['period_balance'] >= 0) ? 'text-success': "text-danger";
-									echo"<span class='$tipoClass'>$currency_symbol ".number_format($entries['period_balance'], 2, ',', ' ')."</span>";
-								}
-							?>
-						</td>
+						
+						@if(Input::get('start_date_created') && Input::get('end_date_created'))
+							<td style="text-align:center;" >
+								<?php
+									$tipoClass = ($balances[$key]['period_balance'] >= 0) ? 'text-success': "text-danger";
+									echo"<span class='$tipoClass'>$currency_symbol ".number_format($balances[$key]['period_balance'], 2, ',', ' ')."</span>";
+								?>
+							</td>
+						@endif
+
 						<td style="text-align:center;" >
 							<?php																
 								$totalizer=0;									
@@ -346,7 +338,7 @@
 
 									@if(AuthUtils::hasPermissionByUrl('providerAccountStatement'))
 										<li role="presentation">
-											<a id="view_provider_doc" class="dropdown-item" href="{{ URL::Route('providerAccountStatementAuto',[$provider->id, $newStartDate, $newEndDate]) }}" >
+											<a id="view_provider_doc" class="dropdown-item" href="{{ URL::Route('financeProviderAccountStatement',[$provider->id]) }}" >
 												{{ trans('finance.account_statement') }}
 											</a>
 										</li>

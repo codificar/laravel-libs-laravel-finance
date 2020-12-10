@@ -81,7 +81,7 @@ return array(
 	'start_date'					=> 'Data de Início',
 	'end_date'						=> 'Data de Término',
 	'search'						=> 'Pesquisar',
-
+	'period_balance' 				=> 'Saldo do período',
 
 	'this_month' 					=> 'Este mês',
 	'last_month' 					=> 'Mês passado',

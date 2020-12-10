@@ -16,8 +16,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/provider_extract/filter', array('as' => 'AdminProviderExtractFilter', 'uses' => 'FinanceController@providerExtractFilter'));
         
         Route::get('/user/{id}', array('as' => 'userAccountStatement', 'uses' => 'FinancialController@getFinancialSummary'));
-        Route::get('/provider/{id}', array('as' => 'providerAccountStatement', 'uses' => 'FinancialController@getFinancialSummary'));
-        Route::get('/provider/{id}/{start_date}/{end_date}', array('as' => 'providerAccountStatementAuto', 'uses' => 'FinancialController@getFinancialSummaryByDate'));
+        Route::get('/provider/{id}', array('as' => 'financeProviderAccountStatement', 'uses' => 'FinancialController@getFinancialSummary'));
         Route::get('/user/{id}/summary', array('as' => 'userAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));
         Route::get('/provider/{id}/summary', array('as' => 'providerAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));
         Route::post('/{type}/{id}/add-entry', array('as' => 'addFinancialEntry', 'uses' => 'FinancialController@addFinancialEntry'));
