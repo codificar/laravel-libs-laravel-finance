@@ -10,6 +10,7 @@ use Eloquent;
 use Finance;
 use Ledger;
 use Provider;
+use Payment;
 use RequestCharging;
 use DB;
 
@@ -28,7 +29,7 @@ class LibModel extends Eloquent
 
 
     public static function sumValueByLedgerId($ledgerId){
-		return (double)number_format(self::where('ledger_id', $ledgerId)->where('compensation_date', '<', date('Y-m-d H:i:s'))->sum('value'), 2, '.', '');
+		return (double)number_format(self::where('ledger_id', $ledgerId)->where('compensation_date', '<=', date('Y-m-d H:i:s'))->sum('value'), 2, '.', '');
 	}
 	
 	public static function sumAllValueByLedgerId($ledgerId){
@@ -133,8 +134,41 @@ class LibModel extends Eloquent
 						$startDate->startOfWeek()->subDay(), 
 						$endDate->endOfWeek()->subDay()
 					])->count();
-    }
+	}
+	
+	public static function getCardsList($userId)
+	{
+		$payments = array();
+		$payment = DB::table('payment')
+			->where('user_id', $userId)
+			->orderBy('is_default', 'DESC')
+			->get();
 
+        foreach ($payment as $value) {
+            $data['id'] 			= $value->id;
+            $data['user_id'] 		= $value->user_id;
+            $data['customer_id'] 	= $value->customer_id;
+            $data['last_four'] 		= $value->last_four;
+            $data['card_token'] 	= $value->card_token;
+            $data['card_type'] 		= $value->card_type;
+            $data['card_id'] 		= $value->card_token;
+			$data['is_default'] 	= $value->is_default;
+			$data['is_default_text']= $value->is_default ?  "default" : "not_default";
+
+            array_push($payments, $data);
+		}
+		return $payments;
+	}
+	
+	public static function getCreditCard($userId, $cardId)
+	{
+		$payment = Payment::where('id', $cardId)
+			->where('user_id', $userId)
+			->first();
+
+		return $payment;
+	}
+	
     public static function getBalanceBeforeDate($ledgerId, $startDate){
 
 		if($ledger = Ledger::find($ledgerId)){

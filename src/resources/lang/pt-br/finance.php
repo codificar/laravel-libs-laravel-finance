@@ -82,6 +82,7 @@ return array(
 	'end_date'						=> 'Data de Término',
 	'search'						=> 'Pesquisar',
 	'period_balance' 				=> 'Saldo do período',
+	'single_credit' 				=> 'Crédito avulso adicionado pelo cartão',
 
 	'this_month' 					=> 'Este mês',
 	'last_month' 					=> 'Mês passado',

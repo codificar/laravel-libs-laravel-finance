@@ -13,15 +13,19 @@ use Codificar\Finance\Models\LibModel;
 use Codificar\Finance\Http\Requests\ProviderProfitsRequest;
 use Codificar\Finance\Http\Requests\GetProviderSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
+use Codificar\Finance\Http\Requests\GetCardsAndBalanceFormRequest;
+use Codificar\Finance\Http\Requests\AddCreditCardBalanceFormRequest;
 
 //Resource
 use Codificar\Finance\Http\Resources\ProviderProfitsResource;
 use Codificar\Finance\Http\Resources\GetFinancialSummaryByTypeAndDateResource;
+use Codificar\Finance\Http\Resources\GetCardsAndBalanceResource;
+use Codificar\Finance\Http\Resources\AddCreditCardBalanceResource;
 
 use Carbon\Carbon;
 
 use Input, Validator, View, Response, Session;
-use Finance, Admin, Settings, Provider, ProviderStatus;
+use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory;
 
 class FinanceController extends Controller {
 	use PartnerFilter;
@@ -499,5 +503,64 @@ class FinanceController extends Controller {
 
 		return $bank->$key;
 	}
+
+	/**
+     * @api {GET} libs/finance/user/get_cards_and_balance
+     * Retorna os cartões cadastrados pelo usuário e saldo em carteira.
+     * @return json
+     */
+    public function getCardsAndBalance(GetCardsAndBalanceFormRequest $request) {
+
+        $userId = $request->id;
+        // Retorna os cartões cadastrados pelo cliente
+        $payments = LibModel::getCardsList($userId);
+		$user = User::where('id', $userId)->first();
+		$ledgerId = $user->ledger->id;
+        $data = array();
+
+		$data['success']    		= true;
+		$data['current_balance'] 	= currency_format(LibModel::sumValueByLedgerId($ledgerId));
+		$data['cards']       		= $payments;
+        $data['error']      		= null; 
+
+        return new GetCardsAndBalanceResource($data);
+	}
+
+	
+	public function addCreditCardBalance(AddCreditCardBalanceFormRequest $request) {
+
+		$user = $request->user;
+		$ledgerId = $user->ledger->id;
+		$cardId = $request->card_id;
+		//Check if the card is the user
+		$payment = LibModel::getCreditCard($user->id, $cardId);
+		$data = array();
+		//Se nao encontrou o card, entao da erro
+		if(!$payment) {
+			$data['success']	= false;
+			$data['error']		= 'Cartão não encontrado ou não pertence ao usuário'; 
+			$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
+		} else {
+			//Tenta realizar a cobranca com o cartao
+			$gateway = PaymentFactory::createGateway();
+			$return = $gateway->charge($payment, $request->value, trans('financeTrans::finance.single_credit'), true);
+			
+			//Se conseguiu cobrar no cartao, entao adicionar um saldo para o usuario, senao, retorna erro
+			if($return['success'] && $return['captured'] == 'true') {
+				$financeEntry = Finance::createCustomEntry($user->ledger->id, 'SEPARATE_CREDIT', trans('financeTrans::finance.single_credit'), $request->value, null, null);
+				if($financeEntry) {
+					$data['success']	= true;
+					$data['error']		= null; 
+					$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
+				}
+			} else {
+				$data['success']	= false;
+				$data['error']		= 'O cartão foi recusado.'; 
+				$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
+			}
+		}
+
+        return new GetCardsAndBalanceResource($data);
+    }
 
 }

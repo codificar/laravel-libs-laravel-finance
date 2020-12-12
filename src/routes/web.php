@@ -10,6 +10,13 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/financial/provider_summary', 'FinanceController@getProviderSummaryByTypeAndDate');
     });
 
+    // Rotas do app user
+    Route::group(['prefix' => 'libs/finance/user', 'middleware' => 'auth.user_api:api'], function () {
+        Route::get('/get_cards_and_balance', 'FinanceController@getCardsAndBalance');
+        Route::get('/add_billet_balance', 'FinanceController@addBilletBalance');
+        Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalance');
+    });
+
     // Rotas do painel web
     Route::group(['prefix' => 'admin/libs/finance/', 'middleware' => 'auth.admin'], function () {
         Route::get('/provider_extract', array('as' => 'AdminProviderExtract', 'uses' => 'FinanceController@providerExtract'));
