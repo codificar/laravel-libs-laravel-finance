@@ -38,7 +38,6 @@ class AddCreditCardBalanceResource extends JsonResource
         return [
             'success'           => $this['success'],
             'current_balance'   => $this['current_balance'],
-            'cards'             => $this['cards'],
             'error'             => $this['error']
         ];
     }

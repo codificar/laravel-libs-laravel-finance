@@ -560,7 +560,7 @@ class FinanceController extends Controller {
 			}
 		}
 
-        return new GetCardsAndBalanceResource($data);
+        return new AddCreditCardBalanceResource($data);
     }
 
 }
