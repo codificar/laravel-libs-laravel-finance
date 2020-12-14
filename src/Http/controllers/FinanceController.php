@@ -15,17 +15,19 @@ use Codificar\Finance\Http\Requests\GetProviderSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetCardsAndBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceFormRequest;
+use Codificar\Finance\Http\Requests\AddBilletBalanceFormRequest;
 
 //Resource
 use Codificar\Finance\Http\Resources\ProviderProfitsResource;
 use Codificar\Finance\Http\Resources\GetFinancialSummaryByTypeAndDateResource;
 use Codificar\Finance\Http\Resources\GetCardsAndBalanceResource;
 use Codificar\Finance\Http\Resources\AddCreditCardBalanceResource;
+use Codificar\Finance\Http\Resources\AddBilletBalanceResource;
 
 use Carbon\Carbon;
 
 use Input, Validator, View, Response, Session;
-use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory;
+use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction;
 
 class FinanceController extends Controller {
 	use PartnerFilter;
@@ -563,4 +565,66 @@ class FinanceController extends Controller {
         return new AddCreditCardBalanceResource($data);
     }
 
+
+	public function addBilletBalance(AddBilletBalanceFormRequest $request) {
+
+		$user = $request->user;
+		$ledgerId = $user->ledger->id;
+		$data = array();
+		
+		$value = $request->value;
+		$postBack = route('GatewayPostbackBillet') . "/" . $user->ledger->id;
+
+		$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
+		$gateway = PaymentFactory::createGateway();
+		$payment = $gateway->billetCharge($value, $user, $postBack, $billetExpiration, "Adicionar saldo em conta.");
+		
+		if($payment['success']){
+			$billet_link = $payment['billet_url'];
+			$gateway_transaction_id = $payment['transaction_id'];
+
+			$paymentTax = $gateway->getGatewayTax();
+			$paymentFee = $gateway->getGatewayFee();	
+
+			//Save the billet in transaction table (not in finance yet. In finance table is when billet is paid)
+			$transaction 					= new Transaction();
+			$transaction->type 				= Transaction::SINGLE_TRANSACTION;
+			$transaction->status 			= 'waiting_payment';
+			$transaction->gross_value 	 	= $value;
+			$transaction->provider_value 	= 0;
+			$transaction->gateway_tax_value = ($value * $paymentTax) + $paymentFee;
+			$transaction->net_value 		= $value - $transaction->gateway_tax_value ;
+			$transaction->gateway_transaction_id = $gateway_transaction_id;
+			$transaction->billet_link		= $billet_link;
+			$transaction->save();
+			
+			//send email
+			try {
+				$key_email = "billet_mail";
+				$emailTemplate = EmailTemplate::getTemplateByKey($key_email);
+				$subject = ($emailTemplate != null) ? $emailTemplate->subject : "Boleto";
+				$vars = array(
+					'billet_value' => currency_format(currency_converted($value)),
+					'expiration' => Carbon::parse($billetExpiration)->format('d/m/y'),
+					'billet_url' => $billet_link,
+				);
+				email_notification($user->id, 'user', $vars, $subject, $key_email, null);	
+			} catch(\Exception $e){
+				\Log::error("Erro ao enviar boleto por email.");
+				\Log::error($e->getMessage());
+			}
+			
+			
+		} else {
+			return response()->json($payment, 503);
+		}
+
+		return response()->json([
+			'success' => true, 
+			'billet_url' => $billet_link,
+			'error' => false
+		]);
+
+        return new AddBilletBalanceResource($data);
+    }
 }

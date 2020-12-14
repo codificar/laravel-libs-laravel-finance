@@ -9,6 +9,7 @@ class FinanceServiceProvider extends ServiceProvider {
 
         // Load routes (carrega as rotas)
         $this->loadRoutesFrom(__DIR__.'/routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/routes/postbackBillet.php');
 
         // Load laravel views (Carregas as views do Laravel, blade)
         $this->loadViewsFrom(__DIR__.'/resources/views', 'finance');
