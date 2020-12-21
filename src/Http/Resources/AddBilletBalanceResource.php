@@ -38,6 +38,7 @@ class AddBilletBalanceResource extends JsonResource
         return [
             'success'           => $this['success'],
             'billet_url'        => $this['billet_url'],
+            'billet_barcode'    => $this['billet_barcode'],
             'error'             => $this['error']
         ];
     }
