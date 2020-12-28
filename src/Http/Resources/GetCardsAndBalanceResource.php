@@ -39,6 +39,7 @@ class GetCardsAndBalanceResource extends JsonResource
             'success'           => $this['success'],
             'current_balance'   => $this['current_balance'],
             'cards'             => $this['cards'],
+            'settings'          => $this['settings'],
             'error'             => $this['error']
         ];
     }

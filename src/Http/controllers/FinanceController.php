@@ -523,7 +523,8 @@ class FinanceController extends Controller {
 		$data['success']    		= true;
 		$data['current_balance'] 	= currency_format(LibModel::sumValueByLedgerId($ledgerId));
 		$data['cards']       		= $payments;
-        $data['error']      		= null; 
+		$data['settings']			= $this->getAddBalanceSettings();
+		$data['error']      		= null; 
 
         return new GetCardsAndBalanceResource($data);
 	}
@@ -628,5 +629,14 @@ class FinanceController extends Controller {
 		]);
 
         return new AddBilletBalanceResource($data);
-    }
+	}
+	
+	private function getAddBalanceSettings() {
+		$data = array();
+		$data['addBilletBalanceUser'] = Settings::where('key', 'add_billet_balance_user')->first()->value;
+		$data['addCardBalanceUser'] = Settings::where('key', 'add_card_balance_user')->first()->value;
+		$data['addBalanceMin'] = Settings::where('key', 'add_balance_min')->first()->value;
+		$data['addBalanceBilletTax'] = Settings::where('key', 'add_balance_billet_tax')->first()->value;
+		return $data;
+	}
 }
