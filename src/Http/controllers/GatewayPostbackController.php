@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Transaction, Invoice;
 use App\Jobs\SubscriptionBilletPaid;
 use PaymentFactory;
-use Finance;
+use Finance, Settings;
 
 class GatewayPostbackController extends Controller
 {
@@ -26,8 +26,9 @@ class GatewayPostbackController extends Controller
             //Check se a transaction esta com status diferente de "pago", para evitar pagar em duplicidade. 
             //Se a transaction ja esta com status pago, nao faz sentido adicionar um saldo para o usuario novamente
             if($transaction->status != "paid") {
+                $tax = (float) Settings::where('key', 'add_balance_billet_tax')->first()->value;
                 //Add balance for user
-                $finance = Finance::createCustomEntry($ledgerid, Finance::SEPARATE_CREDIT, "Credito referente ao boleto pago", $postbackTransaction['value'], null, null);
+                $finance = Finance::createCustomEntry($ledgerid, Finance::SEPARATE_CREDIT, "Credito referente ao boleto pago", $postbackTransaction['value'] - $tax, null, null);
                 $transaction->status = 'paid';
                 $transaction->save();
             

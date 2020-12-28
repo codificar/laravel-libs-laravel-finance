@@ -573,7 +573,8 @@ class FinanceController extends Controller {
 		$ledgerId = $user->ledger->id;
 		$data = array();
 		
-		$value = $request->value;
+		$billetTax = (float) Settings::where('key', 'add_balance_billet_tax')->first()->value;
+		$value = $request->value + $billetTax;
 		$postBack = route('GatewayPostbackBillet') . "/" . $user->ledger->id;
 
 		$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
