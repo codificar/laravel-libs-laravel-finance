@@ -332,7 +332,7 @@ class FinancialController extends Controller
 			}
 					
 			$title = trans('finance.account_statement');
-			$balance = Finance::getLedgerDetailedBalanceByPeriod($holder->ledger->id, $typeEntry, $startDate, $endDate, null, null);
+			
 			$banks  = Bank::orderBy('code', 'asc')->get(); //List of banks
 			$account_types = LedgerBankAccount::getAccountTypes(); //List of AccountTypes
 			$types = Finance::TYPES; //Prepares Finance types array to be used on vue component
@@ -354,8 +354,11 @@ class FinancialController extends Controller
 
 			// Download report
 			if (Input::get('submit') && Input::get('submit') == 'Download_Report') {
+				//limit of 10000 rows in csv file
+				$balance = Finance::getLedgerDetailedBalanceByPeriod($holder->ledger->id, $typeEntry, $startDate, $endDate, null, 10000);
 				return $this->downloadFinancialReport($type, $holder, $balance, $startDate, $endDate);
 			} else {
+				$balance = Finance::getLedgerDetailedBalanceByPeriod($holder->ledger->id, $typeEntry, $startDate, $endDate, null, null);
 				return View::make("finance::financial.account_summary")
 					->with([
 						'id' => $id,
