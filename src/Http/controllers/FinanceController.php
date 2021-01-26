@@ -183,13 +183,18 @@ class FinanceController extends Controller {
 					$typeEntry = '';
 				}
 				if($holder && $holder->ledger){
-					$startDate =  Input::has('start_date_created') ? 
-						Carbon::createFromFormat('d/m/Y', $start_date_created)->format('Y-m-d 00:00:00') :
-						date('Y-m-d', strtotime($holder->created_at));
 
-					$endDate = Input::has('end_date_created') ? 
-						Carbon::createFromFormat('d/m/Y', $end_date_created)->format('Y-m-d 23:59:59') :
-						date('Y-m-d 23:59:59');
+					if($start_date_created) {
+						$startDate = Carbon::createFromFormat('d/m/Y', $start_date_created)->format('Y-m-d 00:00:00');
+					} else {
+						$startDate = date('Y-m-d', strtotime($holder->created_at));
+					}
+
+					if($end_date_created) {
+						$endDate = Carbon::createFromFormat('d/m/Y', $end_date_created)->format('Y-m-d 23:59:59');
+					} else {
+						$endDate = date('Y-m-d 23:59:59');
+					}
 
 					$startDateCompensation = Input::has('start-date-compensation') ? date("Y-m-d 0:0:0", strtotime(Input::get('start-date-compensation'))) : date('Y-m-d 23:59:59');
 					$endDateCompensation = Input::has('end-date-compensation') ? date("Y-m-d 23:59:59", strtotime(Input::get('end-date-compensation'))) : date('Y-m-d 23:59:59');
