@@ -3,8 +3,6 @@
 namespace Codificar\Finance\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 
 // Importar models
 use Codificar\Finance\Models\LibModel;
@@ -16,6 +14,7 @@ use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetCardsAndBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceFormRequest;
+use Codificar\Finance\Http\Requests\AddCardUserFormRequest;
 
 //Resource
 use Codificar\Finance\Http\Resources\ProviderProfitsResource;
@@ -25,9 +24,10 @@ use Codificar\Finance\Http\Resources\AddCreditCardBalanceResource;
 use Codificar\Finance\Http\Resources\AddBilletBalanceResource;
 
 use Carbon\Carbon;
+use Auth;
 
 use Input, Validator, View, Response, Session;
-use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction;
+use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment;
 
 class FinanceController extends Controller {
 	use PartnerFilter;
@@ -535,6 +535,64 @@ class FinanceController extends Controller {
 	}
 
 	
+	public function userPayment(Request $request)
+    {
+		$user_id = Auth::guard("clients")->user()->id;
+        $user = User::find($user_id);
+        $user_cards = $user->payments;
+        $user_balance = $user->getBalance();
+		
+		return View::make('finance::payment.payment')
+						->with('enviroment', 'user')
+                        ->with('user_balance', $user_balance)
+						->with('user_cards', $user_cards)
+						->with('add_billet_balance_user', Settings::where('key', 'add_billet_balance_user')->first()->value)
+						->with('add_balance_min', Settings::where('key', 'add_balance_min')->first()->value)
+						->with('add_balance_billet_tax', Settings::where('key', 'add_balance_billet_tax')->first()->value)
+						->with('add_card_balance_user', Settings::where('key', 'add_card_balance_user')->first()->value);
+
+
+	}
+
+	public function deleteUserCard() {
+
+
+		$user_id = Auth::guard("clients")->user()->id;
+        $user = User::find($user_id);
+
+		$card_id = Input::get('card_id');
+
+		$validator = Validator::make(
+			array(
+				'card_id' => $card_id
+			), array(
+				'card_id' => 'required'
+			), array(
+				'card_id' => trans('userController.unique_card_id_missing')
+			)
+		);
+
+		if ($validator->fails()) {
+			$error_messages = $validator->messages()->all();
+			$response_array = array('success' => false, 'data' => null, 'error' => array('code' => \ApiErrors::BAD_REQUEST, 'messages' => $error_messages));
+			$response_code = 200;
+		} else {
+                $payment = Payment::deleteByIdAndUserId($card_id, $user->id);
+                
+                $response_array = array(
+                    'success' => $payment["success"],
+                    'payments' => $payment["data"],
+                    'error' => $payment["error"]
+                );
+
+                $response_code = 200;
+				
+		}
+
+		$response = Response::json($response_array, $response_code);
+		return $response;
+	}
+	
 	public function addCreditCardBalance(AddCreditCardBalanceFormRequest $request) {
 
 		$user = $request->user;
@@ -644,5 +702,27 @@ class FinanceController extends Controller {
 		$data['addBalanceMin'] = Settings::where('key', 'add_balance_min')->first()->value;
 		$data['addBalanceBilletTax'] = Settings::where('key', 'add_balance_billet_tax')->first()->value;
 		return $data;
+	}
+
+	public function addCreditCard(AddCardUserFormRequest $request) {
+		$type = Request::segment(1);
+		\Log::debug($type . " - " . Finance::TYPE_USER);
+		switch($type){
+			case Finance::TYPE_USER:
+				$id = Auth::guard("clients")->user()->id;
+				$holder = User::find($id);
+			break;
+		}
+		
+		$data = array();
+		$payment = new Payment;
+		$payment->user_id = $holder->id;
+		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvc, $request->cardHolder);
+
+		if($return['success']){
+            return new AddCardUserResource($payment);
+		} else {
+			return response()->json(['message' => $return['message'],'success'=> false, 'type' => $return['type'], 'card' => $payment]);
+		}
 	}
 }

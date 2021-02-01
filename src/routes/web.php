@@ -37,13 +37,18 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
         Route::post('/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'LedgerBankAccountController@createUserBankAccount'));    
     });
-    
+
     //Rotas do user (web)
     Route::group(['prefix' => '/user/libs/finance', 'middleware' => 'auth.user'], function () {
         Route::get('/', array('as' => 'webUserAccountStatement', 'uses' => 'FinancialController@userProviderCheckingAccount'));
         Route::get('/summary', array('as' => 'userAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));
         Route::post('/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
         Route::post('/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'LedgerBankAccountController@createUserBankAccount'));    
+        Route::get('/payment', array('as' => 'userPayment', 'uses' => 'FinanceController@userPayment'));
+        Route::get('/payment/add_credit_card_balance', array('as' => 'userRequestPayment', 'uses' => 'FinanceController@addCreditCardBalance'));
+        Route::get('/payment/add_billet_balance', array('as' => 'userAddNewBillet', 'uses' => 'FinanceController@addBilletBalance'));
+        Route::post('/payment/deleteusercard', array('as' => 'userDeleteUserCard', 'uses' => 'FinanceController@deleteUserCard'));
+        Route::post('/payment/add_credit_card', array('as' => 'userAddCreditCard', 'uses' => 'FinanceController@addCreditCard'));
     });
 
     Route::group(['prefix' => '/corp/libs/finance' ,'middleware' => ['auth.corp_api', 'cors']], function (){

@@ -141,6 +141,20 @@ return array(
 	'cancel'						=> 'Cancelar',
 	'without'						=> 'sem',
 
+	'value_to_pay'					=> 'Valor a Pagar',
+	'change_value'					=> 'Alterar valor',
+	'insert_value'					=> 'Insira o Valor',
+	'new_billet'					=> 'Pagar no Boleto',
+	'payment_card'					=> 'Pagar no Cartão',
+	'add_balance'					=> 'Adicionar Saldo',
+
+	'new_card'						=> 'Novo Cartão',
+	'card_number'					=> 'Número do Cartão',
+	'card_holder_name'				=> 'Nome do Portador do Cartão',
+	'cvv'							=> 'CVV',
+	'card_declined'					=> 'Cartão Recusado',
+	'card_added'					=> 'Carttão Adicionado',
+	
 	'monthNames' => array(
 									'',
 									'Janeiro - :y',
