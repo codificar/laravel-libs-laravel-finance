@@ -73,6 +73,7 @@ export default {
      */
     addCard() {
       $("#modal-add-credit-card").modal("show");
+      $("#modal-card-selected").modal("hide");
     },
 
     selectCardPayment() {
@@ -110,6 +111,7 @@ export default {
               this.card_cvv = "";
               this.card_exp = "";
               $("#modal-add-credit-card").modal("hide");
+              $("#modal-card-selected").modal("show");
             } else {
               this.showErrorMsg(response.data);
             }
@@ -129,6 +131,8 @@ export default {
         titleError = errData.type;
       else if(errData && errData.error) 
         titleError = errData.error;
+      else if(errData)
+        titleError = errData;
       else 
         titleError = this.trans("finance.card_declined");
 
@@ -148,20 +152,9 @@ export default {
         showCancelButton: true,
         inputValidator: (value) => {
           return (
-            (parseFloat(value) < 0 &&
+            parseFloat(value) < 0 &&
               parseFloat(this.user_balance) > 0 &&
-              this.trans("payment.value_cant_be_lower") +
-                " " +
-                this.number_format(0, 2, ",", " ")) ||
-            (parseFloat(value) < -1 * parseFloat(this.user_balance) &&
-              this.trans("payment.value_cant_be_lower") +
-                " " +
-                this.number_format(
-                  -1 * parseFloat(this.user_balance),
-                  2,
-                  ",",
-                  " "
-                ))
+              this.trans("finance.value_cant_be_lower") + " 0,00" 
           );
         },
       }).then((result) => {
@@ -174,10 +167,7 @@ export default {
       var minValue = this.add_balance_min ? parseFloat(this.add_balance_min) : 0;
       if (this.value == 0 || this.value < minValue) {
         this.$swal({
-          title:
-            this.trans("payment.value_cant_be_lower") +
-            " " +
-            this.number_format(minValue, 2, ",", " "),
+          title: this.trans("finance.value_cant_be_lower") + " " + minValue.toFixed(2),
           type: "error",
         });
         return;
@@ -186,10 +176,10 @@ export default {
       var textMsg = "";
       if(this.add_billet_balance_user && this.add_balance_billet_tax && parseFloat(this.add_balance_billet_tax) > 0) {
         totalBillet = parseFloat(this.value) + parseFloat(this.add_balance_billet_tax);
-        textMsg = this.trans("finance.add_balance_billet_tax") + ": R$ " + this.number_format(this.add_balance_billet_tax, 2, ",", " ") + ". " + this.trans("finance.billet_value_with_tax") + ": R$ " + this.number_format(totalBillet, 2, ",", " ");
+        textMsg = this.trans("finance.add_balance_billet_tax") + ": R$ " + this.add_balance_billet_tax.toFixed(2) + ". " + this.trans("finance.billet_value_with_tax") + ": R$ " + totalBillet.toFixed(2);
       } else {
         totalBillet = parseFloat(this.value);
-        textMsg = this.trans("finance.confirm_create_billet_msg") + ": R$ " + this.number_format(totalBillet, 2, ",", " ");
+        textMsg = this.trans("finance.confirm_create_billet_msg") + ": R$ " + totalBillet.toFixed(2);
 
       }
 
@@ -208,27 +198,26 @@ export default {
                 value: totalBillet,
               })
               .then((response) => {
+                console.log("rewsp: ", response)
                 if (response.data.success) {
                   this.$swal({
                     title: this.trans("finance.billet_success"),
                     html:
                       '<label class="alert alert-warning alert-dismissable text-left">' +
-                        this.trans("finance.billet_success_msg") + " " + '<a href="' + response.data.billet_link + '" target="_blank">clique aqui</a>' +
+                        this.trans("finance.billet_success_msg") + " " + '<a href="' + response.data.billet_url + '" target="_blank">clique aqui</a>' +
                       '</label>',
                     type: "success",
                   }).then((result) => {
-                    window.location = this.financial_report_route;
+                    window.location.reload();
                   });
                 } else {
-                  this.$swal({
-                    title: this.trans(response.data.message),
-                    type: "error",
-                  });
+                  this.showErrorMsg(response.data);
                 }
               })
               .catch((error) => {
                 console.log(error);
                 reject(error);
+                this.showErrorMsg("Erro ao gerar boleto");
                 return false;
               });
           });
@@ -239,23 +228,20 @@ export default {
       let card = this.cards_list.find((card) => card.id === this.pay_card);
       if (!card) {
         this.$swal({
-          title: this.trans("finance.choose"),
+          title: this.trans("finance.choose_card"),
           type: "error",
         });
         return;
       }
       if (this.value <= 0) {
         this.$swal({
-          title:
-            this.trans("payment.value_cant_be_lower") +
-            " " +
-            this.number_format(0, 2, ",", " "),
+          title: this.trans("finance.value_cant_be_lower") + " 0,00",
           type: "error",
         });
         return;
       }
       this.$swal({
-        title: this.trans("payment.confirm_payment"),
+        title: this.trans("finance.confirm_payment"),
         text:
           this.trans("finance.ride_card_payment") +
           ": " +
@@ -276,32 +262,35 @@ export default {
       new Promise((resolve, reject) => {
         axios
           .post(this.request_payment_route, {
-            payment_id: this.pay_card,
+            card_id: this.pay_card,
             value: this.value,
           })
           .then((response) => {
             if (response.data.success) {
               this.$swal({
                 title: this.trans(
-                  "providerController.payment_creditcard_success"
+                  "finance.payment_creditcard_success"
                 ),
                 type: "success",
               }).then((result) => {
-                window.location = this.financial_report_route;
+                window.location.reload();
               });
             } else {
-              this.$swal({
-                title: this.trans(response.data.message),
-                type: "error",
-              });
+              this.showErrorMsg(response.data);
             }
           })
           .catch((error) => {
             console.log(error);
             reject(error);
+            this.showErrorMsg();
             return false;
           });
       });
+    },
+    formatNumber(num) {
+      let numF = parseFloat(num).toFixed(2);
+      numF = numF.toString().replace('.',',');
+      return "R$ " + numF;
     },
     alertDeleteCard(card_id, last_four) {
       this.$swal({
@@ -322,7 +311,7 @@ export default {
               .then((response) => {
                 if (response.data.success) {
                   this.$swal({
-                    title: this.trans("providerController.card_removed"),
+                    title: this.trans("finance.card_removed"),
                     type: "success",
                   }).then((result) => {
                     window.location.reload();
@@ -383,7 +372,7 @@ export default {
           <div class="row">
             <div class="col-sm-12">
               <h2 style="text-align: center;" class="card-title text-black">
-                {{trans("finance.value_to_pay") + ": R$ " + value, 2, ",", " "}}
+                {{trans("finance.value_to_pay") + ": " + formatNumber(value) }}
               </h2>
             </div>
             <div class="col-sm-10">
@@ -460,7 +449,7 @@ export default {
                         
                         <div
                           data-toggle="buttons"
-                          class="btn-group-vertical col-md-6"
+                          class="btn-group-vertical col-sm-7"
                           aria-label="Toolbar with button groups"
                         >
                           <label

@@ -1,4 +1,22 @@
-@extends('layout.user.master')
+<?php $layout = ''; ?>
+@switch($enviroment)
+    @case('admin')
+		<?php $layout = '.master'; ?>
+        @break
+
+	@case('corp')
+		<?php $layout = '.corp.master'; ?>
+        @break
+	
+	@case('user')
+		<?php $layout = '.user.master'; ?>
+	@break
+
+    @default
+		@break
+@endswitch
+@extends('layout'.$layout)
+
 
 @section('breadcrumbs')
 <div class="row page-titles">

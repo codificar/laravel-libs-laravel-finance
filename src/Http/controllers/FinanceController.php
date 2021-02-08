@@ -15,6 +15,8 @@ use Codificar\Finance\Http\Requests\GetCardsAndBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddCardUserFormRequest;
+use Codificar\Finance\Http\Requests\AddCreditCardBalanceWebFormRequest;
+use Codificar\Finance\Http\Requests\AddBilletBalanceWebFormRequest;
 
 //Resource
 use Codificar\Finance\Http\Resources\ProviderProfitsResource;
@@ -22,12 +24,13 @@ use Codificar\Finance\Http\Resources\GetFinancialSummaryByTypeAndDateResource;
 use Codificar\Finance\Http\Resources\GetCardsAndBalanceResource;
 use Codificar\Finance\Http\Resources\AddCreditCardBalanceResource;
 use Codificar\Finance\Http\Resources\AddBilletBalanceResource;
+use Codificar\Finance\Http\Resources\AddCardUserResource;
 
 use Carbon\Carbon;
 use Auth;
 
 use Input, Validator, View, Response, Session;
-use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment;
+use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution;
 
 class FinanceController extends Controller {
 	use PartnerFilter;
@@ -537,13 +540,26 @@ class FinanceController extends Controller {
 	
 	public function userPayment(Request $request)
     {
-		$user_id = Auth::guard("clients")->user()->id;
-        $user = User::find($user_id);
-        $user_cards = $user->payments;
-        $user_balance = $user->getBalance();
+		$type = Request::segment(1);
+		switch($type){
+			case Finance::TYPE_USER:
+				$id = \Auth::guard("clients")->user()->id;
+				$holder = User::find($id);
+				$enviroment = 'user';
+			break;
+			case Finance::TYPE_CORP:
+				$admin_id = \Auth::guard("web")->user()->id;
+				$holder = AdminInstitution::getUserByAdminId($admin_id);
+				$id = $holder->id;
+				$enviroment = 'corp';
+			break;
+		}
+		
+        $user_cards = $holder->payments;
+        $user_balance = $holder->getBalance();
 		
 		return View::make('finance::payment.payment')
-						->with('enviroment', 'user')
+						->with('enviroment', $enviroment)
                         ->with('user_balance', $user_balance)
 						->with('user_cards', $user_cards)
 						->with('add_billet_balance_user', Settings::where('key', 'add_billet_balance_user')->first()->value)
@@ -556,9 +572,20 @@ class FinanceController extends Controller {
 
 	public function deleteUserCard() {
 
-
-		$user_id = Auth::guard("clients")->user()->id;
-        $user = User::find($user_id);
+		$type = Request::segment(1);
+		switch($type){
+			case Finance::TYPE_USER:
+				$id = \Auth::guard("clients")->user()->id;
+				$holder = User::find($id);
+				$enviroment = 'user';
+			break;
+			case Finance::TYPE_CORP:
+				$admin_id = \Auth::guard("web")->user()->id;
+				$holder = AdminInstitution::getUserByAdminId($admin_id);
+				$id = $holder->id;
+				$enviroment = 'corp';
+			break;
+		}
 
 		$card_id = Input::get('card_id');
 
@@ -577,7 +604,7 @@ class FinanceController extends Controller {
 			$response_array = array('success' => false, 'data' => null, 'error' => array('code' => \ApiErrors::BAD_REQUEST, 'messages' => $error_messages));
 			$response_code = 200;
 		} else {
-                $payment = Payment::deleteByIdAndUserId($card_id, $user->id);
+                $payment = Payment::deleteByIdAndUserId($card_id, $holder->id);
                 
                 $response_array = array(
                     'success' => $payment["success"],
@@ -592,12 +619,9 @@ class FinanceController extends Controller {
 		$response = Response::json($response_array, $response_code);
 		return $response;
 	}
-	
-	public function addCreditCardBalance(AddCreditCardBalanceFormRequest $request) {
 
-		$user = $request->user;
+	private function addCreditCardBalance($value, $user, $cardId) {
 		$ledgerId = $user->ledger->id;
-		$cardId = $request->card_id;
 		//Check if the card is the user
 		$payment = LibModel::getCreditCard($user->id, $cardId);
 		$data = array();
@@ -609,11 +633,11 @@ class FinanceController extends Controller {
 		} else {
 			//Tenta realizar a cobranca com o cartao
 			$gateway = PaymentFactory::createGateway();
-			$return = $gateway->charge($payment, $request->value, trans('financeTrans::finance.single_credit'), true);
+			$return = $gateway->charge($payment, $value, trans('financeTrans::finance.single_credit'), true);
 			
 			//Se conseguiu cobrar no cartao, entao adicionar um saldo para o usuario, senao, retorna erro
 			if($return['success'] && $return['captured'] == 'true') {
-				$financeEntry = Finance::createCustomEntry($user->ledger->id, 'SEPARATE_CREDIT', trans('financeTrans::finance.single_credit'), $request->value, null, null);
+				$financeEntry = Finance::createCustomEntry($user->ledger->id, 'SEPARATE_CREDIT', trans('financeTrans::finance.single_credit'), $value, null, null);
 				if($financeEntry) {
 					$data['success']	= true;
 					$data['error']		= null; 
@@ -627,26 +651,44 @@ class FinanceController extends Controller {
 		}
 
         return new AddCreditCardBalanceResource($data);
-    }
+	}
+	
+	public function addCreditCardBalanceWeb(AddCreditCardBalanceWebFormRequest $request) {
+		
+		$type = Request::segment(1);
+		switch($type){
+			case Finance::TYPE_USER:
+				$id = Auth::guard("clients")->user()->id;
+				$holder = User::find($id);
+			break;
+			case Finance::TYPE_CORP:
+				$admin_id = \Auth::guard("web")->user()->id;
+				$holder = AdminInstitution::getUserByAdminId($admin_id);
+				$id = $holder->id;
+			break;
+		}
+		return $this->addCreditCardBalance($request->value, $holder, $request->card_id);
+	}
+
+	public function addCreditCardBalanceApp(AddCreditCardBalanceFormRequest $request) {
+		return $this->addCreditCardBalance($request->value, $request->user, $request->card_id);
+	}
 
 
-	public function addBilletBalance(AddBilletBalanceFormRequest $request) {
+	private function newBillet($value, $user) {
 
-		$user = $request->user;
-		$ledgerId = $user->ledger->id;
 		$data = array();
 		
 		$billetTax = (float) Settings::where('key', 'add_balance_billet_tax')->first()->value;
-		$value = $request->value + $billetTax;
+		$value = $value + $billetTax;
 		$postBack = route('GatewayPostbackBillet') . "/" . $user->ledger->id;
-
 		$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
 		$gateway = PaymentFactory::createGateway();
 		$payment = $gateway->billetCharge($value, $user, $postBack, $billetExpiration, "Adicionar saldo em conta.");
 		
 		if($payment['success']){
 			$billet_link = $payment['billet_url'];
-			$billet_barcode = $payment['billet_barcode'];
+			$billet_barcode = isset($payment['billet_barcode']) ? $payment['billet_barcode'] : '';
 			$gateway_transaction_id = $payment['transaction_id'];
 
 			$paymentTax = $gateway->getGatewayTax();
@@ -695,6 +737,31 @@ class FinanceController extends Controller {
         return new AddBilletBalanceResource($data);
 	}
 	
+	public function addBilletBalanceWeb(AddBilletBalanceWebFormRequest $request) {
+
+		$type = Request::segment(1);
+		switch($type){
+			case Finance::TYPE_USER:
+				$id = Auth::guard("clients")->user()->id;
+				$holder = User::find($id);
+			break;
+			case Finance::TYPE_CORP:
+				$admin_id = \Auth::guard("web")->user()->id;
+				$holder = AdminInstitution::getUserByAdminId($admin_id);
+				$id = $holder->id;
+			break;
+		}
+		return $this->newBillet($request->value, $holder);
+	}
+
+
+	public function addBilletBalance(AddBilletBalanceFormRequest $request) {
+
+		$user = $request->user;
+		$ledgerId = $user->ledger->id;
+		return $this->newBillet($request->value, $user);
+	}
+	
 	private function getAddBalanceSettings() {
 		$data = array();
 		$data['addBilletBalanceUser'] = Settings::where('key', 'add_billet_balance_user')->first()->value;
@@ -706,11 +773,15 @@ class FinanceController extends Controller {
 
 	public function addCreditCard(AddCardUserFormRequest $request) {
 		$type = Request::segment(1);
-		\Log::debug($type . " - " . Finance::TYPE_USER);
 		switch($type){
 			case Finance::TYPE_USER:
 				$id = Auth::guard("clients")->user()->id;
 				$holder = User::find($id);
+			break;
+			case Finance::TYPE_CORP:
+				$admin_id = \Auth::guard("web")->user()->id;
+				$holder = AdminInstitution::getUserByAdminId($admin_id);
+				$id = $holder->id;
 			break;
 		}
 		

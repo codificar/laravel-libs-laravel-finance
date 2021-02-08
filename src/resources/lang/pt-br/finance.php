@@ -153,7 +153,17 @@ return array(
 	'card_holder_name'				=> 'Nome do Portador do Cartão',
 	'cvv'							=> 'CVV',
 	'card_declined'					=> 'Cartão Recusado',
-	'card_added'					=> 'Carttão Adicionado',
+	'card_added'					=> 'Cartão Adicionado',
+	'card_removed'					=> 'Cartão Removido',
+	'confirm_payment'				=> 'Confirmar Pagamento',
+	'choose_card'					=> 'Escolha um cartão',
+	'payment_creditcard_success'	=> 'Pagamento Realizado com Sucesso!',
+	'value_cant_be_lower'			=> 'Valor não pode ser menor que',
+	'confirm_create_billet'			=> 'Confirmar pagamento',
+	'confirm_create_billet_msg'		=> 'Tem certeza que deseja gerar um boleto no valor de',
+	'confirm'						=> 'Confirmar',
+	'billet_success'				=> 'Boleto gerado com sucesso!',
+	'billet_success_msg'			=> 'Para visualizar o boleto ',
 	
 	'monthNames' => array(
 									'',
