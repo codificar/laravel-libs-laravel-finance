@@ -641,7 +641,7 @@ class FinanceController extends Controller {
 
 		$data = array();
 		
-		$billetTax = (float) Settings::where('key', 'add_balance_billet_tax')->first()->value;
+		$billetTax = (float) Settings::findByKey('prepaid_tax_billet');
 		$value = $value + $billetTax;
 		$postBack = route('GatewayPostbackBillet') . "/" . $holder->ledger->id;
 		$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
