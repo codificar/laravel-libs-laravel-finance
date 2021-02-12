@@ -36,6 +36,13 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/', array('as' => 'webProviderAccountStatement', 'uses' => 'FinancialController@userProviderCheckingAccount'));
         Route::post('/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
         Route::post('/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'LedgerBankAccountController@createUserBankAccount'));    
+    
+        //Pre-paid Payment Apis
+        Route::get('/payment', array('as' => 'providerPayment', 'uses' => 'FinanceController@userPayment'));
+        Route::post('/payment/add_credit_card_balance', array('as' => 'providerRequestPayment', 'uses' => 'FinanceController@addCreditCardBalanceWeb'));
+        Route::post('/payment/add_billet_balance', array('as' => 'providerAddNewBillet', 'uses' => 'FinanceController@addBilletBalanceWeb'));
+        Route::post('/payment/deleteusercard', array('as' => 'providerDeleteUserCard', 'uses' => 'FinanceController@deleteUserCard'));
+        Route::post('/payment/add_credit_card', array('as' => 'providerAddCreditCard', 'uses' => 'FinanceController@addCreditCard'));
     });
 
     //Rotas do user (web)

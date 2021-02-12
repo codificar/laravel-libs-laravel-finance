@@ -540,26 +540,13 @@ class FinanceController extends Controller {
 	
 	public function userPayment(Request $request)
     {
-		$type = Request::segment(1);
-		switch($type){
-			case Finance::TYPE_USER:
-				$id = \Auth::guard("clients")->user()->id;
-				$holder = User::find($id);
-				$enviroment = 'user';
-			break;
-			case Finance::TYPE_CORP:
-				$admin_id = \Auth::guard("web")->user()->id;
-				$holder = AdminInstitution::getUserByAdminId($admin_id);
-				$id = $holder->id;
-				$enviroment = 'corp';
-			break;
-		}
+		$enviroment = $this->getEnviroment();
 		
-        $user_cards = $holder->payments;
-        $user_balance = $holder->getBalance();
+        $user_cards = $enviroment['holder']->payments;
+        $user_balance = $enviroment['holder']->getBalance();
 		
 		return View::make('finance::payment.payment')
-						->with('enviroment', $enviroment)
+						->with('enviroment', $enviroment['type'])
                         ->with('user_balance', $user_balance)
 						->with('user_cards', $user_cards)
 						->with('add_billet_balance_user', Settings::where('key', 'add_billet_balance_user')->first()->value)
@@ -571,59 +558,45 @@ class FinanceController extends Controller {
 	}
 
 	public function deleteUserCard() {
-
-		$type = Request::segment(1);
-		switch($type){
-			case Finance::TYPE_USER:
-				$id = \Auth::guard("clients")->user()->id;
-				$holder = User::find($id);
-				$enviroment = 'user';
-			break;
-			case Finance::TYPE_CORP:
-				$admin_id = \Auth::guard("web")->user()->id;
-				$holder = AdminInstitution::getUserByAdminId($admin_id);
-				$id = $holder->id;
-				$enviroment = 'corp';
-			break;
-		}
-
+		$enviroment = $this->getEnviroment();
 		$card_id = Input::get('card_id');
 
 		$validator = Validator::make(
-			array(
-				'card_id' => $card_id
-			), array(
-				'card_id' => 'required'
-			), array(
-				'card_id' => trans('userController.unique_card_id_missing')
-			)
+			array('card_id' => $card_id), 
+			array('card_id' => 'required'), 
+			array('card_id' => trans('userController.unique_card_id_missing'))
 		);
 
 		if ($validator->fails()) {
 			$error_messages = $validator->messages()->all();
 			$response_array = array('success' => false, 'data' => null, 'error' => array('code' => \ApiErrors::BAD_REQUEST, 'messages' => $error_messages));
-			$response_code = 200;
 		} else {
-                $payment = Payment::deleteByIdAndUserId($card_id, $holder->id);
-                
-                $response_array = array(
-                    'success' => $payment["success"],
-                    'payments' => $payment["data"],
-                    'error' => $payment["error"]
-                );
 
-                $response_code = 200;
+			if($enviroment['type'] == 'user') 
+				$payment = Payment::deleteByIdAndUserId($card_id, $enviroment['holder']->id);
+			else 
+				$payment = Payment::deleteByIdAndProviderId($card_id, $enviroment['holder']->id);
+
+			$response_array = array(
+				'success' => $payment["success"],
+				'payments' => $payment["data"],
+				'error' => $payment["error"]
+			);
 				
 		}
 
-		$response = Response::json($response_array, $response_code);
+		$response = Response::json($response_array, 200);
 		return $response;
 	}
 
-	private function addCreditCardBalance($value, $user, $cardId) {
-		$ledgerId = $user->ledger->id;
-		//Check if the card is the user
-		$payment = LibModel::getCreditCard($user->id, $cardId);
+	private function addCreditCardBalance($value, $holder, $cardId, $envType) {
+		$ledgerId = $holder->ledger->id;
+
+		if($envType == 'provider')
+			$payment = LibModel::getCreditCardProvider($holder->id, $cardId);
+		else
+			$payment = LibModel::getCreditCardUser($holder->id, $cardId);
+
 		$data = array();
 		//Se nao encontrou o card, entao da erro
 		if(!$payment) {
@@ -635,9 +608,9 @@ class FinanceController extends Controller {
 			$gateway = PaymentFactory::createGateway();
 			$return = $gateway->charge($payment, $value, trans('financeTrans::finance.single_credit'), true);
 			
-			//Se conseguiu cobrar no cartao, entao adicionar um saldo para o usuario, senao, retorna erro
+			//Se conseguiu cobrar no cartao, entao adicionar um saldo para o usuario/prestador, senao, retorna erro
 			if($return['success'] && $return['captured'] == 'true') {
-				$financeEntry = Finance::createCustomEntry($user->ledger->id, 'SEPARATE_CREDIT', trans('financeTrans::finance.single_credit'), $value, null, null);
+				$financeEntry = Finance::createCustomEntry($holder->ledger->id, 'SEPARATE_CREDIT', trans('financeTrans::finance.single_credit'), $value, null, null);
 				if($financeEntry) {
 					$data['success']	= true;
 					$data['error']		= null; 
@@ -655,36 +628,25 @@ class FinanceController extends Controller {
 	
 	public function addCreditCardBalanceWeb(AddCreditCardBalanceWebFormRequest $request) {
 		
-		$type = Request::segment(1);
-		switch($type){
-			case Finance::TYPE_USER:
-				$id = Auth::guard("clients")->user()->id;
-				$holder = User::find($id);
-			break;
-			case Finance::TYPE_CORP:
-				$admin_id = \Auth::guard("web")->user()->id;
-				$holder = AdminInstitution::getUserByAdminId($admin_id);
-				$id = $holder->id;
-			break;
-		}
-		return $this->addCreditCardBalance($request->value, $holder, $request->card_id);
+		$enviroment = $this->getEnviroment();
+		return $this->addCreditCardBalance($request->value, $enviroment['holder'], $request->card_id, $enviroment['type']);
 	}
 
 	public function addCreditCardBalanceApp(AddCreditCardBalanceFormRequest $request) {
-		return $this->addCreditCardBalance($request->value, $request->user, $request->card_id);
+		return $this->addCreditCardBalance($request->value, $request->user, $request->card_id, 'user');
 	}
 
 
-	private function newBillet($value, $user) {
+	private function newBillet($value, $holder, $envType) {
 
 		$data = array();
 		
 		$billetTax = (float) Settings::where('key', 'add_balance_billet_tax')->first()->value;
 		$value = $value + $billetTax;
-		$postBack = route('GatewayPostbackBillet') . "/" . $user->ledger->id;
+		$postBack = route('GatewayPostbackBillet') . "/" . $holder->ledger->id;
 		$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
 		$gateway = PaymentFactory::createGateway();
-		$payment = $gateway->billetCharge($value, $user, $postBack, $billetExpiration, "Adicionar saldo em conta.");
+		$payment = $gateway->billetCharge($value, $holder, $postBack, $billetExpiration, "Adicionar saldo em conta.");
 		
 		if($payment['success']){
 			$billet_link = $payment['billet_url'];
@@ -716,12 +678,18 @@ class FinanceController extends Controller {
 					'expiration' => Carbon::parse($billetExpiration)->format('d/m/y'),
 					'billet_url' => $billet_link,
 				);
-				email_notification($user->id, 'user', $vars, $subject, $key_email, null);	
+				email_notification(
+					$holder->id, 
+					$envType == 'provider' ? 'provider' : 'user', 
+					$vars, 
+					$subject, 
+					$key_email, 
+					null
+				);	
 			} catch(\Exception $e){
 				\Log::error("Erro ao enviar boleto por email.");
 				\Log::error($e->getMessage());
 			}
-			
 			
 		} else {
 			return response()->json($payment, 503);
@@ -738,20 +706,8 @@ class FinanceController extends Controller {
 	}
 	
 	public function addBilletBalanceWeb(AddBilletBalanceWebFormRequest $request) {
-
-		$type = Request::segment(1);
-		switch($type){
-			case Finance::TYPE_USER:
-				$id = Auth::guard("clients")->user()->id;
-				$holder = User::find($id);
-			break;
-			case Finance::TYPE_CORP:
-				$admin_id = \Auth::guard("web")->user()->id;
-				$holder = AdminInstitution::getUserByAdminId($admin_id);
-				$id = $holder->id;
-			break;
-		}
-		return $this->newBillet($request->value, $holder);
+		$enviroment = $this->getEnviroment();
+		return $this->newBillet($request->value, $enviroment['holder'], $enviroment['type']);
 	}
 
 
@@ -759,7 +715,7 @@ class FinanceController extends Controller {
 
 		$user = $request->user;
 		$ledgerId = $user->ledger->id;
-		return $this->newBillet($request->value, $user);
+		return $this->newBillet($request->value, $user, 'user');
 	}
 	
 	private function getAddBalanceSettings() {
@@ -772,22 +728,16 @@ class FinanceController extends Controller {
 	}
 
 	public function addCreditCard(AddCardUserFormRequest $request) {
-		$type = Request::segment(1);
-		switch($type){
-			case Finance::TYPE_USER:
-				$id = Auth::guard("clients")->user()->id;
-				$holder = User::find($id);
-			break;
-			case Finance::TYPE_CORP:
-				$admin_id = \Auth::guard("web")->user()->id;
-				$holder = AdminInstitution::getUserByAdminId($admin_id);
-				$id = $holder->id;
-			break;
-		}
+		$enviroment = $this->getEnviroment();
 		
 		$data = array();
 		$payment = new Payment;
-		$payment->user_id = $holder->id;
+		if($enviroment['type'] == 'provider') {
+			$payment->provider_id = $enviroment['holder']->id;
+		} else {
+			$payment->user_id = $enviroment['holder']->id;
+		}
+		
 		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvc, $request->cardHolder);
 
 		if($return['success']){
@@ -795,5 +745,32 @@ class FinanceController extends Controller {
 		} else {
 			return response()->json(['message' => $return['message'],'success'=> false, 'type' => $return['type'], 'card' => $payment]);
 		}
+	}
+
+	private function getEnviroment() {
+		$type = Request::segment(1);
+		switch($type){
+			case Finance::TYPE_USER:
+				$id = Auth::guard("clients")->user()->id;
+				$holder = User::find($id);
+				$type = 'user';
+			break;
+			case Finance::TYPE_CORP:
+				$admin_id = \Auth::guard("web")->user()->id;
+				$holder = AdminInstitution::getUserByAdminId($admin_id);
+				$id = $holder->id;
+				$type = 'corp';
+			break;
+			case Finance::TYPE_PROVIDER:
+				$id = \Auth::guard("providers")->user()->id;
+				$holder = Provider::find($id);
+				$type = 'provider';
+			break;
+		}
+		return array(
+			'type' => $type,
+			'id' => $id,
+			'holder' => $holder
+		);
 	}
 }

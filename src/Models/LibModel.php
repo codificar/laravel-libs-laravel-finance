@@ -160,10 +160,18 @@ class LibModel extends Eloquent
 		return $payments;
 	}
 	
-	public static function getCreditCard($userId, $cardId)
+	public static function getCreditCardUser($userId, $cardId)
 	{
 		$payment = Payment::where('id', $cardId)
 			->where('user_id', $userId)
+			->first();
+
+		return $payment;
+	}
+	public static function getCreditCardProvider($providerId, $cardId)
+	{
+		$payment = Payment::where('id', $cardId)
+			->where('provider_id', $providerId)
 			->first();
 
 		return $payment;

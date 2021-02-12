@@ -2,15 +2,20 @@
 @switch($enviroment)
     @case('admin')
 		<?php $layout = '.master'; ?>
-        @break
+	@break
 
 	@case('corp')
 		<?php $layout = '.corp.master'; ?>
-        @break
+	@break
 	
 	@case('user')
 		<?php $layout = '.user.master'; ?>
 	@break
+
+	@case('provider')
+		<?php $layout = '.provider.master'; ?>
+	@break
+	
 
     @default
 		@break
