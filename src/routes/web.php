@@ -14,7 +14,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
     Route::group(['prefix' => 'libs/finance/user', 'middleware' => 'auth.user_api:api'], function () {
         Route::get('/get_cards_and_balance', 'FinanceController@getCardsAndBalance');
         Route::get('/add_billet_balance', 'FinanceController@addBilletBalance');
-        Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalance');
+        Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalanceApp');
     });
 
     // Rotas do painel web

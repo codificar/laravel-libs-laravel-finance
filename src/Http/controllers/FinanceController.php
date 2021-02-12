@@ -720,10 +720,16 @@ class FinanceController extends Controller {
 	
 	private function getAddBalanceSettings() {
 		$data = array();
-		$data['addBilletBalanceUser'] = Settings::where('key', 'add_billet_balance_user')->first()->value;
-		$data['addCardBalanceUser'] = Settings::where('key', 'add_card_balance_user')->first()->value;
-		$data['addBalanceMin'] = Settings::where('key', 'add_balance_min')->first()->value;
-		$data['addBalanceBilletTax'] = Settings::where('key', 'add_balance_billet_tax')->first()->value;
+		
+		$data['prepaid_min_billet_value']		= Settings::findByKey('prepaid_min_billet_value');
+		$data['prepaid_tax_billet'] 			= Settings::findByKey('prepaid_tax_billet');
+		$data['prepaid_billet_user'] 			= Settings::findByKey('prepaid_billet_user');
+		$data['prepaid_billet_provider']		= Settings::findByKey('prepaid_billet_provider');
+		$data['prepaid_billet_corp'] 			= Settings::findByKey('prepaid_billet_corp');
+		$data['prepaid_card_user']				= Settings::findByKey('prepaid_card_user');
+		$data['prepaid_card_provider'] 			= Settings::findByKey('prepaid_card_provider');
+		$data['prepaid_card_corp']				= Settings::findByKey('prepaid_card_corp');
+
 		return $data;
 	}
 
