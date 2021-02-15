@@ -12,7 +12,8 @@ use Codificar\Finance\Http\Requests\ProviderProfitsRequest;
 use Codificar\Finance\Http\Requests\GetProviderSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetCardsAndBalanceFormRequest;
-use Codificar\Finance\Http\Requests\GetCardsAndBalanceProviderFormRequest;
+use Codificar\Finance\Http\Requests\ProviderApiFormRequest;
+use Codificar\Finance\Http\Requests\UserApiFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddCardUserFormRequest;
@@ -543,7 +544,7 @@ class FinanceController extends Controller {
      * Retorna os cartões cadastrados pelo usuário e saldo em carteira.
      * @return json
      */
-    public function getCardsAndBalanceProvider(GetCardsAndBalanceProviderFormRequest $request) {
+    public function getCardsAndBalanceProvider(ProviderApiFormRequest $request) {
 
         $provider_id = $request->id;
         // Retorna os cartões cadastrados pelo cliente
@@ -770,16 +771,30 @@ class FinanceController extends Controller {
 
 	public function addCreditCard(AddCardUserFormRequest $request) {
 		$enviroment = $this->getEnviroment();
-		
+		return $this->newCreditCard($enviroment['holder'], $enviroment['type'], $request);
+	}
+
+
+	public function addCreditCardProvider(AddCardUserFormRequest $request) {
+		$provider = Provider::find($request->id);
+		return $this->newCreditCard($provider, 'provider', $request);
+	}
+
+	public function addCreditCardUser(AddCardUserFormRequest $request) {
+		$user = User::find($request->id);
+		return $this->newCreditCard($user, 'user', $request);
+	}
+
+	private function newCreditCard($holder, $type, $request) {
 		$data = array();
 		$payment = new Payment;
-		if($enviroment['type'] == 'provider') {
-			$payment->provider_id = $enviroment['holder']->id;
+		if($type == 'provider') {
+			$payment->provider_id = $holder->id;
 		} else {
-			$payment->user_id = $enviroment['holder']->id;
+			$payment->user_id = $holder->id;
 		}
 		
-		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvc, $request->cardHolder);
+		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv, $request->cardHolder);
 
 		if($return['success']){
             return new AddCardUserResource($payment);

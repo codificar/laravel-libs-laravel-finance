@@ -5,12 +5,12 @@ namespace Codificar\Finance\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Provider, Payment;
+use User;
 
-class GetCardsAndBalanceProviderFormRequest extends FormRequest
+class UserApiFormRequest extends FormRequest
 {
 
-    public $provider;
+    public $user;
 
     /**
      * Determine if the user is authorized to make this request.

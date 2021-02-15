@@ -12,6 +12,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/get_cards_and_balance', 'FinanceController@getCardsAndBalanceProvider');
         Route::get('/add_billet_balance', 'FinanceController@addBilletBalanceProvider');
         Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalanceAppProvider');
+        Route::post('/add_credit_card', 'FinanceController@addCreditCardProvider');
     });
 
     // Rotas do app user
@@ -19,6 +20,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/get_cards_and_balance', 'FinanceController@getCardsAndBalance');
         Route::get('/add_billet_balance', 'FinanceController@addBilletBalance');
         Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalanceApp');
+        Route::post('/add_credit_card', 'FinanceController@addCreditCardUser');
     });
 
     // Rotas do painel web

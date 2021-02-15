@@ -17,7 +17,7 @@ class AddCardUserFormRequest extends FormRequest {
 
     public $cardHolder;
     public $cardNumber;
-    public $cardCvc;
+    public $cardCvv;
     public $cardExpMonth;
     public $cardExpYear;
     public $carDate;
@@ -40,7 +40,7 @@ class AddCardUserFormRequest extends FormRequest {
     public function rules() {
         $this->cardHolder = request()->card_holder;
         $this->cardNumber = str_replace('-', '', request()->card_number);
-        $this->cardCvc = request()->card_cvv;
+        $this->cardCvv = request()->card_cvv;
         $this->cardExpMonth = request()->card_expiration_month;
         $this->cardExpYear = request()->card_expiration_year;
         $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
@@ -56,7 +56,7 @@ class AddCardUserFormRequest extends FormRequest {
             'card_number' => 'required',
             'card_expiration_year' => 'required',
             'card_expiration_month' => 'required',
-            'card_cvc' => 'required|card_cvc|digits_between:3,4',
+            'card_cvv' => 'required|digits_between:3,4',
         ];
     }
 
