@@ -33,6 +33,10 @@ class GetFinancialSummaryByTypeAndDateResource extends JsonResource
      */
     public function toArray($request)
     {
-        return $this['balance'];
+        return [
+            'success'           => true,
+            'balance'           => $this['balance'],
+            'provider_prepaid'  => $this['provider_prepaid']
+        ];
     }
 }

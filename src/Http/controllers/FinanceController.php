@@ -111,8 +111,16 @@ class FinanceController extends Controller {
 			$request->itemsPerPage
 		);
 
+		$providerPrepaid = false;
+		if((bool)Settings::findByKey("payment_prepaid") && (
+			(bool) Settings::findByKey("prepaid_billet_provider") ||
+			(bool) Settings::findByKey("prepaid_card_provider")
+		)) {
+			$providerPrepaid = true;
+		}
+
         // Retorno de dados
-        return new GetFinancialSummaryByTypeAndDateResource(['balance' => $balance]);
+        return new GetFinancialSummaryByTypeAndDateResource(['balance' => $balance, 'provider_prepaid' => $providerPrepaid]);
 	}
 
 
