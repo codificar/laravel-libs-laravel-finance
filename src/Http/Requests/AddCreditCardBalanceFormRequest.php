@@ -7,12 +7,10 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Rules\CheckUserToken;
 use App\Rules\CheckUserId;
-use User, Payment;
+use Payment;
 
 class AddCreditCardBalanceFormRequest extends FormRequest
 {
-
-    public $user;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -31,12 +29,10 @@ class AddCreditCardBalanceFormRequest extends FormRequest
      */
     public function rules()
     {
-
-        $this->user = User::whereId($this->id)->whereToken($this->token)->first();
         
         return [
-			'token'                 => ['required', 'string', new CheckUserToken($this->user) ],
-            'id'                    => ['required', 'integer', new CheckUserId($this->user)],
+			'token'                 => ['required', 'string'],
+            'id'                    => ['required', 'integer'],
             'value'                 => ['required', 'numeric'],
             'card_id'               => ['required', 'integer'],
 		];

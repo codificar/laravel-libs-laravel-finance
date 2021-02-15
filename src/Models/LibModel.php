@@ -136,17 +136,21 @@ class LibModel extends Eloquent
 					])->count();
 	}
 	
-	public static function getCardsList($userId)
+	public static function getCardsList($id, $type = 'user')
 	{
 		$payments = array();
-		$payment = DB::table('payment')
-			->where('user_id', $userId)
-			->orderBy('is_default', 'DESC')
-			->get();
+		$payment = array();
+
+		if($type == 'user') {
+			$payment = DB::table('payment')->where('user_id', $id)->orderBy('is_default', 'DESC')->get();
+		} else if($type == 'provider') {
+			$payment = DB::table('payment')->where('provider_id', $id)->orderBy('is_default', 'DESC')->get();
+		}
 
         foreach ($payment as $value) {
             $data['id'] 			= $value->id;
-            $data['user_id'] 		= $value->user_id;
+			$data['user_id'] 		= $value->user_id;
+			$data['provider_id'] 	= $value->provider_id;
             $data['customer_id'] 	= $value->customer_id;
             $data['last_four'] 		= $value->last_four;
             $data['card_token'] 	= $value->card_token;

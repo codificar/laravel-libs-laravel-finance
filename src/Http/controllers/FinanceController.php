@@ -12,6 +12,7 @@ use Codificar\Finance\Http\Requests\ProviderProfitsRequest;
 use Codificar\Finance\Http\Requests\GetProviderSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetCardsAndBalanceFormRequest;
+use Codificar\Finance\Http\Requests\GetCardsAndBalanceProviderFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddCardUserFormRequest;
@@ -523,7 +524,7 @@ class FinanceController extends Controller {
 
         $userId = $request->id;
         // Retorna os cartões cadastrados pelo cliente
-        $payments = LibModel::getCardsList($userId);
+        $payments = LibModel::getCardsList($userId, 'user');
 		$user = User::where('id', $userId)->first();
 		$ledgerId = $user->ledger->id;
         $data = array();
@@ -536,6 +537,30 @@ class FinanceController extends Controller {
 
         return new GetCardsAndBalanceResource($data);
 	}
+
+	/**
+     * @api {GET} libs/finance/provider/get_cards_and_balance
+     * Retorna os cartões cadastrados pelo usuário e saldo em carteira.
+     * @return json
+     */
+    public function getCardsAndBalanceProvider(GetCardsAndBalanceProviderFormRequest $request) {
+
+        $provider_id = $request->id;
+        // Retorna os cartões cadastrados pelo cliente
+        $payments = LibModel::getCardsList($provider_id, 'provider');
+		$provider = Provider::where('id', $provider_id)->first();
+		$ledgerId = $provider->ledger->id;
+        $data = array();
+
+		$data['success']    		= true;
+		$data['current_balance'] 	= currency_format(LibModel::sumValueByLedgerId($ledgerId));
+		$data['cards']       		= $payments;
+		$data['settings']			= $this->getAddBalanceSettings();
+		$data['error']      		= null; 
+
+        return new GetCardsAndBalanceResource($data);
+	}
+
 
 	
 	public function userPayment(Request $request)
@@ -633,7 +658,10 @@ class FinanceController extends Controller {
 	}
 
 	public function addCreditCardBalanceApp(AddCreditCardBalanceFormRequest $request) {
-		return $this->addCreditCardBalance($request->value, $request->user, $request->card_id, 'user');
+		return $this->addCreditCardBalance($request->value, User::find($request->id), $request->card_id, 'user');
+	}
+	public function addCreditCardBalanceAppProvider(AddCreditCardBalanceFormRequest $request) {
+		return $this->addCreditCardBalance($request->value, Provider::find($request->id), $request->card_id, 'provider');
 	}
 
 
@@ -713,9 +741,16 @@ class FinanceController extends Controller {
 
 	public function addBilletBalance(AddBilletBalanceFormRequest $request) {
 
-		$user = $request->user;
+		$user = User::find($request->id);
 		$ledgerId = $user->ledger->id;
 		return $this->newBillet($request->value, $user, 'user');
+	}
+
+	public function addBilletBalanceProvider(AddBilletBalanceFormRequest $request) {
+
+		$provider = Provider::find($request->id);
+		$ledgerId = $provider->ledger->id;
+		return $this->newBillet($request->value, $provider, 'provider');
 	}
 	
 	private function getAddBalanceSettings() {

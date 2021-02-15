@@ -8,6 +8,10 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/profits', 'FinanceController@getProviderProfits');
         Route::get('/financial/summary/{id}', 'FinanceController@getFinancialSummaryByTypeAndDate');
         Route::get('/financial/provider_summary', 'FinanceController@getProviderSummaryByTypeAndDate');
+
+        Route::get('/get_cards_and_balance', 'FinanceController@getCardsAndBalanceProvider');
+        Route::get('/add_billet_balance', 'FinanceController@addBilletBalanceProvider');
+        Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalanceAppProvider');
     });
 
     // Rotas do app user

@@ -5,12 +5,12 @@ namespace Codificar\Finance\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use App\Rules\CheckUserToken;
-use App\Rules\CheckUserId;
-use Payment;
+use Provider, Payment;
 
-class AddBilletBalanceFormRequest extends FormRequest
+class GetCardsAndBalanceProviderFormRequest extends FormRequest
 {
+
+    public $provider;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -32,8 +32,7 @@ class AddBilletBalanceFormRequest extends FormRequest
         
         return [
 			'token'                 => ['required', 'string'],
-            'id'                    => ['required', 'integer'],
-            'value'                 => ['required', 'numeric']
+            'id'                    => ['required', 'integer']
 		];
     }
 
@@ -45,6 +44,7 @@ class AddBilletBalanceFormRequest extends FormRequest
     protected function prepareForValidation()
     {
 
+    
     }
 
     /**
