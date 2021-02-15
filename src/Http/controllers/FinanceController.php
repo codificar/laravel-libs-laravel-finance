@@ -118,9 +118,10 @@ class FinanceController extends Controller {
 		)) {
 			$providerPrepaid = true;
 		}
+		$balance['provider_prepaid'] = $providerPrepaid;
 
         // Retorno de dados
-        return new GetFinancialSummaryByTypeAndDateResource(['balance' => $balance, 'provider_prepaid' => $providerPrepaid]);
+        return new GetFinancialSummaryByTypeAndDateResource(['balance' => $balance]);
 	}
 
 
