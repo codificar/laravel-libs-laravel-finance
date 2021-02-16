@@ -584,10 +584,8 @@ class FinanceController extends Controller {
 						->with('enviroment', $enviroment['type'])
                         ->with('user_balance', $user_balance)
 						->with('user_cards', $user_cards)
-						->with('add_billet_balance_user', Settings::where('key', 'add_billet_balance_user')->first()->value)
-						->with('add_balance_min', Settings::where('key', 'add_balance_min')->first()->value)
-						->with('add_balance_billet_tax', Settings::where('key', 'add_balance_billet_tax')->first()->value)
-						->with('add_card_balance_user', Settings::where('key', 'add_card_balance_user')->first()->value);
+						->with('prepaid_settings', $this->getAddBalanceSettings());
+						
 
 
 	}
@@ -681,66 +679,86 @@ class FinanceController extends Controller {
 		
 		$billetTax = (float) Settings::findByKey('prepaid_tax_billet');
 		$value = $value + $billetTax;
-		$postBack = route('GatewayPostbackBillet') . "/" . $holder->ledger->id;
-		$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
-		$gateway = PaymentFactory::createGateway();
-		$payment = $gateway->billetCharge($value, $holder, $postBack, $billetExpiration, "Adicionar saldo em conta.");
-		
-		if($payment['success']){
-			$billet_link = $payment['billet_url'];
-			$billet_barcode = isset($payment['billet_barcode']) ? $payment['billet_barcode'] : '';
-			$gateway_transaction_id = $payment['transaction_id'];
 
-			$paymentTax = $gateway->getGatewayTax();
-			$paymentFee = $gateway->getGatewayFee();	
+		//cria a transaction, para colocar o id dela no postback. Se der erro, deleta essa transaction, senao, atualiza elas com os dados do gateway
+		$transaction 					= new Transaction();
+		$transaction->type 				= Transaction::SINGLE_TRANSACTION;
+		$transaction->status 			= 'waiting_payment';
+		$transaction->gross_value 	 	= $value;
+		$transaction->provider_value 	= 0;
+		$transaction->gateway_tax_value = 0;
+		$transaction->net_value 		= 0;
+		$transaction->save();
 
-			//Save the billet in transaction table (not in finance yet. In finance table is when billet is paid)
-			$transaction 					= new Transaction();
-			$transaction->type 				= Transaction::SINGLE_TRANSACTION;
-			$transaction->status 			= 'waiting_payment';
-			$transaction->gross_value 	 	= $value;
-			$transaction->provider_value 	= 0;
-			$transaction->gateway_tax_value = ($value * $paymentTax) + $paymentFee;
-			$transaction->net_value 		= $value - $transaction->gateway_tax_value ;
-			$transaction->gateway_transaction_id = $gateway_transaction_id;
-			$transaction->billet_link		= $billet_link;
-			$transaction->save();
+		try {
+
+			$postBack = route('GatewayPostbackBillet') . "/" . $transaction->id;
+			$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
+			$gateway = PaymentFactory::createGateway();
+			$payment = $gateway->billetCharge($value, $holder, $postBack, $billetExpiration, "Adicionar saldo em conta.");
 			
-			//send email
-			try {
-				$key_email = "billet_mail";
-				$emailTemplate = EmailTemplate::getTemplateByKey($key_email);
-				$subject = ($emailTemplate != null) ? $emailTemplate->subject : "Boleto";
-				$vars = array(
-					'billet_value' => currency_format(currency_converted($value)),
-					'expiration' => Carbon::parse($billetExpiration)->format('d/m/y'),
-					'billet_url' => $billet_link,
-				);
-				email_notification(
-					$holder->id, 
-					$envType == 'provider' ? 'provider' : 'user', 
-					$vars, 
-					$subject, 
-					$key_email, 
-					null
-				);	
-			} catch(\Exception $e){
-				\Log::error("Erro ao enviar boleto por email.");
-				\Log::error($e->getMessage());
+			if($payment['success']){
+				$billet_link = $payment['billet_url'];
+				$billet_barcode = isset($payment['billet_barcode']) ? $payment['billet_barcode'] : '';
+				$gateway_transaction_id = $payment['transaction_id'];
+
+				$paymentTax = $gateway->getGatewayTax();
+				$paymentFee = $gateway->getGatewayFee();	
+
+				//Save the billet in transaction table (not in finance yet. In finance table is when billet is paid)
+				$transaction->type 				= Transaction::SINGLE_TRANSACTION;
+				$transaction->status 			= 'waiting_payment';
+				$transaction->gross_value 	 	= $value;
+				$transaction->provider_value 	= 0;
+				$transaction->gateway_tax_value = ($value * $paymentTax) + $paymentFee;
+				$transaction->net_value 		= $value - $transaction->gateway_tax_value ;
+				$transaction->gateway_transaction_id = $gateway_transaction_id;
+				$transaction->billet_link		= $billet_link;
+				$transaction->save();
+				
+				//send email
+				try {
+					$key_email = "billet_mail";
+					$emailTemplate = EmailTemplate::getTemplateByKey($key_email);
+					$subject = ($emailTemplate != null) ? $emailTemplate->subject : "Boleto";
+					$vars = array(
+						'billet_value' => currency_format(currency_converted($value)),
+						'expiration' => Carbon::parse($billetExpiration)->format('d/m/y'),
+						'billet_url' => $billet_link,
+					);
+					email_notification(
+						$holder->id, 
+						$envType == 'provider' ? 'provider' : 'user', 
+						$vars, 
+						$subject, 
+						$key_email, 
+						null
+					);	
+				} catch(\Exception $e){
+					\Log::error("Erro ao enviar boleto por email.");
+					\Log::error($e->getMessage());
+				}
+				
+			} 
+			//Se deu erro, deleta a transaction do boleto
+			else {
+				$transaction->delete();
+				return response()->json($payment, 503);
 			}
+
+			return response()->json([
+				'success' => true, 
+				'billet_url' => $billet_link,
+				'billet_barcode' => $billet_barcode,
+				'error' => false
+			]);
+
+			return new AddBilletBalanceResource($data);
 			
-		} else {
-			return response()->json($payment, 503);
+		} catch (\Throwable $th) {
+			$transaction->delete();
+			return response()->json(["error" => "Erro ao gerar boleto"], 503);
 		}
-
-		return response()->json([
-			'success' => true, 
-			'billet_url' => $billet_link,
-			'billet_barcode' => $billet_barcode,
-			'error' => false
-		]);
-
-        return new AddBilletBalanceResource($data);
 	}
 	
 	public function addBilletBalanceWeb(AddBilletBalanceWebFormRequest $request) {

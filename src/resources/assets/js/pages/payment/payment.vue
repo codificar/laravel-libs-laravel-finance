@@ -9,10 +9,7 @@ export default {
     "add_new_billet_route",
     "financial_report_route",
     "delete_user_card",
-    "add_billet_balance_user",
-    "add_balance_min",
-    "add_balance_billet_tax",
-    "add_card_balance_user"
+    "PrepaidSettings"
   ],
   /**
    *
@@ -41,6 +38,7 @@ export default {
       card_cvv: "",
       card_exp: "",
       pay_card: 0,
+      prepaid_settings: {},
     };
   },
   computed: {
@@ -164,7 +162,7 @@ export default {
       });
     },
     requestChargeBillet() {
-      var minValue = this.add_balance_min ? parseFloat(this.add_balance_min) : 0;
+      var minValue = this.prepaid_settings.prepaid_min_billet_value ? parseFloat(this.prepaid_settings.prepaid_min_billet_value) : 0;
       if (this.value == 0 || this.value < minValue) {
         this.$swal({
           title: this.trans("finance.value_cant_be_lower") + " " + minValue.toFixed(2),
@@ -174,9 +172,9 @@ export default {
       }
       var totalBillet = 0;
       var textMsg = "";
-      if(this.add_billet_balance_user && this.add_balance_billet_tax && parseFloat(this.add_balance_billet_tax) > 0) {
-        totalBillet = parseFloat(this.value) + parseFloat(this.add_balance_billet_tax);
-        textMsg = this.trans("finance.add_balance_billet_tax") + ": R$ " + this.add_balance_billet_tax.toFixed(2) + ". " + this.trans("finance.billet_value_with_tax") + ": R$ " + totalBillet.toFixed(2);
+      if(this.prepaid_settings.prepaid_billet_user && this.prepaid_settings.prepaid_tax_billet && parseFloat(this.prepaid_settings.prepaid_tax_billet) > 0) {
+        totalBillet = parseFloat(this.value) + parseFloat(this.prepaid_settings.prepaid_tax_billet);
+        textMsg = this.trans("finance.tax_value") + ": R$ " + this.prepaid_settings.prepaid_tax_billet + ". " + this.trans("finance.total") + ": R$ " + totalBillet.toFixed(2);
       } else {
         totalBillet = parseFloat(this.value);
         textMsg = this.trans("finance.confirm_create_billet_msg") + ": R$ " + totalBillet.toFixed(2);
@@ -195,7 +193,7 @@ export default {
           new Promise((resolve, reject) => {
             axios
               .post(this.add_new_billet_route, {
-                value: totalBillet,
+                value: parseFloat(this.value),
               })
               .then((response) => {
                 console.log("rewsp: ", response)
@@ -344,6 +342,9 @@ export default {
   },
   created() {
     this.cards_list = JSON.parse(this.user_cards);
+
+    this.prepaid_settings = JSON.parse(this.PrepaidSettings);
+    
     if (parseFloat(this.user_balance) < 0)
       this.value = -1 * parseFloat(this.user_balance);
     else this.value = 0;
@@ -392,7 +393,7 @@ export default {
         <br />
       </div>
 
-      <div v-if="add_billet_balance_user && add_billet_balance_user != '0'">
+      <div v-if="prepaid_settings.prepaid_billet_user && prepaid_settings.prepaid_billet_user != '0'">
         <div class="row">
           <div class="col-sm-4"></div> <!-- offset -->
           <div class="col-sm-4">
@@ -409,7 +410,7 @@ export default {
         <br />
       </div>
 
-      <div v-if="add_card_balance_user && add_card_balance_user != '0'">
+      <div v-if="prepaid_settings.prepaid_card_user && prepaid_settings.prepaid_card_user != '0'">
         <div class="row">
           <div class="col-sm-4"></div> <!-- offset -->
           <div class="col-sm-4">

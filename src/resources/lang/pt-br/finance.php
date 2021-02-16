@@ -31,6 +31,8 @@ return array(
 	'ride_value' 					=> 'Valor utilizado em corridas',
 	'delete_message_1' 				=> 'Este usuário está devendo',
 	'delete_message_2' 				=> 'reais, deseja cobrar a divida?',
+	'tax_value'						=> 'Valor da Taxa',
+	
 
 	'op_simple_indication' 			=> 'Indicação Simples',
 	'op_compensation_indication' 	=> 'Remuneração por meta de indicação',

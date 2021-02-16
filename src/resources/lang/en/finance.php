@@ -67,6 +67,7 @@ return array(
 	'withdraw' 						=> 'Withdraw',
 	'delete_message_1' 				=> 'This user owes',
 	'delete_message_2' 				=> 'reais, want to collect the debt?',
+	'tax_value'						=> 'Tax Value',
 
 	'datePattern' 					=> 'Y/m/d',
 	'stringDatePattern' 			=> '%Y/%m/%d',

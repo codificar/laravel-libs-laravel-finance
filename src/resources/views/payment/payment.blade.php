@@ -48,10 +48,7 @@
 		add_new_billet_route = "{{ URL::Route($enviroment.'AddNewBillet') }}"
 		financial_report_route = "{{ URL::Route('corpAccountStatement') }}"
 		delete_user_card = "{{ URL::Route($enviroment.'DeleteUserCard') }}"
-		add_billet_balance_user = "{{ $add_billet_balance_user }}"
-		add_balance_min = "{{ $add_balance_min }}"
-		add_balance_billet_tax = "{{ $add_balance_billet_tax }}"
-		add_card_balance_user = "{{ $add_card_balance_user }}"
+		prepaid-settings = "{{ json_encode($prepaid_settings)}}"
 	>
 	</payment>
 </div>
