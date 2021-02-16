@@ -714,6 +714,7 @@ class FinanceController extends Controller {
 				$transaction->net_value 		= $value - $transaction->gateway_tax_value ;
 				$transaction->gateway_transaction_id = $gateway_transaction_id;
 				$transaction->billet_link		= $billet_link;
+				$transaction->ledger_id			= $holder->ledger->id;
 				$transaction->save();
 				
 				//send email
