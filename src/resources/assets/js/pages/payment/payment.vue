@@ -2,6 +2,7 @@
 import axios from "axios";
 export default {
   props: [
+    "Enviroment",
     "user_balance",
     "user_cards",
     "save_payment_route",
@@ -172,7 +173,7 @@ export default {
       }
       var totalBillet = 0;
       var textMsg = "";
-      if(this.prepaid_settings.prepaid_billet_user && this.prepaid_settings.prepaid_tax_billet && parseFloat(this.prepaid_settings.prepaid_tax_billet) > 0) {
+      if(this.prepaid_settings.prepaid_tax_billet && parseFloat(this.prepaid_settings.prepaid_tax_billet) > 0) {
         totalBillet = parseFloat(this.value) + parseFloat(this.prepaid_settings.prepaid_tax_billet);
         textMsg = this.trans("finance.tax_value") + ": R$ " + this.prepaid_settings.prepaid_tax_billet + ". " + this.trans("finance.total") + ": R$ " + totalBillet.toFixed(2);
       } else {
@@ -393,7 +394,11 @@ export default {
         <br />
       </div>
 
-      <div v-if="prepaid_settings.prepaid_billet_user && prepaid_settings.prepaid_billet_user != '0'">
+      <div v-if="
+        (Enviroment == 'user' && parseInt(prepaid_settings.prepaid_billet_user)) ||
+        (Enviroment == 'provider' && parseInt(prepaid_settings.prepaid_billet_provider)) ||
+        (Enviroment == 'corp' && parseInt(prepaid_settings.prepaid_billet_corp))
+      ">
         <div class="row">
           <div class="col-sm-4"></div> <!-- offset -->
           <div class="col-sm-4">
@@ -410,7 +415,11 @@ export default {
         <br />
       </div>
 
-      <div v-if="prepaid_settings.prepaid_card_user && prepaid_settings.prepaid_card_user != '0'">
+      <div v-if="
+        (Enviroment == 'user' && parseInt(prepaid_settings.prepaid_card_user)) ||
+        (Enviroment == 'provider' && parseInt(prepaid_settings.prepaid_card_provider)) ||
+        (Enviroment == 'corp' && parseInt(prepaid_settings.prepaid_card_corp))
+      ">
         <div class="row">
           <div class="col-sm-4"></div> <!-- offset -->
           <div class="col-sm-4">
