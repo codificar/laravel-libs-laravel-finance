@@ -699,7 +699,7 @@ class FinanceController extends Controller {
 			
 			if($payment['success']){
 				$billet_link = $payment['billet_url'];
-				$billet_barcode = isset($payment['billet_barcode']) ? $payment['billet_barcode'] : '';
+				$digitable_line = isset($payment['digitable_line']) ? $payment['digitable_line'] : '';
 				$gateway_transaction_id = $payment['transaction_id'];
 
 				$paymentTax = $gateway->getGatewayTax();
@@ -750,7 +750,7 @@ class FinanceController extends Controller {
 			return response()->json([
 				'success' => true, 
 				'billet_url' => $billet_link,
-				'billet_barcode' => $billet_barcode,
+				'digitable_line' => $digitable_line,
 				'error' => false
 			]);
 
