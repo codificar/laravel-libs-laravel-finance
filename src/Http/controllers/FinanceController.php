@@ -605,7 +605,7 @@ class FinanceController extends Controller {
 			$response_array = array('success' => false, 'data' => null, 'error' => array('code' => \ApiErrors::BAD_REQUEST, 'messages' => $error_messages));
 		} else {
 
-			if($enviroment['type'] == 'user') 
+			if($enviroment['type'] == 'user' || $enviroment['type'] == 'corp') 
 				$payment = Payment::deleteByIdAndUserId($card_id, $enviroment['holder']->id);
 			else 
 				$payment = Payment::deleteByIdAndProviderId($card_id, $enviroment['holder']->id);
