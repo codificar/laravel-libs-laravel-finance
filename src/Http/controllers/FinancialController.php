@@ -2,6 +2,8 @@
 
 namespace Codificar\Finance\Http\Controllers;
 
+use Codificar\Finance\Models\LibModel;
+
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use App\Http\Controllers\Controller;
@@ -15,9 +17,9 @@ use LedgerBankAccount;
 use Bank;
 use Settings;
 use AdminInstitution;
-use App\Http\Requests\api\v3\GetFinancialSummaryByTypeAndDateFormRequest;
+use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
 use App\Http\Requests\api\v3\ProviderProfitsRequest;
-use App\Http\Resources\api\v3\GetFinancialSummaryByTypeAndDateResource;
+use Codificar\Finance\Http\Resources\GetFinancialSummaryByTypeAndDateResource;
 use App\Http\Resources\api\v3\ProviderProfitsResource;
 use App\Http\Requests\FinanceFormRequest;
 use App\Http\Resources\FinanceResource;
@@ -233,6 +235,7 @@ class FinancialController extends Controller
 				);
 				return View::make($page)
 					->with([
+						'enviroment'		=> $loginType,
 						'id' 				=> $id,
 						'login_type' 		=> $loginType,
 						'holder' 			=> $holder, 
@@ -576,7 +579,7 @@ class FinancialController extends Controller
 		$holder = $request->holder;
 		
         // Realiza busca do extrato
-        $balance = Finance::getLedgerDetailedBalanceByPeriod(
+        $balance = LibModel::getLedgerDetailedBalanceByPeriod(
 			$holder->ledger->id, 
 			$request->typeEntry, 
 			$request->start_date, 

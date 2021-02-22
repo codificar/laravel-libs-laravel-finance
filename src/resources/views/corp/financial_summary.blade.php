@@ -14,6 +14,7 @@
 @section('content')
 <div id="VueJs">
 <financial-account-statement 
+	enviroment="{{ $enviroment }}"
 	:holder="{{ $holder }}"
 	login-type="{{ $login_type }}"
 	:finance-types="{{ json_encode($types) }}"

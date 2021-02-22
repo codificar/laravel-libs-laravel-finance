@@ -58,12 +58,6 @@ class GetFinancialSummaryByTypeAndDateFormRequest extends FormRequest
         // Obtém o id do holder
         $this->holder_id = $this->route('id');
 
-        //Check se esse id de fato eh de quem chamou a api. Sem essa verificacao, um usuario logado podera trocar o parametro e chamar api de qualquer pessoa
-        $holder_id_check = Input::get('id') ? Input::get('id') : Input::get('provider_id');
-        if($this->holder_id != $holder_id_check) {
-            return ['error_validate' => 'id invalido'];
-        }
-
         // Verifica onde buscar de acordo com o caminho
         switch ($this->holder_type) {
             case Finance::TYPE_USER:

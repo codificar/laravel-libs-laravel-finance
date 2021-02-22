@@ -10,7 +10,6 @@ use Codificar\Finance\Models\LibModel;
 //FormRequest
 use Codificar\Finance\Http\Requests\ProviderProfitsRequest;
 use Codificar\Finance\Http\Requests\GetProviderSummaryByTypeAndDateFormRequest;
-use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
 use Codificar\Finance\Http\Requests\GetCardsAndBalanceFormRequest;
 use Codificar\Finance\Http\Requests\ProviderApiFormRequest;
 use Codificar\Finance\Http\Requests\UserApiFormRequest;
@@ -64,32 +63,6 @@ class FinanceController extends Controller {
 		]);
     }
     
-     /**
-	 * API ANTIGA. DEVERA SER REMOVIDA FUTURAMENTE. NAO FOI REMOVIDA AINDA, POIS SE ATUALIZAR O PAINEL, PODERA QUEBRAR OS APPS QUE NAO FORAM ATUALIZADOS.
-	 * REMOVER EM UM MOMENTO OPORTUNO.
-	 *
-     * @api {get} /libs/finance/provider/financial/summary/{id}
-     * @apiDescription Permite buscar o extrato de contas com datas pré-definidas e filtros
-     * @return Json
-     */	
-	public function getFinancialSummaryByTypeAndDate(GetFinancialSummaryByTypeAndDateFormRequest $request)
-	{
-        // Pega holder
-		$holder = $request->holder;
-		
-        // Realiza busca do extrato
-        $balance = LibModel::getLedgerDetailedBalanceByPeriod(
-			$holder->ledger->id, 
-			$request->typeEntry, 
-			$request->start_date, 
-			$request->end_date, 
-			$request->page,
-			$request->itemsPerPage
-		);
-
-        // Retorno de dados
-        return new GetFinancialSummaryByTypeAndDateResource(['balance' => $balance]);
-	}
 
 	 /**
      * @api {get} /libs/finance/provider/financial/provider_summary

@@ -208,7 +208,7 @@ class LibModel extends Eloquent
 			$totalBalance = self::sumAllValueByLedgerId($ledgerId);
 			$periodBalance = self::sumValueByLedgerIdByPeriod($ledgerId, $startDate, $endDate);
 			$totalBalanceByPeriod = $previousBalance + $periodBalance;
-			$balance = self::orderBy('created_at','ASC');
+			$balance = self::orderBy('compensation_date','ASC');
 			
 			if($ledgerId != ''){
 				$balance->where('ledger_id', $ledgerId);
@@ -217,10 +217,10 @@ class LibModel extends Eloquent
 				$balance->where('reason', $transactionType); 
 			}
 			if($startDate != ''){
-				$balance->where('created_at', '>=', $startDate);
+				$balance->where('compensation_date', '>=', $startDate);
 			}
 			if($endDate != ''){
-				$balance->where('created_at', '<=', $endDate);
+				$balance->where('compensation_date', '<=', $endDate);
 			}
 
 			// resolve current page

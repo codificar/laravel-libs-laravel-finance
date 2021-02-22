@@ -357,6 +357,7 @@ import ModalNewBankAccount from "./modal_new_bank_account.vue";
 
 export default {
     props: [
+        "Enviroment",
         "holder",
         "loginType",
         "financeTypes",
@@ -428,7 +429,7 @@ export default {
             let finalDate = moment(this.endDate).format("DD/MM/YYYY");
 
             // Realiza a requisição
-            axios.get('/api/v3/financial/summary/' + this.holder.id, {
+            axios.get('/' + this.Enviroment + '/libs/finance/summary/' + this.holder.id, {
                 params: {
                     holder_type: this.holderType,
                     type_entry: this.type_entry,
