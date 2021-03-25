@@ -62,6 +62,7 @@ return array(
 	'previous_balance' 				=> 'Saldo Anterior',
 	'balance' 						=> 'Saldo',
 	'current_balance' 				=> 'Saldo Atual',
+	'period_balance'				=> 'Saldo no período',
 	'available_balance'				=> 'Saldo disponível',
 	'required_balance'				=> 'Saldo necessário',
 	'account_balance' 				=> 'Saldo Conta Corrente',

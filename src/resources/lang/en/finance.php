@@ -76,6 +76,7 @@ return array(
 	'withdrawals_report'			=> 'Withdrawals Report',
 	'previous_balance' 				=> 'Previous Balance',
 	'current_balance' 				=> 'Current Balance',
+	'period_balance'				=> 'Period balance',
 	'available_balance'				=> 'Available Balance',
 	'required_balance'				=> 'Required balance',
 	'transaction_type' 				=> 'Transaction Type',

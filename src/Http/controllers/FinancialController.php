@@ -581,7 +581,7 @@ class FinancialController extends Controller
         // Realiza busca do extrato
         $balance = LibModel::getLedgerDetailedBalanceByPeriod(
 			$holder->ledger->id, 
-			$request->typeEntry, 
+			$request->type_entry, 
 			$request->start_date, 
 			$request->end_date, 
 			$request->page,

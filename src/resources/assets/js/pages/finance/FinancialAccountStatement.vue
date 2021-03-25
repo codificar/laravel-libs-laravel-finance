@@ -186,6 +186,17 @@
                                 {{ formatCurrency(balance.previous_balance) }}
                             </span>
                         </div>
+                        <div class="card-block">
+                            <i class="fa fa-money"></i>
+                            <strong>{{ trans('finance.period_balance') }}:</strong>
+                            
+                            <span v-if="balance.previous_balance >= 0" class="text-success">
+                                {{ formatCurrency(balance.period_balance) }}
+                            </span>
+                            <span v-else class="text-danger">
+                                {{ formatCurrency(balance.period_balance) }}
+                            </span>
+                        </div>
 
                         <div class="card-block">
                             <div>
@@ -225,7 +236,7 @@
                                         <td colspan="4" style="text-align:center;">{{trans('finance.total')}}</td>
                                         <td
                                             style="text-align:center;"
-                                        >{{ formatCurrency(balance.period_balance) }}</td>
+                                        >{{ formatCurrency(pageTotalValue()) }}</td>
                                     </tr>
                                 </table>                        
                             </div>
@@ -234,11 +245,11 @@
                         <div class="card-block">
                             <i class="fa fa-money"></i> <strong>{{ trans('finance.current_balance') }}:</strong>
 
-                            <span v-if="balance.total_balance_by_period >= 0" class="text-success">
-                                {{ formatCurrency(balance.total_balance_by_period) }}
+                            <span v-if="balance.total_balance >= 0" class="text-success">
+                                {{ formatCurrency(balance.total_balance) }}
                             </span>
                             <span v-else class="text-danger">
-                                {{ formatCurrency(balance.total_balance_by_period) }}
+                                {{ formatCurrency(balance.total_balance) }}
                             </span>
                         </div>
 
@@ -247,6 +258,7 @@
                             <pagination 
                                 :data="balance.detailed_balance" 
                                 v-on:pagination-change-page="getFinancialSummary"
+                                :limit="9"
                             ></pagination>
 
                             <paginator-counter 
@@ -390,7 +402,7 @@ export default {
             startDate: "",
             endDate: "",
             page: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 100,
             isDataEmpty: true,
             bank_account_id: 0,
             url: window.location.href            
@@ -559,6 +571,13 @@ export default {
             } else {
                 return "";
             }
+        },
+        pageTotalValue() {
+            const total = this.balance.current_compensations.reduce(function(prev, cur) {
+                return prev + cur.value;
+            }, 0);
+
+            return total;
         }
     },
     created() {
