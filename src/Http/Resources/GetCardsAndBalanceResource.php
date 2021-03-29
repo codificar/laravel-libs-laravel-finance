@@ -36,11 +36,13 @@ class GetCardsAndBalanceResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'success'           => $this['success'],
-            'current_balance'   => $this['current_balance'],
-            'cards'             => $this['cards'],
-            'settings'          => $this['settings'],
-            'error'             => $this['error']
+            'success'           		=> $this['success'],
+            'current_balance'   		=> $this['current_balance'],
+            'cards'             		=> $this['cards'],
+            'settings'          		=> $this['settings'],
+            'error'             		=> $this['error'],
+			'referralBalance'			=> $this['referral_balance'],
+			'cumulated_balance_monthly'	=> $this['cumulated_balance_monthly']
         ];
     }
 }

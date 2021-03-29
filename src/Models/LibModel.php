@@ -422,5 +422,12 @@ class LibModel extends Eloquent
 
 		return $query ;
 	}
-    
+
+	public static function getSumTotalIndication($ledger_id) {
+		return Finance::sumTotalIndicationByLedgerId($ledger_id);
+	}
+
+	public static function getSumMonthlyIndication($ledger_id) {
+		return Finance::sumMonthlyIndicationByLedgerId($ledger_id);
+	}  
 }
