@@ -422,5 +422,19 @@ class LibModel extends Eloquent
 
 		return $query ;
 	}
+
+	public static function getGuardWebCorp()
+	{
+		$user = \Auth::guard('web')->user();
+
+        if (!$user || !$user->AdminInstitution) {
+            $user = \Auth::guard('web_corp')->user();
+
+			if ($user)
+				return $user->id;
+        }
+		
+		return $user ? $user->id : null;
+	}
     
 }

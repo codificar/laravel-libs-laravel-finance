@@ -813,7 +813,7 @@ class FinanceController extends Controller {
 				$type = 'user';
 			break;
 			case Finance::TYPE_CORP:
-				$admin_id = \Auth::guard("web")->user()->id;
+				$admin_id = LibModel::getGuardWebCorp();
 				$holder = AdminInstitution::getUserByAdminId($admin_id);
 				$id = $holder->id;
 				$type = 'corp';

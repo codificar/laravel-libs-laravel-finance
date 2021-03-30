@@ -182,7 +182,7 @@ class FinancialController extends Controller
 				$holderType = Finance::TYPE_PROVIDER;		
 			break;
 			case Finance::TYPE_CORP:
-				$admin_id = \Auth::guard("web")->user()->id;
+				$admin_id = LibModel::getGuardWebCorp();
 				$admin = \Admin::find($admin_id);
 				$institution = $admin->adminInstitution->institution;
 				$holder = AdminInstitution::getUserByAdminId($admin_id);

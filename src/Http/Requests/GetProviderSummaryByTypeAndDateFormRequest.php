@@ -8,6 +8,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Carbon;
 use App\Rules\CheckHolder;
+use Codificar\Finance\Models\LibModel;
 use Finance;
 use User;
 use Provider;
@@ -62,7 +63,7 @@ class GetProviderSummaryByTypeAndDateFormRequest extends FormRequest
                 $this->holder = Provider::find($holder_id);
                 break;
             case Finance::TYPE_CORP:
-                $this->holder = \AdminInstitution::getUserByAdminId(\Auth::guard("web")->user()->id);
+                $this->holder = \AdminInstitution::getUserByAdminId(LibModel::getGuardWebCorp());
                 break;
             default:
                 $this->holder = null;
