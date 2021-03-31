@@ -543,6 +543,8 @@ class FinanceController extends Controller {
 		$data['cards']       		= $payments;
 		$data['settings']			= $this->getAddBalanceSettings();
 		$data['error']      		= null; 
+		$data['referral_balance']			= currency_format(LibModel::getSumTotalIndication($ledgerId));
+		$data['cumulated_balance_monthly']	= currency_format(LibModel::getSumMonthlyIndication($ledgerId));
 
         return new GetCardsAndBalanceResource($data);
 	}
