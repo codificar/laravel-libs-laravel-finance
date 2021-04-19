@@ -510,13 +510,16 @@ class FinanceController extends Controller {
         $payments = LibModel::getCardsList($userId, 'user');
 		$user = User::where('id', $userId)->first();
 		$ledgerId = $user->ledger->id;
+		
         $data = array();
 
-		$data['success']    		= true;
-		$data['current_balance'] 	= currency_format(LibModel::sumValueByLedgerId($ledgerId));
-		$data['cards']       		= $payments;
-		$data['settings']			= $this->getAddBalanceSettings();
-		$data['error']      		= null; 
+		$data['success']    				= true;
+		$data['current_balance'] 			= currency_format(LibModel::sumValueByLedgerId($ledgerId));
+		$data['cards']       				= $payments;
+		$data['settings']					= $this->getAddBalanceSettings();
+		$data['error']      				= null; 
+		$data['referral_balance']			= currency_format(LibModel::getSumTotalIndication($ledgerId));
+		$data['cumulated_balance_monthly']	= currency_format(LibModel::getSumMonthlyIndication($ledgerId));
 
         return new GetCardsAndBalanceResource($data);
 	}
@@ -540,6 +543,8 @@ class FinanceController extends Controller {
 		$data['cards']       		= $payments;
 		$data['settings']			= $this->getAddBalanceSettings();
 		$data['error']      		= null; 
+		$data['referral_balance']			= currency_format(LibModel::getSumTotalIndication($ledgerId));
+		$data['cumulated_balance_monthly']	= currency_format(LibModel::getSumMonthlyIndication($ledgerId));
 
         return new GetCardsAndBalanceResource($data);
 	}
@@ -766,6 +771,7 @@ class FinanceController extends Controller {
 		$data['prepaid_card_user']				= Settings::findByKey('prepaid_card_user');
 		$data['prepaid_card_provider'] 			= Settings::findByKey('prepaid_card_provider');
 		$data['prepaid_card_corp']				= Settings::findByKey('prepaid_card_corp');
+		$data['indication_settings']			= Settings::getCustomIndicationSettings();
 
 		return $data;
 	}
