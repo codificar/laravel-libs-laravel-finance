@@ -9,12 +9,19 @@ export default {
     props: [
         'countItems',
         'totalItems',
-        'translate'
+        'translate',
+        'balance'
     ],
     data() {
         return {
             dataCountItems: "",
             dataTotalItems: ""
+        }
+    },
+    watch: {
+        balance: function (item) {
+            this.dataCountItems = item.detailed_balance_count;
+            this.dataTotalItems = item.detailed_balance_total;
         }
     },
     created() {        

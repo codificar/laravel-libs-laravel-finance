@@ -190,7 +190,7 @@
                             <i class="fa fa-money"></i>
                             <strong>{{ trans('finance.period_balance') }}:</strong>
                             
-                            <span v-if="balance.previous_balance >= 0" class="text-success">
+                            <span v-if="balance.period_balance >= 0" class="text-success">
                                 {{ formatCurrency(balance.period_balance) }}
                             </span>
                             <span v-else class="text-danger">
@@ -258,14 +258,14 @@
                             <pagination 
                                 :data="balance.detailed_balance" 
                                 v-on:pagination-change-page="getFinancialSummary"
-                                :limit="9"
+                                :limit="5"
                             ></pagination>
 
                             <paginator-counter 
                                 :count-items="balance.detailed_balance_count"
                                 :total-items="balance.detailed_balance_total"
+                                :balance="balance"
                             ></paginator-counter>
-                            <p>{{ trans('finance.indexing') }}</p>
                         </div>
                         <!-- Paginate and counter -->
 
