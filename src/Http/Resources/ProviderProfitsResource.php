@@ -36,23 +36,11 @@ class ProviderProfitsResource extends JsonResource
      */
     public function toArray($request)
     {
-        $finance = [];
-        
-		for ($i=1; $i <= 7; $i++) { 
-			$finance[$i-1] = [
-                "day" => "" . $i,
-                "value" => 0.0,
-                "value_text" => currency_format(0.0)
-            ];
-        }
         
         $total = 0;
         
-		foreach ($this["finance"]->get() as $item) {
-			$total += $item->value;
-			$item->value = round($item->value, 2);
-			$item->value_text = currency_format(abs(round($item->value, 2)));
-			$finance[$item->day - 1] = $item;
+		foreach ($this["finance"] as $item) {
+			$total += $item['value'];
         }
 
         $total = number_format($total, 2, '.', '');
@@ -60,7 +48,7 @@ class ProviderProfitsResource extends JsonResource
 
 		return [
 			"success" => true,
-			"finance" => $finance,
+			"finance" => $this["finance"],
 			"current_balance" => $this["current_balance"],
 			"current_balance_text" => currency_format(abs($this["current_balance"])),
             "total_week" => $total,

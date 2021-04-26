@@ -11,6 +11,7 @@ use Finance;
 use Ledger;
 use Provider;
 use Payment;
+use Settings;
 use RequestCharging;
 use DB;
 
@@ -41,25 +42,69 @@ class LibModel extends Eloquent
 		return (double)number_format(self::where('ledger_id', $ledgerId)->whereBetween('created_at', [$startDateNew, $endDateNew])->where('compensation_date', '<', date('Y-m-d 23:59:59'))->sum('value'), 2, '.', '');
 	}
 
+	private function getStartDateEarningsReport() {
+		$startWeek = intval(Settings::findByKey("earnings_report_weekday"));
+		if(!$startWeek) {
+			$startWeek = 1;
+		}
+
+		//dia da semana de hoje. Soma 1, pois o carbon comeca domingo com 0, e o mysql comeca com 1
+		$dayOfWeekToday = Carbon::now()->dayOfWeek + 1;
+		
+		//se o dia da semana de hoje e menor que o dia da semana escolhido, a data a ser subtraida (data de inicio do relatorio de ganhos) sera (7-(escolhido - hoje))
+		//Ex 1: hoje e terca (3) e o dia escolhido e quinta (5), logo: 7-(5-3) = 5, logo deve ser subtraido 5 dias
+		//Ex 2: hoje e domingo (1) e o dia escolhido e sabado (7), logo 7-(7-1) = 1, logo deve ser subtraido 1 dia
+		if($dayOfWeekToday < $startWeek) {
+			$subDiffDays = 7 - ($startWeek - $dayOfWeekToday);
+		}
+		//se o dia da semana de hoje e maior que o dia da semana escolhido, a data a ser subtraida sera (hoje - escolhido)
+		//Ex 1: hoje e sabado (7) e o dia escolhido e quarta (4), logo: 7-4 = 3, logo deve ser subtraido 3 dias do dia de hoje para pegar a data inicial
+		//Ex 2: hoje e terca (3) e o dia escolhido e segunda (2), logo 3-2 = 1, logo deve ser subtraido 1 dia de hoje para pegar a data inicial
+		else if($dayOfWeekToday > $startWeek) {
+			$subDiffDays = $dayOfWeekToday - $startWeek;
+		}
+		//se o dia da semana de hoje e igual o dia da semana escolhido, nao deve subtrair nada, pois a semana comeca hoje
+		else {
+			$subDiffDays = 0;
+		}
+		return Carbon::now()->startOfDay()->subDays($subDiffDays);
+	}
+
     /**
 	 * Get the provider current week profits
 	 * @param int $providerId
 	 */
-	public static function getProviderProfitsOfWeek($providerId) 
-	{
-		$startDate = Carbon::now()->addDay();
-		$endDate = Carbon::now()->addDay();
-		
-        $query = DB::table('request')->select(DB::raw(
+	public static function getProviderProfitsOfWeek($providerId) {
+		$startDate = LibModel::getStartDateEarningsReport();
+		$endDate = $startDate->copy()->addDays(6)->endOfDay();
+
+		$query = DB::table('request')->select(DB::raw(
 			"concat(DAYOFWEEK(request_finish_time)) AS day, SUM(provider_commission) AS value")
 			)->whereBetween('request_finish_time', [
-				$startDate->startOfWeek()->subDay(), 
-				$endDate->endOfWeek()->subDay()
+				$startDate->format('Y-m-d H:i:s'),
+				$endDate->format('Y-m-d H:i:s')
 			])
 			->where('confirmed_provider', $providerId)
-			->groupBy('day');
-
-			return $query;
+			->groupBy('day')
+			->get();
+			
+			$finance = array();
+			for ($i=0; $i < 7; $i++) {
+				$finance[$i] = array(
+					"day" => $startDate->copy()->addDays($i)->dayOfWeek + 1,
+					"value" => 0.0,
+					"value_text" => currency_format(0.0)
+				);
+				
+				foreach ($query as $item) {
+					if($finance[$i]['day'] == intval($item->day)) {
+						$finance[$i]['value'] = round($item->value, 2);
+						$finance[$i]['value_text'] = currency_format(abs(round($item->value, 2)));
+					}
+				}
+				
+			}
+			return $finance;
 	}
     
     /**
@@ -69,14 +114,14 @@ class LibModel extends Eloquent
 
 	public static function getProviderProfitsOfWeekMoneyValue($providerId) 
 	{
-		$startDate = Carbon::now()->addDay();
-		$endDate = Carbon::now()->addDay();
+		$startDate = LibModel::getStartDateEarningsReport();
+		$endDate = $startDate->copy()->addDays(6)->endOfDay();
 		
         $query = DB::table('request')->select(DB::raw(
 			"SUM(provider_commission) AS value")
 			)->whereBetween('request_finish_time', [
-				$startDate->startOfWeek()->subDay(), 
-				$endDate->endOfWeek()->subDay()
+				$startDate->format('Y-m-d H:i:s'),
+				$endDate->format('Y-m-d H:i:s'),
 			])
 			->where('payment_mode', RequestCharging::PAYMENT_MODE_MONEY)
 			->where('confirmed_provider', $providerId)

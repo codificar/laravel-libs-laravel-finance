@@ -698,30 +698,6 @@ class FinancialController extends Controller
 		return $response;
 	}
 
-	/**
-     * @api {GET} /api/v3/provider/profits
-     * @description Retorna as informações financeiras por ano
-     * @param ProviderProfitsRequest $request
-	 * @return ProviderProfitsResource
-     */
-    public function getProviderProfits (ProviderProfitsRequest $request)
-    {
-		$ledgerId = $request->provider->ledger->id;
-		$finance = Requests::getProviderProfitsOfWeek($request->provider->id);
-		$totalMoney = Requests::getProviderProfitsOfWeekMoneyValue($request->provider->id);
-		$currentBalance = Finance::sumValueByLedgerId($ledgerId);
-		$isWithdrawEnabled = Settings::getWithDrawEnabled();
-		
-		return new ProviderProfitsResource([
-			"finance" => $finance,
-			"total_money" => $totalMoney,
-			"current_balance" => $currentBalance,
-			"available" => ProviderAvail::getWeekOnlineTime($request->provider->id),
-			"rides" => Requests::getWeekRidesCount($request->provider->id),
-			"is_withdraw_enabled" => $isWithdrawEnabled
-		]);
-	}
-	
 	public function saveFinance($finance, $request)
     {
         //registra dados
