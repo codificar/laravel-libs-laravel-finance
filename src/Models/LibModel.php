@@ -286,6 +286,10 @@ class LibModel extends Eloquent
 			$paginateCount	=	$currentCompensations->count();
 			$paginateTotal	=	$currentCompensations->total();
 
+			foreach($currentCompensations as $item) {
+				$item['value_formatted'] = currency_format(currency_converted($item['value']));
+			}
+
 			$response = array(
 				'previous_balance' 			  => $previousBalance,
 				'current_balance' 			  => $currentBalance,
