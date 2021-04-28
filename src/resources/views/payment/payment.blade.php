@@ -49,6 +49,7 @@
 		financial_report_route = "{{ URL::Route('corpAccountStatement') }}"
 		delete_user_card = "{{ URL::Route($enviroment.'DeleteUserCard') }}"
 		prepaid-settings = "{{ json_encode($prepaid_settings)}}"
+		currency-symbol="{{ $currency_symbol }}"
 	>
 	</payment>
 </div>

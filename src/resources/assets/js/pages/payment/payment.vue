@@ -10,7 +10,8 @@ export default {
     "add_new_billet_route",
     "financial_report_route",
     "delete_user_card",
-    "PrepaidSettings"
+    "PrepaidSettings",
+    "CurrencySymbol"
   ],
   /**
    *
@@ -175,10 +176,10 @@ export default {
       var textMsg = "";
       if(this.prepaid_settings.prepaid_tax_billet && parseFloat(this.prepaid_settings.prepaid_tax_billet) > 0) {
         totalBillet = parseFloat(this.value) + parseFloat(this.prepaid_settings.prepaid_tax_billet);
-        textMsg = this.trans("finance.tax_value") + ": R$ " + this.prepaid_settings.prepaid_tax_billet + ". " + this.trans("finance.total") + ": R$ " + totalBillet.toFixed(2);
+        textMsg = this.trans("finance.tax_value") + ": " + this.CurrencySymbol + this.prepaid_settings.prepaid_tax_billet + ". " + this.trans("finance.total") + ": " + this.CurrencySymbol + totalBillet.toFixed(2);
       } else {
         totalBillet = parseFloat(this.value);
-        textMsg = this.trans("finance.confirm_create_billet_msg") + ": R$ " + totalBillet.toFixed(2);
+        textMsg = this.trans("finance.confirm_create_billet_msg") + ": " + this.CurrencySymbol + totalBillet.toFixed(2);
 
       }
 
@@ -289,7 +290,7 @@ export default {
     formatNumber(num) {
       let numF = parseFloat(num).toFixed(2);
       numF = numF.toString().replace('.',',');
-      return "R$ " + numF;
+      return this.CurrencySymbol + numF;
     },
     alertDeleteCard(card_id, last_four) {
       this.$swal({

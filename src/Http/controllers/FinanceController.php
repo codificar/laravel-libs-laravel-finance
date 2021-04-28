@@ -557,12 +557,17 @@ class FinanceController extends Controller {
 		
         $user_cards = $enviroment['holder']->payments;
         $user_balance = $enviroment['holder']->getBalance();
-		
+
+		$currency = Settings::findByKey('generic_keywords_currency');
+		$currency_symbol = Settings::getCurrencySymbol($currency);
+		$currency_symbol = $currency_symbol ? $currency_symbol . ' ' : 'R$ '; //if not found currency symbol, get R$ (real) by default
+
 		return View::make('finance::payment.payment')
 						->with('enviroment', $enviroment['type'])
-                        ->with('user_balance', $user_balance)
+						->with('user_balance', $user_balance)
 						->with('user_cards', $user_cards)
-						->with('prepaid_settings', $this->getAddBalanceSettings());
+						->with('prepaid_settings', $this->getAddBalanceSettings())
+						->with('currency_symbol', $currency_symbol);
 						
 
 
