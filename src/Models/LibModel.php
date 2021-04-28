@@ -287,10 +287,12 @@ class LibModel extends Eloquent
 			$paginateTotal	=	$currentCompensations->total();
 
 			$response = array(
-				'previous_balance' 			  => $previousBalance ,
-				'current_balance' 			  => $currentBalance ,
+				'previous_balance' 			  => $previousBalance,
+				'current_balance' 			  => $currentBalance,
+				'current_balance_formatted'	  => currency_format(currency_converted($currentBalance)),
 				'total_balance'				  => $totalBalance,
 				'period_balance'			  => $periodBalance,
+				'period_balance_formatted'	  => currency_format(currency_converted($periodBalance)),
 				'total_balance_by_period'	  => $totalBalanceByPeriod,
 				'detailed_balance_count' 	  => $paginateCount,
 				'detailed_balance_total'      => $paginateTotal,
