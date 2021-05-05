@@ -495,4 +495,13 @@ class LibModel extends Eloquent
 	public static function getSumMonthlyIndication($ledger_id) {
 		return Finance::sumMonthlyIndicationByLedgerId($ledger_id);
 	}  
+
+	public static function getCustomIndicationSettings() {
+		$data = [
+			'isCustomIndicationEnabled' => (boolean)Settings::findByKey('has_custom_indication'),
+			'program_name'				=> Settings::findByKey('program_name')			
+		];
+
+		return $data;
+	}
 }

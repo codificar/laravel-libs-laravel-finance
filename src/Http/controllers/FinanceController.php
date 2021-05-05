@@ -776,7 +776,7 @@ class FinanceController extends Controller {
 		$data['prepaid_card_user']				= Settings::findByKey('prepaid_card_user');
 		$data['prepaid_card_provider'] 			= Settings::findByKey('prepaid_card_provider');
 		$data['prepaid_card_corp']				= Settings::findByKey('prepaid_card_corp');
-		$data['indication_settings']			= Settings::getCustomIndicationSettings();
+		$data['indication_settings']			= LibModel::getCustomIndicationSettings();
 
 		return $data;
 	}
