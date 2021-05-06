@@ -345,37 +345,39 @@ class FinanceController extends Controller {
 		$handle = fopen(storage_path('tmp/').$filename, 'w+');
 		fputs( $handle, $bom = chr(0xEF) . chr(0xBB) . chr(0xBF) );
 		
+		$vars = array(
+					trans('map.id'),
+					trans('provider.name_grid'),
+					trans('dashboard.document'),
+					trans('provider.address_street'),
+					trans('provider.address_number'),
+					trans('provider.address_complements'),
+					trans('provider.address_neighbour'),
+					trans('provider.zipcode'),
+					trans('provider.address_city'),
+					trans('provider.state'),
+					trans('provider.country'),
+					trans('bank_account.holder_name'),
+					trans('bank_account.holder_document'),
+					trans('bank_account.bank_code'),
+					trans('bank_account.bank_name'),
+					trans('bank_account.account_types'),
+					trans('bank_account.person_type'),
+					trans('bank_account.bank_agency'),
+					trans('bank_account.bank_agency_dig'),
+					trans('bank_account.bank_account'),
+					trans('bank_account.bank_account_dig'),
+					trans('provider.total_request_grid'),
+					trans('finance.current_balance'),
+					trans('finance.total_compensations'),
+					trans('finance.total')
+				);
+		
+		if(config('app.locale') == 'pt-br')
+			$vars.push('finance.pix');// add pix column only if is pt-br language
+
 		// Setting the csv header
-		fputcsv($handle,
-			array(
-				trans('map.id'),
-				trans('provider.name_grid'),
-				trans('dashboard.document'),
-				trans('provider.address_street'),
-				trans('provider.address_number'),
-				trans('provider.address_complements'),
-				trans('provider.address_neighbour'),
-				trans('provider.zipcode'),
-				trans('provider.address_city'),
-				trans('provider.state'),
-				trans('provider.country'),
-				trans('bank_account.holder_name'),
-				trans('bank_account.holder_document'),
-				trans('bank_account.bank_code'),
-				trans('bank_account.bank_name'),
-				trans('bank_account.account_types'),
-				trans('bank_account.person_type'),
-				trans('bank_account.bank_agency'),
-				trans('bank_account.bank_agency_dig'),
-				trans('bank_account.bank_account'),
-				trans('bank_account.bank_account_dig'),
-				trans('provider.total_request_grid'),
-				trans('finance.current_balance'),
-				trans('finance.total_compensations'),
-				trans('finance.total')
-			),
-			";"
-		);
+		fputcsv($handle, $vars, ";" );
 
 		$providers = $providers->get();
 		$locations = $this->locationModel->get();
@@ -444,38 +446,39 @@ class FinanceController extends Controller {
 				$personType = "";
 			}
 			
-			
+			$vars = array(
+						$provider->id,
+						$provider->first_name." ".$provider->last_name,
+						$bank_account['document'],
+						$provider->address,
+						$provider->address_number,
+						$provider->address_complements,
+						$provider->address_neighbour,
+						$provider->zipcode,
+						$provider->address_city,
+						$provider->state,
+						$provider->country,
+						$bankHolderName,
+						$bankHolderDoc,
+						$bankCode,
+						$bankName,
+						$accountType,
+						$personType,
+						$bankAgency,
+						$bankAgencyDv,
+						$bankAccount,
+						$bankAccountDv,
+						$provider->total_requests,
+						$total_balance_by_period,
+						$total_receivable,
+						$total_result
+					);
+				
+			if(config('app.locale') == 'pt-br' && method_exists($provider, 'getPix'))
+				$vars.push($provider->getPix());
+
 			// Formats the csv file
-			fputcsv($handle,
-				array(
-					$provider->id,
-					$provider->first_name." ".$provider->last_name,
-					$bank_account['document'],
-					$provider->address,
-					$provider->address_number,
-					$provider->address_complements,
-					$provider->address_neighbour,
-					$provider->zipcode,
-					$provider->address_city,
-					$provider->state,
-					$provider->country,
-					$bankHolderName,
-					$bankHolderDoc,
-					$bankCode,
-					$bankName,
-					$accountType,
-					$personType,
-					$bankAgency,
-					$bankAgencyDv,
-					$bankAccount,
-					$bankAccountDv,
-					$provider->total_requests,
-					$total_balance_by_period,
-					$total_receivable,
-					$total_result
-				),
-				";"
-			);
+			fputcsv($handle, $vars ,";");
 		}
 		// Close the pointer file
 		fclose($handle);
