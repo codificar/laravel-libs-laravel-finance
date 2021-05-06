@@ -345,36 +345,37 @@ class FinanceController extends Controller {
 		$handle = fopen(storage_path('tmp/').$filename, 'w+');
 		fputs( $handle, $bom = chr(0xEF) . chr(0xBB) . chr(0xBF) );
 		
+		// Setting the csv header
 		$vars = array(
-					trans('map.id'),
-					trans('provider.name_grid'),
-					trans('dashboard.document'),
-					trans('provider.address_street'),
-					trans('provider.address_number'),
-					trans('provider.address_complements'),
-					trans('provider.address_neighbour'),
-					trans('provider.zipcode'),
-					trans('provider.address_city'),
-					trans('provider.state'),
-					trans('provider.country'),
-					trans('bank_account.holder_name'),
-					trans('bank_account.holder_document'),
-					trans('bank_account.bank_code'),
-					trans('bank_account.bank_name'),
-					trans('bank_account.account_types'),
-					trans('bank_account.person_type'),
-					trans('bank_account.bank_agency'),
-					trans('bank_account.bank_agency_dig'),
-					trans('bank_account.bank_account'),
-					trans('bank_account.bank_account_dig'),
-					trans('provider.total_request_grid'),
-					trans('finance.current_balance'),
-					trans('finance.total_compensations'),
-					trans('finance.total')
-				);
-		
-		if(config('app.locale') == 'pt-br')
-			$vars.push('finance.pix');// add pix column only if is pt-br language
+			trans('map.id'),
+			trans('provider.name_grid'),
+			trans('dashboard.document'),
+			trans('provider.address_street'),
+			trans('provider.address_number'),
+			trans('provider.address_complements'),
+			trans('provider.address_neighbour'),
+			trans('provider.zipcode'),
+			trans('provider.address_city'),
+			trans('provider.state'),
+			trans('provider.country'),
+			trans('bank_account.holder_name'),
+			trans('bank_account.holder_document'),
+			trans('bank_account.bank_code'),
+			trans('bank_account.bank_name'),
+			trans('bank_account.account_types'),
+			trans('bank_account.person_type'),
+			trans('bank_account.bank_agency'),
+			trans('bank_account.bank_agency_dig'),
+			trans('bank_account.bank_account'),
+			trans('bank_account.bank_account_dig'),
+			trans('provider.total_request_grid'),
+			trans('finance.current_balance'),
+			trans('finance.total_compensations'),
+			trans('finance.total')
+		);
+
+		if((config('app.locale') == 'pt-br'))
+			array_push($vars , 'finance.pix');// add pix column only if is pt-br language
 
 		// Setting the csv header
 		fputcsv($handle, $vars, ";" );
@@ -382,7 +383,7 @@ class FinanceController extends Controller {
 		$providers = $providers->get();
 		$locations = $this->locationModel->get();
 		$balances = array();		
-		
+
 		foreach ($providers as $key => $provider) {
 
 			$bank_account = $provider->getBankAccount();
@@ -411,7 +412,7 @@ class FinanceController extends Controller {
 				$balance = array("previous_balance"=>0.0, "current_balance" => 0.0, "total_balance_by_period" => 0.0, "detailed_balance"=> array(), "period_balance" => 0);				
 				array_push($balances, $balance);
 			}
-		
+
 			$total = 0;
 			$totalizer = 0;	
 			
@@ -439,7 +440,7 @@ class FinanceController extends Controller {
 
 			$bankTrans 		= trans("bank_account");
 
-			$accountType 	= $bank_account ? $bankTrans[$bank_account['account_type']] : '';
+			$accountType 	= $bank_account ? "" : '';
 			if(isset($bankTrans[$bank_account['person_type']])){
 				$personType		= $bank_account ? $bankTrans[$bank_account['person_type']] : '';
 			}else{
@@ -474,8 +475,8 @@ class FinanceController extends Controller {
 						$total_result
 					);
 				
-			if(config('app.locale') == 'pt-br' && method_exists($provider, 'getPix'))
-				$vars.push($provider->getPix());
+			if((config('app.locale') == 'pt-br') && method_exists($provider, 'getPix'))
+				array_push($vars , $provider->getPix());
 
 			// Formats the csv file
 			fputcsv($handle, $vars ,";");
