@@ -419,10 +419,10 @@ class LibModel extends Eloquent
 		if ($order == "") {
 
 			if ($orderBalance == "positive") {
-				$query->having('total', ">", 0);
+				$query->whereRaw("COALESCE((SELECT SUM(value) from finance WHERE finance.ledger_id = ledger.id), 0) > 0");
 				$query->orderBy('total', 'desc');
 			} else if ($orderBalance == "negative") {
-				$query->having('total', "<", 0);
+				$query->whereRaw("COALESCE((SELECT SUM(value) from finance WHERE finance.ledger_id = ledger.id), 0) < 0");
 				$query->orderBy('total', 'asc');
 			} else {
 				$query->orderBy('provider.id', 'DESC');

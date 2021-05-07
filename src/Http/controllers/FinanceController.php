@@ -102,7 +102,7 @@ class FinanceController extends Controller {
 
 	public function providerExtract(){		
 		$providers = $this->index(true);
-		$providers = $providers->simplePaginate(20);
+		$providers = $providers->paginate(20);
 		$locations = $this->locationModel->get();
 		$balances = array();
 		
@@ -165,7 +165,7 @@ class FinanceController extends Controller {
 		if (Input::get('submit') && Input::get('submit') == 'Download_Report') {
 			return $this->downloadExtractReport($providers);				
 		}else{
-			$providersss = $providers->simplePaginate(20);
+			$providersss = $providers->paginate(20);
 			$balances = array();
 			foreach($providersss as $provider){
 				$id =  $provider->id;
@@ -197,7 +197,7 @@ class FinanceController extends Controller {
 			}
 		}
 
-		if (count($providers->simplePaginate(20)) > 0) {				
+		if (count($providers->paginate(20)) > 0) {				
 			return View::make('finance::account_summary')
 					->with('locations', $locations)
 					->with('providers', $providersss)
@@ -350,8 +350,8 @@ class FinanceController extends Controller {
 			array(
 				trans('map.id'),
 				trans('provider.name_grid'),
-				trans('dashboard.document'),
-				trans('provider.address_street'),
+				trans('financeTrans::finance.holder_document'),
+				trans('financeTrans::finance.address_street'),
 				trans('provider.address_number'),
 				trans('provider.address_complements'),
 				trans('provider.address_neighbour'),
@@ -360,7 +360,7 @@ class FinanceController extends Controller {
 				trans('provider.state'),
 				trans('provider.country'),
 				trans('bank_account.holder_name'),
-				trans('bank_account.holder_document'),
+				trans('financeTrans::finance.bank_holder_document'),
 				trans('bank_account.bank_code'),
 				trans('bank_account.bank_name'),
 				trans('bank_account.account_types'),
@@ -369,10 +369,10 @@ class FinanceController extends Controller {
 				trans('bank_account.bank_agency_dig'),
 				trans('bank_account.bank_account'),
 				trans('bank_account.bank_account_dig'),
-				trans('provider.total_request_grid'),
-				trans('finance.current_balance'),
-				trans('finance.total_compensations'),
-				trans('finance.total')
+				trans('financeTrans::finance.period_requests'),
+				trans('financeTrans::finance.period_balance'),
+				trans('financeTrans::finance.total_balance'),
+				trans('financeTrans::finance.hit_value')
 			),
 			";"
 		);
@@ -471,8 +471,8 @@ class FinanceController extends Controller {
 					$bankAccountDv,
 					$provider->total_requests,
 					$total_balance_by_period,
-					$total_receivable,
-					$total_result
+					$total_result,
+					$total_result >= 0 ? $total_result : trans('financeTrans::finance.provider_in_debit')
 				),
 				";"
 			);

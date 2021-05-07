@@ -183,6 +183,16 @@
 			?>
 		</div>
 		<div class="box box-info tbl-box ">
+		    <?php 
+				$newStartDate = Input::get('start_date_created'); 
+				$newEndDate = Input::get('end_date_created');
+			?>
+
+			@if($newStartDate && $newEndDate) 
+				<p>{{ trans('financeTrans::finance.show_period', ['start' => $newStartDate, 'end' => $newEndDate]) }}</p>
+			@else
+				<p>{{ trans('financeTrans::finance.show_total_period') }}</p>
+			@endif
 			<table class="table table-bordered">
 				<thead>
 					<tr>
@@ -192,24 +202,20 @@
 						<th>{{ trans('provider.bank_grid') }}</th>
 						<th>{{ trans('provider.agency_grid') }}</th>
 						<th>{{ trans('provider.account_grid') }}</th>
-						<th>{{ trans('provider.total_request_grid') }}</th>
+						<th>{{ trans('financeTrans::finance.period_requests') }}</th>
 						
 
 						@if(Input::get('start_date_created') && Input::get('end_date_created'))
 							<th>{{ trans('financeTrans::finance.period_balance') }}</th>
 						@endif
 
-						<th>{{ trans('finance.total_compensations') }}</th>
-						<th colspan="2">{{ trans('finance.total')}}</th>
+						<th colspan="2">{{ trans('financeTrans::finance.total_balance')}}</th>
+						<th>{{ trans('financeTrans::finance.hit_value') }}</th>
 						<th>{{ trans('provider.status_grid') }}</th>
 						<th>{{ trans('provider.action_grid') }}</th>
 					</tr>
 				</thead>
-				<tbody>
-					<?php 
-						$newStartDate = Input::get('start_date_created'); 
-						$newEndDate = Input::get('end_date_created');
-					?> 
+				<tbody> 
 					@foreach ($providers as $key=>$provider)
 					<tr>
 						<!-- ID -->
@@ -268,22 +274,22 @@
 							</td>
 						@endif
 
-						<td style="text-align:center;" >
-							<?php																
-								$totalizer=0;									
-								$entries = $balances[$key];																												
-								$totalizer = $entries['total_balance'] - $entries['current_balance'];
-								$total += $totalizer;
-								$tipoClass = ($totalizer >= 0) ? 'text-success': "text-danger";
-								echo"<span class='$tipoClass'>$currency_symbol ".number_format($totalizer, 2, ',', ' ')."</span>"
-							?>
-						</td>
-
 						<td style="white-space:nowrap;" colspan="2">
 							<?php
 								$entries = $balances[$key];	
 								$tipoClass = ($entries['total_balance'] >= 0) ? 'text-success': "text-danger";
 								echo "<span class='$tipoClass'>$currency_symbol ".number_format($entries['total_balance'], 2, ',', ' ')."</span>"
+							?>
+						</td>
+
+						<td>
+							<?php
+								$entries = $balances[$key];
+								if ($entries['total_balance'] >= 0)	{
+									echo "<span class='$tipoClass'>$currency_symbol ".number_format($entries['total_balance'], 2, ',', ' ')."</span>";
+								} else {
+									echo trans('financeTrans::finance.provider_in_debit');
+								}
 							?>
 						</td>
 

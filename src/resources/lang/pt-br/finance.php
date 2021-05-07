@@ -132,6 +132,15 @@ return array(
 	'document_type' 				=> 'Tipo de documento',
 	
 	'holder_name_info' 				=> 'Insira o nome do favorecido tal como informado pelo banco',
+	
+	'bank_holder_document'			=> 'Documento do titular',
+	'address_street'				=> 'Endereço',
+	'period_requests'				=> 'Solicitações no período',
+	'total_balance'					=> 'Saldo total',
+	'hit_value'						=> 'Valor do acerto',
+	'provider_in_debit'				=> 'Prestador em dívida',
+	'show_total_period'				=> 'Mostrando período total',
+	'show_period'				    => 'Mostrando de :start à :end',
 
 	'occurrence_date'				=> 'Ocorrência',
 	'no_data_found'					=> 'Não encontramos registros',

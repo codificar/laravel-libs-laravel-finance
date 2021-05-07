@@ -133,6 +133,15 @@ return array(
 	
 	'holder_name_info' 				=> 'Inserte el nombre del beneficiario según lo informado por el banco',
 
+	'bank_holder_document'			=> 'Documento del titular',
+	'address_street'				=> 'Habla a',
+	'period_requests'				=> 'Solicitudes en el período',
+	'total_balance'					=> 'Balance total',
+	'hit_value'						=> 'Valor de acierto',
+	'provider_in_debit'				=> 'Proveedor destacado',
+	'show_total_period'				=> 'Mostrando período total',
+	'show_period'				    => 'Mostrando desde :start à :end',
+
 	'occurrence_date'				=> 'Ocurrencia',
 	'no_data_found'					=> 'No encontramos ningún registro',
 	'try_again_later'				=> 'Inténtelo de nuevo más tarde o pruebe con otros filtros.',

@@ -133,6 +133,15 @@ return array(
 	
 	'holder_name_info' 				=> 'Insert the name of the payee as informed by the bank',
 
+	'bank_holder_document'			=> 'Document of the holder',
+	'address_street'				=> 'Address',
+	'period_requests'				=> 'Requests in the period',
+	'total_balance'					=> 'Total balance',
+	'hit_value'						=> 'Hit value',
+	'provider_in_debit'				=> 'Outstanding provider',
+	'show_total_period'				=> 'Showing total period',
+	'show_period'				    => 'Showing from :start to :end',
+
 	'occurrence_date'				=> 'Occurrence',
 	'no_data_found'					=> 'We didnt find any records',
 	'try_again_later'				=> 'Try again later or try other filters.',
