@@ -74,6 +74,7 @@ return array(
 	'description_req'				=> 'You must enter the description',
 	'value'							=> 'Value',
 	'value_required'				=> 'You must enter a value',
+	'date_format'					=> 'the date format needs to be DD/MM/YYYY',
 	'minimum_value'					=> 'Minimum value',
 	'maximum_value'					=> 'Maximum value',
 	'download'						=> 'Download account report',

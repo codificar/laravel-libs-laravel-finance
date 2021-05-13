@@ -172,6 +172,7 @@ alert("Error");
                 <div class="input-daterange input-group" id="date-modal">
                   <input
                     type="text"
+                    v-mask="['##/##/####']"
                     class="form-control"
                     v-model="entry_date"
                     id="transaction-date"

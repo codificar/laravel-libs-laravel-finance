@@ -74,6 +74,7 @@ return array(
 	'description_req'				=> 'Debes ingresar la descripción',
 	'value'							=> 'Valor',
 	'value_required'				=> 'Debes ingresar un valor',
+	'date_format'					=> 'El formato de la fecha debe ser	DD/MM/YYYY',
 	'minimum_value'					=> 'Valor mínimo',
 	'maximum_value'					=> 'Valor máximo',
 	'download'						=> 'Descargar informe de cuenta',

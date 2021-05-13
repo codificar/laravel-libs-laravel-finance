@@ -598,7 +598,7 @@ class FinancialController extends Controller
 		$reason = Input::get('type-entry') == '0' ? '' : Input::get('type-entry');
 		$description = Input::get('entry-description');
 		$value = Input::get('entry-value');
-		$date = Input::get('entry-date');
+		$date = Input::has('entry-date') ? Input::get('entry-date') : date('Y-m-d H:i:s');
 		$ledger = Ledger::find($ledgerId);
 		$responseArray = array('success' => true, 'var' => $value);
 		$validator = Validator::make(
@@ -621,28 +621,33 @@ class FinancialController extends Controller
 			$responseArray = array('success' => false, 'error' => trans('accountController.invalid_input'), 'errorCode' => 401, 'messages' => $errorMessages);
 		} 
 		else {
-			switch($reason){
-				case Finance::SEPARATE_DEBIT:
-					$value = -$value;
-					break;
-				case Finance::RIDE_DEBIT:
-					$value = -$value;
-					break;
-				case Finance::WITHDRAW:
-					$value = -$value;
-					break;
-				case Finance::RIDE_LEDGER:
-					$value = -$value;
-					break;
-				case Finance::RIDE_CANCELLATION_DEBIT:
-					$value = -$value;
-					break;
-				default:
-					$value = $value;
+			//check date format
+			if(!Carbon::hasFormat($date, 'd/m/Y')) {
+				$responseArray = array('success' => false, 'error' => trans('accountController.invalid_input'), 'errorCode' => 401, 'messages' => [trans('financeTrans::finance.date_format')]);
+			} else {
+				switch($reason){
+					case Finance::SEPARATE_DEBIT:
+						$value = -$value;
+						break;
+					case Finance::RIDE_DEBIT:
+						$value = -$value;
+						break;
+					case Finance::WITHDRAW:
+						$value = -$value;
+						break;
+					case Finance::RIDE_LEDGER:
+						$value = -$value;
+						break;
+					case Finance::RIDE_CANCELLATION_DEBIT:
+						$value = -$value;
+						break;
+					default:
+						$value = $value;
+				}
+				$sessionId = \Auth::id();
+				$return = Finance::createCustomEntry($ledgerId, $reason, $description, $value, $date, $sessionId);
+				$responseArray = array('success' => true, 'return' => $return);
 			}
-			$sessionId = \Auth::id();
-			$return = Finance::createCustomEntry($ledgerId, $reason, $description, $value, $date, $sessionId);
-			$responseArray = array('success' => true, 'return' => $return);
 			
 		}
 		$responseCode = 200;
