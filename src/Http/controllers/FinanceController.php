@@ -127,11 +127,7 @@ class FinanceController extends Controller {
 			}
 		}
 
-		// Pega o código da moeda
-		$currency_code = Settings::getCurrencyCode();
-
-		// Pega o símbolo da moeda
-		$currency_symbol = Settings::getCurrencySymbol($currency_code);
+		$currency_symbol = LibModel::getCurrencySymbol() . " ";
 
 		return View::make('finance::account_summary')
 					->with('locations', $locations)
@@ -154,11 +150,7 @@ class FinanceController extends Controller {
 		$end_date_created = Input::get('end_date_created');
 		$orderBalance = Input::get('order_balance');
 		
-		// Pega o código da moeda
-		$currency_code = Settings::getCurrencyCode();
-
-		// Pega o símbolo da moeda
-		$currency_symbol = Settings::getCurrencySymbol($currency_code);
+		$currency_symbol = LibModel::getCurrencySymbol() . " ";
 
 		$providers = $this->filter(true,$start_date_compensation, $end_date_compensation, $start_date_created, $end_date_created, $orderBalance);
 		$locations = $this->locationModel->get();
@@ -557,9 +549,7 @@ class FinanceController extends Controller {
         $user_cards = $enviroment['holder']->payments;
         $user_balance = $enviroment['holder']->getBalance();
 
-		$currency = Settings::findByKey('generic_keywords_currency');
-		$currency_symbol = Settings::getCurrencySymbol($currency);
-		$currency_symbol = $currency_symbol ? $currency_symbol . ' ' : 'R$ '; //if not found currency symbol, get R$ (real) by default
+		$currency_symbol = LibModel::getCurrencySymbol() . " ";
 
 		return View::make('finance::payment.payment')
 						->with('enviroment', $enviroment['type'])

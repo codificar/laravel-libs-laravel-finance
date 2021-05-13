@@ -493,7 +493,12 @@ class LibModel extends Eloquent
 	}
 
 	public static function getSumMonthlyIndication($ledger_id) {
-		return Finance::sumMonthlyIndicationByLedgerId($ledger_id);
+		try {
+			return Finance::sumMonthlyIndicationByLedgerId($ledger_id);
+		} catch (\Throwable $th) {
+			return 0;
+		}
+		
 	}  
 
 	public static function getCustomIndicationSettings() {
@@ -504,4 +509,28 @@ class LibModel extends Eloquent
 
 		return $data;
 	}
+
+	public static function getCurrencySymbol()
+	{		
+
+		$internationalizationFormat= \Config::get('enum.Internationalization.CurrencyFormatting');
+		// if project has CurrencyFormatting in enum (Ex: delivery - entregas)
+		if($internationalizationFormat) {
+			$currencyKey = \Settings::getInternationalizationCurrency();
+			foreach ($internationalizationFormat as $cf) {
+				if ($currencyKey == $cf['key']) {
+					$chrAcronym = $cf['chrAcronym'];
+				}
+			}
+			return $chrAcronym ? $chrAcronym : "R$";
+		} 
+		//others projects (motorista privado, servicos etc)
+		else {
+			$currency = Settings::findByKey('generic_keywords_currency');
+			$currency_symbol = Settings::getCurrencySymbol($currency);
+			$currency_symbol = $currency_symbol ? $currency_symbol : "R$";
+			return $currency_symbol ? $currency_symbol : "R$";
+		}
+	}
+	
 }

@@ -221,11 +221,9 @@ class FinancialController extends Controller
 				$types = Finance::TYPES; //Prepares Finance types array to be used on vue component
 				$banks  = Bank::orderBy('code', 'asc')->get(); //List of banks
 				$account_types = LedgerBankAccount::getAccountTypes(); //List of AccountTypes
-				// Pega o código da moeda
-				$currency_code = Settings::getCurrencyCode();
 
 				// Pega o símbolo da moeda
-				$currency_symbol = Settings::getCurrencySymbol($currency_code);
+				$currency_symbol = LibModel::getCurrencySymbol() . " ";
 
 				$withDrawSettings = array(
 					'with_draw_enabled' 	=> Settings::getWithDrawEnabled(),
@@ -341,11 +339,8 @@ class FinancialController extends Controller
 			$types = Finance::TYPES; //Prepares Finance types array to be used on vue component
 			$futureCompensations = array();
 
-			// Obtém o código da moeda
-			$currency_code = Settings::getCurrencyCode();
-
-			// Obtém o símbolo da moeda
-			$currency_symbol = Settings::getCurrencySymbol($currency_code);
+			// Pega o símbolo da moeda
+			$currency_symbol = LibModel::getCurrencySymbol() . " ";
 			
 			// With draw settings
 			$withDrawSettings = array(
@@ -598,7 +593,10 @@ class FinancialController extends Controller
 		$reason = Input::get('type-entry') == '0' ? '' : Input::get('type-entry');
 		$description = Input::get('entry-description');
 		$value = Input::get('entry-value');
-		$date = Input::has('entry-date') ? Input::get('entry-date') : date('Y-m-d H:i:s');
+		$date = Input::get('entry-date');
+		if(!$date) { //if date is not selected, set today
+			$date = date('d/m/Y');
+		}
 		$ledger = Ledger::find($ledgerId);
 		$responseArray = array('success' => true, 'var' => $value);
 		$validator = Validator::make(
