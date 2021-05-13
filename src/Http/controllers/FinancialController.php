@@ -620,7 +620,9 @@ class FinancialController extends Controller
 		} 
 		else {
 			//check date format
-			if(!Carbon::hasFormat($date, 'd/m/Y')) {
+			$dateArr = explode("/", $date);
+			$year = count($dateArr) == 3 ? $dateArr[2] : "";
+			if(!Carbon::hasFormat($date, 'd/m/Y') || strlen($year) != 4) { //ano precisa ter 4 digitos, para proibir de inserir em anos pequenos (ex: 01/01/21 - isso e considerado literalmente ano 21 e nao 2021)
 				$responseArray = array('success' => false, 'error' => trans('accountController.invalid_input'), 'errorCode' => 401, 'messages' => [trans('financeTrans::finance.date_format')]);
 			} else {
 				switch($reason){
