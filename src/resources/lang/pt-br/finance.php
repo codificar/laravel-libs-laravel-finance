@@ -104,6 +104,8 @@ return array(
 	'total_compensations'			=> 'Total a receber',
 	'total_compensations_msg'		=> 'É o valor que o usuário ainda vai receber (somatório dos valores com data/hora maior que o momento atual)',
 
+	'pix'							=> 'PIX',
+
 	'insert_entry' 					=> 'Inserir Transação',
 	'insert' 						=> 'Inserir',
 	'add_new'						=> 'Cadastrar nova',
