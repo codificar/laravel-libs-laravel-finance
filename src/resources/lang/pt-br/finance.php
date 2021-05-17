@@ -99,6 +99,8 @@ return array(
 	'title_future_compensation' 	=> 'Compensações futuras',
 	'total_compensations'			=> 'Total a receber',
 
+	'pix'							=> 'PIX',
+
 	'insert_entry' 					=> 'Inserir Transação',
 	'insert' 						=> 'Inserir',
 	'add_new'						=> 'Cadastrar nova',
