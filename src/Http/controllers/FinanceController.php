@@ -367,7 +367,7 @@ class FinanceController extends Controller {
 				);
 
 		if((config('app.locale') == 'pt-br'))
-			array_push($vars , 'finance.pix');// add pix column only if is pt-br language
+			array_push($vars , ' PIX ');// add pix column only if is pt-br language
 
 		// Setting the csv header
 		fputcsv($handle, $vars, ";" );
