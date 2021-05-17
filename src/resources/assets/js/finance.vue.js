@@ -11,9 +11,10 @@ import 'vue-loading-overlay/dist/vue-loading.css';
 import pagination from 'laravel-vue-pagination';
 import VueResource from 'vue-resource';
 import VueSweetalert2 from 'vue-sweetalert2';
-
+import VTooltip from 'v-tooltip';
 
 Vue.component('financial-account-statement', require('./pages/finance/FinancialAccountStatement.vue'));
+Vue.component('empty-box', require('./pages/empty_box/EmptyBoxComponent.vue'));
 Vue.component('payment', require('./pages/payment/payment.vue'));
 Vue.component('paginator-counter', require('./pages/paginator/Counter.vue'));
 Vue.component('pagination', pagination);
@@ -25,7 +26,7 @@ Vue.use(require('vue-moment'));
 Vue.use(VueResource);
 Vue.use(VueSweetalert2);
 Vue.use(Loading);
-
+Vue.use(VTooltip);
 
 //Allows localization using trans()
 Vue.prototype.trans = (key) => {

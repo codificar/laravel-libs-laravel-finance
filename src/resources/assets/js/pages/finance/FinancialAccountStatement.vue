@@ -171,13 +171,16 @@
 
         <div v-else>
             <!-- Detailed balance -->
-            <div class="col-lg-12" v-if="!isEmpty(balance.detailed_balance)">
+            <div class="col-lg-12" v-if="!isEmpty(balance.current_compensations)">
                 <div class="card">
                     <div class="card-block">
                         <h3 class="card-title">{{ cardTitle }}</h3>
-                        <div class="card-block">
+                        <div>
                             <i class="fa fa-money"></i>
-                            <strong>{{ trans('finance.previous_balance') }}:</strong>
+                            <strong>
+                                {{ trans('finance.previous_balance') }}
+                                <span style="color: #0275d8" class="mdi mdi-comment-question-outline" v-tooltip="trans('finance.previous_balance_msg')"></span>:
+                            </strong>
                             
                             <span v-if="balance.previous_balance >= 0" class="text-success">
                                 {{ formatCurrency(balance.previous_balance) }}
@@ -186,9 +189,12 @@
                                 {{ formatCurrency(balance.previous_balance) }}
                             </span>
                         </div>
-                        <div class="card-block">
+                        <div style="margin-top:15px">
                             <i class="fa fa-money"></i>
-                            <strong>{{ trans('finance.period_balance') }}:</strong>
+                            <strong>
+                                {{ trans('finance.period_balance') }}
+                                <span style="color: #0275d8" class="mdi mdi-comment-question-outline" v-tooltip="trans('finance.period_balance_msg')"></span>:
+                            </strong>
                             
                             <span v-if="balance.period_balance >= 0" class="text-success">
                                 {{ formatCurrency(balance.period_balance) }}
@@ -233,7 +239,10 @@
                                         </td>
                                     </tr>
                                     <tr style="font-weight:bold;text-align:end;">
-                                        <td colspan="4" style="text-align:center;">{{trans('finance.total')}}</td>
+                                        <td colspan="4" style="text-align:center;">
+                                            {{trans('finance.total')}}
+                                            <span style="color: #0275d8" class="mdi mdi-comment-question-outline" v-tooltip="trans('finance.period_balance_msg')"></span>
+                                        </td>
                                         <td
                                             style="text-align:center;"
                                         >{{ formatCurrency(pageTotalValue()) }}</td>
@@ -243,13 +252,18 @@
                         </div>
 
                         <div class="card-block">
-                            <i class="fa fa-money"></i> <strong>{{ trans('finance.current_balance') }}:</strong>
+                            <i class="fa fa-money"></i> 
+                            
+                            <strong>
+                                {{ trans('finance.current_balance') }}
+                                <span style="color: #0275d8" class="mdi mdi-comment-question-outline" v-tooltip="trans('finance.current_balance_msg')"></span>:
+                            </strong>
 
-                            <span v-if="balance.total_balance >= 0" class="text-success">
-                                {{ formatCurrency(balance.total_balance) }}
+                            <span v-if="balance.current_balance >= 0" class="text-success">
+                                {{ formatCurrency(balance.current_balance) }}
                             </span>
                             <span v-else class="text-danger">
-                                {{ formatCurrency(balance.total_balance) }}
+                                {{ formatCurrency(balance.current_balance) }}
                             </span>
                         </div>
 
@@ -340,7 +354,11 @@
                                 </tr>
                             </table>
                             <i class="fa fa-money"></i>
-                            <strong>{{ trans('finance.total_compensations') }} :</strong>
+                            <strong>
+                                {{ trans('finance.total_compensations') }}
+                                <span style="color: #0275d8" class="mdi mdi-comment-question-outline" v-tooltip="trans('finance.total_compensations_msg')"></span>:
+                            </strong>
+
                             <span
                                 v-if="(balance.total_balance - balance.current_balance) >= 0"
                                 class="text-success"
@@ -464,7 +482,7 @@ export default {
                 );
 
                 // Verifica se existe compensações para exibir
-                if (this.balance.current_compensations.length > 0) 
+                if (this.balance.current_compensations.length > 0 || this.balance.future_compensations.length > 0) 
                     this.isDataEmpty = false;
                 else 
                     this.isDataEmpty = true;
@@ -625,4 +643,97 @@ export default {
 }
 .datepicker-box{width:100%;}
 .mx-input{height: 38px !important;}
+
+.tooltip {
+  display: block !important;
+  z-index: 10000;
+}
+
+.tooltip .tooltip-inner {
+  background: black;
+  color: white;
+  border-radius: 16px;
+  padding: 5px 10px 4px;
+}
+
+.tooltip .tooltip-arrow {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: absolute;
+  margin: 5px;
+  border-color: black;
+}
+
+.tooltip[x-placement^="top"] {
+  margin-bottom: 5px;
+}
+
+.tooltip[x-placement^="top"] .tooltip-arrow {
+  border-width: 5px 5px 0 5px;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  bottom: -5px;
+  left: calc(50% - 5px);
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.tooltip[x-placement^="bottom"] {
+  margin-top: 5px;
+}
+
+.tooltip[x-placement^="bottom"] .tooltip-arrow {
+  border-width: 0 5px 5px 5px;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+  border-top-color: transparent !important;
+  top: -5px;
+  left: calc(50% - 5px);
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.tooltip[x-placement^="right"] {
+  margin-left: 5px;
+}
+
+.tooltip[x-placement^="right"] .tooltip-arrow {
+  border-width: 5px 5px 5px 0;
+  border-left-color: transparent !important;
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  left: -5px;
+  top: calc(50% - 5px);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.tooltip[x-placement^="left"] {
+  margin-right: 5px;
+}
+
+.tooltip[x-placement^="left"] .tooltip-arrow {
+  border-width: 5px 0 5px 5px;
+  border-top-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  right: -5px;
+  top: calc(50% - 5px);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.tooltip[aria-hidden='true'] {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .15s, visibility .15s;
+}
+
+.tooltip[aria-hidden='false'] {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity .15s;
+}
 </style>

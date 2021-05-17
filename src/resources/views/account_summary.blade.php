@@ -208,8 +208,25 @@
 						@if(Input::get('start_date_created') && Input::get('end_date_created'))
 							<th>{{ trans('financeTrans::finance.period_balance') }}</th>
 						@endif
-
-						<th colspan="2">{{ trans('financeTrans::finance.total_balance')}}</th>
+						<th>
+							<label for="usr" class="flexrow">
+								{{ trans('financeTrans::finance.total_compensations') }}
+								<a href="#" class="question-field" data-toggle="tooltip" title="{{trans('financeTrans::finance.total_compensations_msg')}}"><span class="mdi mdi-comment-question-outline"></span></a>
+							</label>
+						</th>
+						
+						<th>
+							<label for="usr" class="flexrow">
+								{{ trans('financeTrans::finance.future_balance') }}
+								<a href="#" class="question-field" data-toggle="tooltip" title="{{trans('financeTrans::finance.future_balance_msg')}}"><span class="mdi mdi-comment-question-outline"></span></a>
+							</label>
+						</th>
+						<th colspan="2">
+							<label for="usr" class="flexrow">
+								{{ trans('financeTrans::finance.current_balance') }}
+								<a href="#" class="question-field" data-toggle="tooltip" title="{{trans('financeTrans::finance.current_balance_msg')}}"><span class="mdi mdi-comment-question-outline"></span></a>
+							</label>
+						</th>
 						<th>{{ trans('financeTrans::finance.hit_value') }}</th>
 						<th>{{ trans('provider.status_grid') }}</th>
 						<th>{{ trans('provider.action_grid') }}</th>
@@ -274,7 +291,16 @@
 							</td>
 						@endif
 
-						<td style="white-space:nowrap;" colspan="2">
+						<td style="white-space:nowrap;">
+							<?php
+								$entries = $balances[$key];	
+								$total_future = $entries['total_balance'] - $entries['current_balance'];
+								$tipoClass = ($total_future >= 0) ? 'text-success': "text-danger";
+								echo "<span class='$tipoClass'>$currency_symbol ".number_format($total_future, 2, ',', ' ')."</span>"
+							?>
+						</td>
+
+						<td style="white-space:nowrap;">
 							<?php
 								$entries = $balances[$key];	
 								$tipoClass = ($entries['total_balance'] >= 0) ? 'text-success': "text-danger";
@@ -282,11 +308,19 @@
 							?>
 						</td>
 
+						<td style="white-space:nowrap;" colspan="2">
+							<?php
+								$entries = $balances[$key];	
+								$tipoClass = ($entries['current_balance'] >= 0) ? 'text-success': "text-danger";
+								echo "<span class='$tipoClass'>$currency_symbol ".number_format($entries['current_balance'], 2, ',', ' ')."</span>"
+							?>
+						</td>
+
 						<td>
 							<?php
 								$entries = $balances[$key];
-								if ($entries['total_balance'] >= 0)	{
-									echo "<span class='$tipoClass'>$currency_symbol ".number_format($entries['total_balance'], 2, ',', ' ')."</span>";
+								if ($entries['current_balance'] >= 0)	{
+									echo "<span class='$tipoClass'>$currency_symbol ".number_format($entries['current_balance'], 2, ',', ' ')."</span>";
 								} else {
 									echo trans('financeTrans::finance.provider_in_debit');
 								}
@@ -414,6 +448,10 @@
 <style>
 	.peq {
 		min-width: 100px
+	}
+	.flexrow {
+		flex-direction: row !important;
+    	display: flex !important;
 	}
 </style>
 @stop @section('javascripts')
