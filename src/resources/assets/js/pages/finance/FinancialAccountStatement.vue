@@ -14,7 +14,7 @@
             v-if="loginType == 'admin'"
             v-on:entrySuccess="reloadPage"
             :ledger="holder"
-            :finance-types="financeTypes"
+            :finance-types="finance_types"
         ></modalentry>
         <!-- Modal entry: Inserir transação -->
 
@@ -69,7 +69,7 @@
                                                     >
                                                     <option value="0">{{trans('finance.transaction_type') }}</option>
                                                     <option
-                                                        v-for="option in financeTypes"
+                                                        v-for="option in finance_types"
                                                         v-bind:value="option"
                                                         v-bind:key="option"
                                                     >{{ trans("finance.op_"+option.toLowerCase()) }}</option>
@@ -390,7 +390,7 @@ export default {
         "Enviroment",
         "holder",
         "loginType",
-        "financeTypes",
+        "FinanceTypes",
         "bankAccounts",
         "banks",
         "accountTypes",
@@ -599,6 +599,8 @@ export default {
         }
     },
     created() {
+        this.finance_types = this.FinanceTypes ? JSON.parse(this.FinanceTypes) : null;
+
         // Seta os dados iniciais das datas
         this.startDate = moment().format('YYYY-MM-DD HH:mm:ss');
         this.endDate = moment().format('YYYY-MM-DD HH:mm:ss');

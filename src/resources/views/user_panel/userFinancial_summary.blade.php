@@ -20,7 +20,7 @@
 		enviroment="{{ $enviroment }}" 
 		:holder="{{ $holder }}"
 		login-type="{{ $login_type }}"
-		:finance-types="{{ json_encode($types) }}"
+		finance-types="{{ json_encode($types) }}"
 		:balance-data="{{ json_encode($balance) }}"
 		:bank-accounts="{{ json_encode($bankaccounts) }}"
 		:banks="{{ $banks }}"
