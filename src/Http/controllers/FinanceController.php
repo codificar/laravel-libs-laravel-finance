@@ -366,9 +366,11 @@ class FinanceController extends Controller {
 					trans('financeTrans::finance.hit_value')
 				);
 
-		if((config('app.locale') == 'pt-br'))
+		if((config('app.locale') == 'pt-br') && Settings::findByKey("show_pix_information") == 1)
+		{
 			array_push($vars , ' PIX ');// add pix column only if is pt-br language
-
+			array_push($vars , ' Chave PIX ');
+		}
 		// Setting the csv header
 		fputcsv($handle, $vars, ";" );
 
@@ -467,9 +469,21 @@ class FinanceController extends Controller {
 						$total_result >= 0 ? $total_result : trans('financeTrans::finance.provider_in_debit')
 					);
 				
-			if((config('app.locale') == 'pt-br') && method_exists($provider, 'getPix'))
+			if((config('app.locale') == 'pt-br') && method_exists($provider, 'getPix') && method_exists($provider, 'getPixType') &&  Settings::findByKey("show_pix_information") == 1)
+			{	
+				$pix = $provider->getPixType();;
+				if($pix == Provider::PIX_EMAIL){
+					$pix = 'E-mail'; 
+				}else if($pix == Provider::PIX_PHONE){
+					$pix = 'Celular'; 
+				}else if($pix ==  Provider::PIX_CPF){
+					$pix = 'CPF'; 
+				} else{
+					$pix = '';
+				}
+				array_push($vars , $pix);
 				array_push($vars , $provider->getPix());
-
+			}
 			// Formats the csv file
 			fputcsv($handle, $vars ,";");
 		}
