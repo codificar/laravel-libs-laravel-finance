@@ -498,12 +498,12 @@ class FinanceController extends Controller {
 
 	public function checkBankInfo($bank, $key)
 	{
-		if (!$bank)
+		if (!$bank || !$bank->bank)
 			return '';
 			
 		if(is_array($key) && $bank->bank)
 			return $bank->bank[$key[0]];
-
+		
 		return $bank->$key;
 	}
 
