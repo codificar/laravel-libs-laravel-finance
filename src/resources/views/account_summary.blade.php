@@ -199,6 +199,11 @@
 						<th>{{ trans('map.id') }}</th>
 						<th>{{ trans('provider.name_grid') }}</th>
 						<th>{{ trans('provider.mail_grid') }}</th>
+						<!-- PIX -->
+						@if(\Settings::findByKey("show_pix_information") == 1)
+							<th>PIX</th>
+							<th>Chave PIX</th>
+						@endif
 						<th>{{ trans('provider.bank_grid') }}</th>
 						<th>{{ trans('provider.agency_grid') }}</th>
 						<th>{{ trans('provider.account_grid') }}</th>
@@ -247,6 +252,27 @@
 						<td>
 							<?php echo $provider->email; ?>
 						</td>
+						<!-- PIX -->
+						@if(\Settings::findByKey("show_pix_information") == 1 && method_exists($provider, 'getPix') && method_exists($provider, 'getPixType'))
+							<td>
+								<?php 
+									$pix = $provider->getPixType();;
+									if($pix == Provider::PIX_EMAIL){
+										$pix = 'E-mail'; 
+									}else if($pix == Provider::PIX_PHONE){
+										$pix = 'Celular'; 
+									}else if($pix ==  Provider::PIX_CPF){
+										$pix = 'CPF'; 
+									} else{
+										$pix = '';
+									}
+									echo $pix;
+								?>
+							</td>
+
+							<td>{{ $provider->getPix() }}</td>
+						@endif
+
 						@if($bankAccount = $provider->getBankAccount())
 						<!-- Bank -->
 						<td>
