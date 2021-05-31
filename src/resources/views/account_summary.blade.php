@@ -150,6 +150,38 @@
 		</div>
 	</div>	
 </div>
+
+<div class="col-12 tbl-box">
+	<div class="card card-outline-info">
+		<div class="card-header">
+			<h4 class="m-b-0 text-white">
+				{{ trans('financeTrans::finance.import_payment') }}
+			</h4>
+		</div>
+		<div class="card-block">
+			<form action="{{ URL::Route('AdminImportPayments') }}" method="POST" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-md-6 col-sm-6">
+						<div class="form-group">
+							<label class="control-label">
+								{{ trans('financeTrans::finance.select_file') }}
+								(*<a href="/vendor/codificar/finance/file_exemple.csv">{{ trans('financeTrans::finance.exemple_file') }}</a>)
+							</label>
+							<input type="file" class="form-control" name="file" required />
+						</div>
+					</div>
+
+					<div class="col-md-12">
+						<div class="pull-right">
+							<input type="submit" value="{{ trans('financeTrans::finance.import') }}" class="btn btn-success right">
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 <?php
 	if( $order==0){
 		$order = 1;

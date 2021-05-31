@@ -29,9 +29,12 @@ use Codificar\Finance\Http\Resources\AddCardUserResource;
 
 use Carbon\Carbon;
 use Auth;
-
+use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
+use Codificar\Finance\Imports\PaymentsImport;
 use Input, Validator, View, Response, Session;
 use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Redirect;
 
 class FinanceController extends Controller {
 	use PartnerFilter;
@@ -847,5 +850,19 @@ class FinanceController extends Controller {
 			'id' => $id,
 			'holder' => $holder
 		);
+	}
+
+	/**
+	 * Importa baixa de pagamentos para prestadores
+	 * 
+	 * @param ImportPaymentsRequest $request
+	 * @return Redirect
+	 */
+	public function importProviderPayments(ImportPaymentsRequest $request)
+	{
+		Excel::import(new PaymentsImport, $request->file);
+		Session::flash('success', trans('financeTrans::finance.success_import'));
+
+		return Redirect::route('AdminProviderExtract');
 	}
 }

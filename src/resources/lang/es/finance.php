@@ -211,5 +211,11 @@ return array(
 		'Octubre',
 		'Noviembre',
 		'diciembre'
-)
+	),
+
+	'success_import' => 'Importación exitosa de pagos de cancelación!',
+	'import_payment' => 'Importar cancelaciones de pagos a proveedores',
+	'select_file' => 'Seleccione Archivo',
+	'exemple_file' => 'Descargar archivo de muestra',
+	'import' => 'Importar'
 );

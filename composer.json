@@ -5,7 +5,9 @@
         "name": "Codificar",
         "email": "libs@codificar.com.br"
     }],
-    "require": {},
+    "require": {
+        "maatwebsite/excel": "^3.1"
+    },
     "autoload": {
         "psr-4": {
             "Codificar\\Finance\\": "src/"

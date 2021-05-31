@@ -211,5 +211,11 @@ return array(
 		'Outubro',
 		'Novembro',
 		'Dezembro'
-)
+	),
+
+	'success_import' => 'Sucesso ao importar baixa de pagamentos!',
+	'import_payment' => 'Importar baixa de pagamentos para prestadores',
+	'select_file' => 'Selecionar arquivo',
+	'exemple_file' => 'Baixar arquivo de exemplo',
+	'import' => 'Importar'
 );

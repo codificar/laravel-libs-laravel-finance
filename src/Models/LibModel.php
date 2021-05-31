@@ -18,6 +18,7 @@ use DB;
 
 class LibModel extends Eloquent
 {
+	const DEPOSIT_IN_ACCOUNT = 'DEPOSIT_IN_ACCOUNT';
 
     protected $table = 'finance';
 

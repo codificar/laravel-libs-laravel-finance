@@ -27,6 +27,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
     Route::group(['prefix' => 'admin/libs/finance', 'middleware' => 'auth.admin'], function () {
         Route::get('/provider_extract', array('as' => 'AdminProviderExtract', 'uses' => 'FinanceController@providerExtract'));
         Route::get('/provider_extract/filter', array('as' => 'AdminProviderExtractFilter', 'uses' => 'FinanceController@providerExtractFilter'));
+        Route::post('/provider_extract/import_payments', array('as' => 'AdminImportPayments', 'uses' => 'FinanceController@importProviderPayments'));
         
         Route::get('/user/{id}', array('as' => 'userAccountStatement', 'uses' => 'FinancialController@getFinancialSummary'));
         Route::get('/provider/{id}', array('as' => 'financeProviderAccountStatement', 'uses' => 'FinancialController@getFinancialSummary'));

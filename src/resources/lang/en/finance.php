@@ -211,5 +211,11 @@ return array(
 		'October',
 		'November',
 		'December'
-)
+	),
+
+	'success_import' => 'Success in importing low payments!',
+	'import_payment' => 'Import write-off of payments to providers',
+	'select_file' => 'Select file',
+	'exemple_file' => 'Download sample file',
+	'import' => 'Import'
 );

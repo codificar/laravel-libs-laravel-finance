@@ -23,6 +23,7 @@ class FinanceServiceProvider extends ServiceProvider {
         // Publish the VueJS files inside public folder of main project (Copia os arquivos do vue minificados dessa biblioteca para pasta public do projeto que instalar essa lib)
         $this->publishes([
             __DIR__.'/../public/js' => public_path('vendor/codificar/finance'),
+            __DIR__.'/../public/files' => public_path('vendor/codificar/finance')
         ], 'public_vuejs_libs');
     }
 
