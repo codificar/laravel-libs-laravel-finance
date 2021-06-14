@@ -14,6 +14,7 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import VTooltip from 'v-tooltip';
 
 Vue.component('financial-account-statement', require('./pages/finance/FinancialAccountStatement.vue'));
+Vue.component('consolidated-statement', require('./pages/consolidated/statement.vue'));
 Vue.component('empty-box', require('./pages/empty_box/EmptyBoxComponent.vue'));
 Vue.component('payment', require('./pages/payment/payment.vue'));
 Vue.component('paginator-counter', require('./pages/paginator/Counter.vue'));

@@ -18,7 +18,8 @@
 		"laravel-elixir-vueify": "1.0.6",
 		"laravel-mix": "^2.1.14",
 		"lodash": "^4.17.4",
-		"vue": "^2.5.17"
+		"vue": "^2.5.17",
+		"vuejs-datepicker": "^1.6.2"
 	},
 	"dependencies": {
 		"@babel/core": "^7.3.4",

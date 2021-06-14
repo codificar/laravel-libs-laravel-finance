@@ -29,12 +29,14 @@ use Codificar\Finance\Http\Resources\AddCardUserResource;
 
 use Carbon\Carbon;
 use Auth;
+use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
 use Codificar\Finance\Imports\PaymentsImport;
 use Input, Validator, View, Response, Session;
-use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution;
+use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution, Ledger;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
+use DB;
 
 class FinanceController extends Controller {
 	use PartnerFilter;
@@ -864,5 +866,67 @@ class FinanceController extends Controller {
 		Session::flash('success', trans('financeTrans::finance.success_import'));
 
 		return Redirect::route('AdminProviderExtract');
+	}
+
+	public function consolidatedExtract()
+	{
+		$locations = \Location::select('id', 'name')->get()->toArray();
+		$partners = [];
+
+		return view('finance::financial.consolidated_extract', [
+			'locations' => $locations,
+			'partners' => $partners
+		]);
+	}
+
+	public function downloadConsolidatedExtract(GetConsolidatedStatementRequest $request)
+	{
+		$filename = "extrato-consolidado".date("Y-m-d-hms", time()).".csv";
+		$handle = fopen(storage_path('tmp/').$filename, 'w+');
+		fputs( $handle, $bom = chr(0xEF) . chr(0xBB) . chr(0xBF) );
+
+		$ledgers = LibModel::filterConsolidated($request, true);
+
+		$vars = [
+			trans('financeTrans::finance.ledger_id'),
+			trans('financeTrans::finance.name'),
+			trans('financeTrans::finance.type'),
+			trans('financeTrans::finance.period_requests_count'),
+			trans('financeTrans::finance.total_ro_receive'),
+			trans('financeTrans::finance.future_balance'),
+			trans('financeTrans::finance.actual_balance'),
+			trans('financeTrans::finance.payment_value')
+		];
+
+		fputcsv($handle, $vars, ";" );
+
+		foreach ($ledgers as $item) {
+			$vars = [
+				$item->ledger_id,
+				$item->user_name,
+				$item->user_type,
+				$item['balances']['period_request_count'],
+				$item['balances']['total_balance_text'],
+				$item['balances']['future_balance_text'],
+				$item['balances']['current_balance_text'],
+				$item['balances']['payment_value_text'],
+			];
+
+			fputcsv($handle, $vars ,";");
+		}
+
+		fclose($handle);
+		$headers = array(
+			'Content-Type' => 'text/csv; charset=utf-8',
+			'Content-Disposition' => 'attachment; filename='. $filename,
+		);
+		return Response::download(storage_path('tmp/').$filename, $filename, $headers);	
+	}
+
+	public function consolidatedExtractFetch(GetConsolidatedStatementRequest $request)
+	{
+		return response()->json([
+			'consolidated' => LibModel::filterConsolidated($request)
+		]);
 	}
 }

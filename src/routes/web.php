@@ -29,6 +29,10 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/provider_extract/filter', array('as' => 'AdminProviderExtractFilter', 'uses' => 'FinanceController@providerExtractFilter'));
         Route::post('/provider_extract/import_payments', array('as' => 'AdminImportPayments', 'uses' => 'FinanceController@importProviderPayments'));
         
+        Route::get('/consolidated_extract', array('as' => 'AdminConsolidatedExtract', 'uses' => 'FinanceController@consolidatedExtract'));
+        Route::get('/consolidated_extract/fetch', array('as' => 'AdminFetchExtract', 'uses' => 'FinanceController@consolidatedExtractFetch'));
+        Route::get('/consolidated_extract/download', array('as' => 'AdminFetchExtract', 'uses' => 'FinanceController@downloadConsolidatedExtract'));
+
         Route::get('/user/{id}', array('as' => 'userAccountStatement', 'uses' => 'FinancialController@getFinancialSummary'));
         Route::get('/provider/{id}', array('as' => 'financeProviderAccountStatement', 'uses' => 'FinancialController@getFinancialSummary'));
         Route::get('/summary/{id}', array('as' => 'userAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));

@@ -533,5 +533,147 @@ class LibModel extends Eloquent
 			return $currency_symbol ? $currency_symbol : "R$";
 		}
 	}
+
+	public static function filterConsolidated($request, $download = false)
+	{
+		$type = $request->type != '' ? $request->type : '';
+		$order = $request->balance != '' ? $request->balance : '';
+		$location = $request->location != '' ? $request->location : '';
+		$startDate = $request->startDate != '' ? $request->startDate : '';
+		$endDate = $request->endDate != '' ? $request->endDate : '';
+		$keyWord = $request->key_word != '' ? $request->key_word : '';
+
+		$leders = Ledger::select(
+				'ledger.id as ledger_id',
+				'ledger.user_id as user_id',
+				'ledger.provider_id',
+				'user.first_name as user_firstname',
+				'user.last_name as user_lastname',
+				'provider.first_name as provider_firstname',
+				'provider.last_name as provider_lastname',
+				'institution.id as is_corp'
+			)
+			->where('ledger.admin_id', null)
+			->leftJoin('user', 'user.id', '=', 'ledger.user_id')
+			->leftJoin('provider', 'provider.id', '=', 'ledger.provider_id')
+			->leftJoin('institution', 'institution.default_user_id', '=', 'ledger.user_id');
+
+		if ($startDate != '' && $endDate != '') {
+			$startDateCreated = date("Y-m-d 00:00:00", strtotime($startDate));
+			$endDateCreated = date("Y-m-d 23:59:59", strtotime($endDate));
+			$leders->join('finance', 'finance.ledger_id', '=', 'ledger.id');
+			$leders->whereBetween('finance.created_at', array($startDateCreated, $endDateCreated));
+		}
+
+		if ($type == 'user') {
+			$leders->where('user.id', '<>', null)
+				->where('institution.id', null);
+		} elseif ($type == 'provider') {
+			$leders->where('provider.id', '<>', null);
+		} elseif ($type == 'corp') {
+			$leders->where('user.id', '<>', null)
+				->where('institution.id', '<>', null);
+		}
+
+		if ($keyWord != '') {
+			$leders->where(DB::raw('CONCAT_WS(" ", user.first_name, user.last_name)'), "LIKE", '%' . $keyWord . '%')
+				->orWhere(DB::raw('CONCAT_WS(" ", provider.first_name, provider.last_name)'), "LIKE", '%' . $keyWord . '%')
+				->orWhere('user.email', "LIKE", '%' . $keyWord . '%')
+				->orWhere('provider.email', "LIKE", '%' . $keyWord . '%');
+		}
+
+		$leders->groupBy('ledger.id');
+
+		if ($order != "") {
+
+			$leders->addSelect( DB::raw("COALESCE((SELECT SUM(value) from finance WHERE finance.ledger_id = ledger.id), 0) AS total") );
+
+			if ($order == "positive") {
+				$leders->whereRaw("COALESCE((SELECT SUM(value) from finance WHERE finance.ledger_id = ledger.id), 0) > 0");
+				$leders->orderBy('total', 'desc');
+			} else if ($order == "negative") {
+				$leders->whereRaw("COALESCE((SELECT SUM(value) from finance WHERE finance.ledger_id = ledger.id), 0) < 0");
+				$leders->orderBy('total', 'asc');
+			}
+			
+		} else {
+			$leders = $leders->orderBy('ledger.id', 'desc');
+		}
+
+		if ($location != '') {
+			if ($type == '') {
+				$leders->where('user.location_id', $location)
+					->orWhere('provider.location_id', $location);
+			} elseif ($type == 'user' || $type == 'corp') {
+				$leders->where('user.location_id', $location);
+			} elseif ($type == 'provider') {
+				$leders->where('provider.location_id', $location);
+			}
+		}
+
+		if ($download) {
+			$leders = $leders->get();
+		} else {
+			$leders = $leders->paginate(20);
+		}
+
+		foreach ($leders as $item) {
+			$start = $startDate != '' ? date('Y-m-d H:i:s', strtotime($startDate)) : date('Y-m-d H:i:s', strtotime($item->created_at));
+			$end = $endDate != '' ? date('Y-m-d 23:59:59', strtotime($endDate)) :  date('Y-m-d 23:59:59');
+			
+			$balances = [
+				'total_balance' => Finance::sumAllValueByLedgerId($item->ledger_id),
+				'current_balance' => Finance::sumValueByLedgerId($item->ledger_id),
+				'period_request_count' => Finance::where('ledger_id', $item->ledger_id)
+					->whereNotNull('request_id')
+					->whereBetween('finance.created_at', array($start, $end))
+					->count()
+			];
+
+			$balances['future_balance'] = $balances['total_balance'] - $balances['current_balance'];
+			$balances['payment_value'] = $balances['current_balance'];
+
+			$balances['total_balance_text'] = self::currency_format($balances['total_balance']);
+			$balances['current_balance_text'] = self::currency_format($balances['current_balance']);
+			$balances['future_balance_text'] = self::currency_format($balances['future_balance']);
+			$balances['payment_value_text'] = $balances['payment_value'] >= 0 ? self::currency_format($balances['payment_value']) : trans('financeTrans::finance.client_in_debit');
+
+			$item->balances = $balances;
+			$item->user_type = $item->is_corp != null ? 'corp' : ($item->user_id != null ? 'user' : 'provider');
+			$item->user_name = $item->provider_id != null ? 
+				$item->provider_firstname . ' ' . $item->provider_lastname :
+				$item->user_firstname . ' ' . $item->user_lastname;
+			$item->extract_url = '/admin/libs/finance/' . ($item->provider_id != null ? "provider/$item->provider_id" : "user/$item->user_id");
+		}
+
+		return $leders;
+	}
+
+	public static function currency_format($fltNumber, $chrAcronym = null, $intPrecision = 2, $chrDecimal = ',', $chrThousand = '.', $currency_formatting = true)
+	{
+		$internationalizationFormat= \Config::get('enum.Internationalization.CurrencyFormatting');
+
+		if (!$internationalizationFormat)
+			$chrAcronym = "R$ ";
+
+		if (!$chrAcronym) {
+			$currencyKey = \Settings::getInternationalizationCurrency();
+		
+			if ($currency_formatting){
+				foreach ($internationalizationFormat as $cf) {
+					if ($currencyKey == $cf['key']) {
+						$chrAcronym = $cf['chrAcronym'];
+						$intPrecision = $cf['intPrecision'];
+						$chrDecimal = $cf['chrDecimal'];
+						$chrThousand = $cf['chrThousand'];
+					}
+				}
+			}
+		} 
+		if($chrAcronym == null) $chrAcronym = "R$ ";
+	
+		if ($chrAcronym) $chrAcronym = $chrAcronym . ' ';
+		return $chrAcronym . number_format(floatval($fltNumber), $intPrecision, $chrDecimal, $chrThousand);
+	}
 	
 }
