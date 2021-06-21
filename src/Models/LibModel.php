@@ -40,7 +40,7 @@ class LibModel extends Eloquent
     public static function sumValueByLedgerIdByPeriod($ledgerId, $startDate, $endDate){
 		$startDateNew = Carbon::parse($startDate);
 		$endDateNew = Carbon::parse($endDate);
-		return (double)number_format(self::where('ledger_id', $ledgerId)->whereBetween('created_at', [$startDateNew, $endDateNew])->where('compensation_date', '<', date('Y-m-d 23:59:59'))->sum('value'), 2, '.', '');
+		return (double)number_format(self::where('ledger_id', $ledgerId)->whereBetween('compensation_date', [$startDateNew, $endDateNew])->sum('value'), 2, '.', '');
 	}
 
 	private function getStartDateEarningsReport() {
@@ -329,15 +329,15 @@ class LibModel extends Eloquent
 		}
 		
 		if($providerExtract && $startDateCompensation && $endDateCompensation ){					
-			$startDateCompensation = date("Y-m-d 00:00:00", strtotime(str_replace('/', '-', $startDateCompensation)));			
-			$endDateCompensation = date("Y-m-d 23:59:59", strtotime(str_replace('/', '-', $endDateCompensation)));					
+			$startDateCompensation = Carbon::createFromFormat('d/m/Y', $startDateCompensation)->format('Y-m-d 00:00:00');			
+			$endDateCompensation = Carbon::createFromFormat('d/m/Y', $endDateCompensation)->format('Y-m-d 00:00:00');					
 			$query->whereBetween('compensation_date', array($startDateCompensation, $endDateCompensation));
 		}
 		
 		if($providerExtract && $startDateCreated && $endDateCreated ){
-			$startDateCreated = date("Y-m-d 00:00:00", strtotime(str_replace('/', '-', $startDateCreated)));			
-			$endDateCreated = date("Y-m-d 23:59:59", strtotime(str_replace('/', '-', $endDateCreated)));			
-			$query->whereBetween('finance.created_at', array($startDateCreated, $endDateCreated));
+			$startDateCreated = Carbon::createFromFormat('d/m/Y', $startDateCreated)->format('Y-m-d 00:00:00');			
+			$endDateCreated = Carbon::createFromFormat('d/m/Y', $endDateCreated)->format('Y-m-d 23:59:59');				
+			$query->whereBetween('finance.compensation_date', array($startDateCreated, $endDateCreated));
 		}
 
 		if ($locationId != 0){
