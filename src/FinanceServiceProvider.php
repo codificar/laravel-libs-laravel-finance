@@ -25,6 +25,12 @@ class FinanceServiceProvider extends ServiceProvider {
             __DIR__.'/../public/js' => public_path('vendor/codificar/finance'),
             __DIR__.'/../public/files' => public_path('vendor/codificar/finance')
         ], 'public_vuejs_libs');
+
+        // Load seeds
+        $this->publishes([
+            __DIR__.'/Database/seeds' => database_path('seeds')
+        ], 'public_vuejs_libs');
+
     }
 
     public function register()
