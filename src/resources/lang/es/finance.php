@@ -241,5 +241,6 @@ return array(
 	'action_grid' => 'Comportamiento',
 	'debit_notification' => 'Notificar débito',
 	'client_in_debit' => 'Cliente de débito',
-	'down_report' => 'Baixar Declaración'
+	'down_report' => 'Baixar Declaración',
+	'corp' => 'Institución'
 );

@@ -134,7 +134,7 @@
         <h4 class="m-b-0 text-white">{{ trans("finance.consolidated_extract") }}</h4>
       </div>
       <div class="card-block">
-        <pagination :data="consolidated_data" @pagination-change-page="fetch" ></pagination> 
+        <pagination :data="consolidated_data" @pagination-change-page="fetch" :limit="5"></pagination>
 
         <table class="table table-bordered">
             <tr>
@@ -142,6 +142,7 @@
               <th>{{ trans("finance.name") }}</th>
               <th>{{ trans("finance.type") }}</th>
               <th>{{ trans("finance.period_requests_count") }}</th>
+              <th>{{ trans("finance.period_balance") }}</th>
               <th>{{ trans("finance.total_ro_receive") }}</th>
               <th>{{ trans("finance.future_balance") }}</th>
               <th>{{ trans("finance.current_balance") }}</th>
@@ -151,8 +152,14 @@
             <tr v-for="(item, index) in consolidated_data.data" :key="index">
               <td>{{ item.ledger_id }}</td>
               <td>{{ item.user_name }}</td>
-              <td>{{ item.user_type }}</td>
+              <td>{{ trans('finance.' + item.user_type) }}</td>
               <td>{{ item.balances.period_request_count }}</td>
+              <td>
+                <span :class="[item.balances.period_balance >= 0 ? 'text-success' : 'text-danger']">
+                  {{ item.balances.period_balance_text }}
+                  </span>
+                </td>
+              </td>
               <td>
                 <span :class="[item.balances.total_balance >= 0 ? 'text-success' : 'text-danger']">
                   {{ item.balances.total_balance_text }}
@@ -195,7 +202,7 @@
             </tr>
         </table>
 
-        <pagination :data="consolidated_data" @pagination-change-page="fetch" ></pagination> 
+        <pagination :data="consolidated_data" @pagination-change-page="fetch" :limit="5" ></pagination> 
       </div>
     </div>
 

@@ -868,6 +868,11 @@ class FinanceController extends Controller {
 		return Redirect::route('AdminProviderExtract');
 	}
 
+	/**
+	 * Render consolidated statement blade
+	 * 
+	 * @return view
+	 */
 	public function consolidatedExtract()
 	{
 		$locations = \Location::select('id', 'name')->get()->toArray();
@@ -879,6 +884,12 @@ class FinanceController extends Controller {
 		]);
 	}
 
+	/**
+	 * Download the consolidated statement
+	 * 
+	 * @param GetConsolidatedStatementRequest $request
+	 * @return Response
+	 */
 	public function downloadConsolidatedExtract(GetConsolidatedStatementRequest $request)
 	{
 		$filename = "extrato-consolidado".date("Y-m-d-hms", time()).".csv";
@@ -892,10 +903,11 @@ class FinanceController extends Controller {
 			trans('financeTrans::finance.name'),
 			trans('financeTrans::finance.type'),
 			trans('financeTrans::finance.period_requests_count'),
+			trans('financeTrans::finance.period_balance'),
 			trans('financeTrans::finance.total_ro_receive'),
 			trans('financeTrans::finance.future_balance'),
-			trans('financeTrans::finance.actual_balance'),
-			trans('financeTrans::finance.payment_value')
+			trans('financeTrans::finance.current_balance'),
+			trans('financeTrans::finance.hit_value')
 		];
 
 		fputcsv($handle, $vars, ";" );
@@ -904,8 +916,9 @@ class FinanceController extends Controller {
 			$vars = [
 				$item->ledger_id,
 				$item->user_name,
-				$item->user_type,
+				trans('financeTrans::finance.' . $item->user_type),
 				$item['balances']['period_request_count'],
+				$item['balances']['period_balance_text'],
 				$item['balances']['total_balance_text'],
 				$item['balances']['future_balance_text'],
 				$item['balances']['current_balance_text'],
@@ -923,6 +936,12 @@ class FinanceController extends Controller {
 		return Response::download(storage_path('tmp/').$filename, $filename, $headers);	
 	}
 
+	/**
+	 * Fetch the consolidated statement data
+	 * 
+	 * @param GetConsolidatedStatementRequest $request
+	 * @return json
+	 */
 	public function consolidatedExtractFetch(GetConsolidatedStatementRequest $request)
 	{
 		return response()->json([

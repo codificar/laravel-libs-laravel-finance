@@ -243,5 +243,6 @@ return array(
 	'action_grid' => 'Ação',
 	'debit_notification' => 'Notificar débito',
 	'client_in_debit' => 'Cliente em débito',
-	'down_report' => 'Baixar extrato'
+	'down_report' => 'Baixar extrato',
+	'corp' => 'Instituição'
 );

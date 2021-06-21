@@ -534,6 +534,13 @@ class LibModel extends Eloquent
 		}
 	}
 
+	/**
+	 * Filter consolidated statement data
+	 * 
+	 * @param GetConsolidatedStatementRequest $request
+	 * @param boolean $download
+	 * @return array
+	 */
 	public static function filterConsolidated($request, $download = false)
 	{
 		$type = $request->type != '' ? $request->type : '';
@@ -622,9 +629,10 @@ class LibModel extends Eloquent
 			$end = $endDate != '' ? date('Y-m-d 23:59:59', strtotime($endDate)) :  date('Y-m-d 23:59:59');
 			
 			$balances = [
-				'total_balance' => Finance::sumAllValueByLedgerId($item->ledger_id),
-				'current_balance' => Finance::sumValueByLedgerId($item->ledger_id),
-				'period_request_count' => Finance::where('ledger_id', $item->ledger_id)
+				'total_balance' => self::sumAllValueByLedgerId($item->ledger_id),
+				'current_balance' => self::sumValueByLedgerId($item->ledger_id),
+				'period_balance' => self::sumValueByLedgerIdByPeriod($item->ledger_id, $start, $end),
+				'period_request_count' => self::where('ledger_id', $item->ledger_id)
 					->whereNotNull('request_id')
 					->whereBetween('finance.created_at', array($start, $end))
 					->count()
@@ -636,6 +644,7 @@ class LibModel extends Eloquent
 			$balances['total_balance_text'] = self::currency_format($balances['total_balance']);
 			$balances['current_balance_text'] = self::currency_format($balances['current_balance']);
 			$balances['future_balance_text'] = self::currency_format($balances['future_balance']);
+			$balances['period_balance_text'] = self::currency_format($balances['period_balance']);
 			$balances['payment_value_text'] = $balances['payment_value'] >= 0 ? self::currency_format($balances['payment_value']) : trans('financeTrans::finance.client_in_debit');
 
 			$item->balances = $balances;
