@@ -242,5 +242,6 @@ return array(
 	'debit_notification' => 'Notify debit',
 	'client_in_debit' => 'Debit customer',
 	'down_report' => 'Download report',
-	'corp' => 'Institution'
+	'corp' => 'Institution',
+	'op_deposit_in_account' => 'Account deposit (payment write-off)'
 );

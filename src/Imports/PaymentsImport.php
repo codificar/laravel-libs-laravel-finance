@@ -2,6 +2,7 @@
 
 namespace Codificar\Finance\Imports;
 
+use Carbon\Carbon;
 use Codificar\Finance\Models\LibModel;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -25,14 +26,15 @@ class PaymentsImport implements ToCollection, WithStartRow
 
             foreach ($rows as $row) {
                 $ledger = Ledger::whereProviderId($row[0])->first();
+                $compensationDate = Carbon::createFromFormat('d/m/Y', $row[2])->format('Y-m-d H:i:s');
 
                 if ($ledger) {
                     $finance = [
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s'),
-                        'compensation_date' => date('Y-m-d H:i:s'),
+                        'compensation_date' => $compensationDate,
                         'ledger_id' => $ledger->id,
-                        'value' => -$row[1],
+                        'value' => $row[1] * -1,
                         'reason' => LibModel::DEPOSIT_IN_ACCOUNT,
                         'description' => $row[3],
                     ];

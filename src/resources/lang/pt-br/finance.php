@@ -244,5 +244,6 @@ return array(
 	'debit_notification' => 'Notificar débito',
 	'client_in_debit' => 'Cliente em débito',
 	'down_report' => 'Baixar extrato',
-	'corp' => 'Instituição'
+	'corp' => 'Instituição',
+	'op_deposit_in_account' => 'Depósito em conta (baixa de pagamento)'
 );

@@ -242,5 +242,6 @@ return array(
 	'debit_notification' => 'Notificar débito',
 	'client_in_debit' => 'Cliente de débito',
 	'down_report' => 'Baixar Declaración',
-	'corp' => 'Institución'
+	'corp' => 'Institución',
+	'op_deposit_in_account' => 'Depósito en cuenta (cancelación de pago)'
 );
