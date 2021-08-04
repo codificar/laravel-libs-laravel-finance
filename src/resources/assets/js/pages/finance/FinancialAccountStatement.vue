@@ -216,7 +216,7 @@
                                     </tr>
 
                                     <tr v-for="entry in balance.current_compensations" v-bind:key="entry.id" total="0">
-                                        <td>{{ entry.compensation_date | moment("DD/MM/YYYY") }}</td>
+                                        <td>{{ entry.internationalization_compensation_date.substring(0,10) }}</td>
                                         <td class="hide-small">{{ entry.compensation_date | moment("hh:mm:ss") }}</td>
                                         <td v-if="entry.reason">{{ trans("finance.op_"+entry.reason.toLowerCase()) }}</td>
                                         <td v-else>{{ trans('finance.reason_not_found') }}</td>
@@ -397,7 +397,8 @@ export default {
         "withDrawSettings",
         "currencySymbol",
         "holderType",
-        'balanceData'
+        'balanceData',
+        "DateTime"
     ],
     components: {
         modalentry: ModalEntry,
@@ -423,7 +424,8 @@ export default {
             itemsPerPage: 100,
             isDataEmpty: true,
             bank_account_id: 0,
-            url: window.location.href            
+            url: window.location.href,
+            dateTime: "DD/MM/YYYY"         
         }
     },    
     methods:{
@@ -437,13 +439,13 @@ export default {
             return totalizer;
         },
         setTitles() {
-            let initialDate = moment(this.startDate).format("DD/MM/YYYY");
-            let finalDate = moment(this.endDate).format("DD/MM/YYYY");
+            let initialDate = moment(this.startDate).format(this.dateTime);
+            let finalDate = moment(this.endDate).format(this.dateTime);
 
-            this.cardTitle = this.trans("finance.vue_title_statement");
-            this.cardTitle += initialDate;
+            this.cardTitle = this.trans("finance.vue_title_statement") + " ";
+            this.cardTitle += initialDate.substring(0,10);
             this.cardTitle += " " + this.trans("finance.to") + " ";
-            this.cardTitle += finalDate;
+            this.cardTitle += finalDate.substring(0,10);
             this.futureCardTitle = this.trans("finance.title_future_compensation");
         },
         getFinancialSummary(page) {
@@ -616,6 +618,9 @@ export default {
 
         // Obtém extrato da conta inicial
         this.getFinancialSummary();
+
+
+        this.dateTime = this.DateTime.toUpperCase();
     },  
     mounted() {
         // 

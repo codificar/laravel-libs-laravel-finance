@@ -289,6 +289,7 @@ class LibModel extends Eloquent
 
 			foreach($currentCompensations as $item) {
 				$item['value_formatted'] = currency_format(currency_converted($item['value']));
+				$item['internationalization_compensation_date'] = internationalizationDatetime($item['compensation_date']);
 			}
 
 			$response = array(
@@ -533,7 +534,6 @@ class LibModel extends Eloquent
 			return $currency_symbol ? $currency_symbol : "R$";
 		}
 	}
-
 	/**
 	 * Filter consolidated statement data
 	 * 
@@ -684,5 +684,7 @@ class LibModel extends Eloquent
 		if ($chrAcronym) $chrAcronym = $chrAcronym . ' ';
 		return $chrAcronym . number_format(floatval($fltNumber), $intPrecision, $chrDecimal, $chrThousand);
 	}
+	
+}
 	
 }

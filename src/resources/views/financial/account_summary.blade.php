@@ -26,6 +26,7 @@
 		:with-draw-settings="{{ json_encode($withdrawsettings) }}"
 		currency-symbol="{{ $currency_symbol }}"
 		holder-type="{{ $holder_type }}"
+		date-time="{{ internationalizationJSDateSetting() }}"
 	></financial-account-statement>
 </div>
 @stop
