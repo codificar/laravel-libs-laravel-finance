@@ -509,6 +509,7 @@ class FinanceController extends Controller {
 		if(is_array($key) && $bank->bank)
 			return $bank->bank[$key[0]];
 		
+
 		return $bank->$key;
 	}
 
