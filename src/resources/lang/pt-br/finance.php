@@ -245,5 +245,7 @@ return array(
 	'client_in_debit' => 'Cliente em débito',
 	'down_report' => 'Baixar extrato',
 	'corp' => 'Instituição',
-	'op_deposit_in_account' => 'Depósito em conta (baixa de pagamento)'
+	'op_deposit_in_account' => 'Depósito em conta (baixa de pagamento)',
+	'delimiter' => 'Delimitador',
+	'date_format' => 'Formato da data'
 );

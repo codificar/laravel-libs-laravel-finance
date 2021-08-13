@@ -243,5 +243,7 @@ return array(
 	'client_in_debit' => 'Debit customer',
 	'down_report' => 'Download report',
 	'corp' => 'Institution',
-	'op_deposit_in_account' => 'Account deposit (payment write-off)'
+	'op_deposit_in_account' => 'Account deposit (payment write-off)',
+	'delimiter' => 'Delimiter',
+	'date_format' => 'Date format'
 );

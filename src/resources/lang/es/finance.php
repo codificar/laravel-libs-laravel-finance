@@ -243,5 +243,7 @@ return array(
 	'client_in_debit' => 'Cliente de débito',
 	'down_report' => 'Baixar Declaración',
 	'corp' => 'Institución',
-	'op_deposit_in_account' => 'Depósito en cuenta (cancelación de pago)'
+	'op_deposit_in_account' => 'Depósito en cuenta (cancelación de pago)',
+	'delimiter' => 'Delimitador',
+	'date_format' => 'Formato da data'
 );

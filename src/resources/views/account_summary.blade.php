@@ -161,13 +161,30 @@
 		<div class="card-block">
 			<form action="{{ URL::Route('AdminImportPayments') }}" method="POST" enctype="multipart/form-data">
 				<div class="row">
-					<div class="col-md-6 col-sm-6">
+					<div class="col-md-4 col-sm-6">
 						<div class="form-group">
 							<label class="control-label">
 								{{ trans('financeTrans::finance.select_file') }}
 								(*<a href="/vendor/codificar/finance/file_exemple.csv">{{ trans('financeTrans::finance.exemple_file') }}</a>)
 							</label>
 							<input type="file" class="form-control" name="file" required />
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group">
+							<label class="control-label">{{ trans('financeTrans::finance.delimiter') }}</label>
+							<input type="text" class="form-control" name="delimeter" value=",">
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group">
+							<label class="control-label">{{ trans('financeTrans::finance.date_format') }}</label>
+							<select class="form-control" name="date_format">
+								<option value="d/m/Y">d/m/Y</option>
+								<option value="Y/m/d">Y/m/d</option>
+							</select>
 						</div>
 					</div>
 

@@ -7,10 +7,29 @@ use Codificar\Finance\Models\LibModel;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
 use Ledger, Finance;
 
-class PaymentsImport implements ToCollection, WithStartRow
+class PaymentsImport implements ToCollection, WithStartRow, WithCustomCsvSettings
 {
+    protected $delimiter;
+    protected $dateFormat;
+
+    public function __construct($delimiter, $dateFormat) {
+        $this->delimiter = $delimiter;
+        $this->dateFormat = $dateFormat;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCsvSettings(): array
+    {
+        return [
+            'delimiter' => $this->delimiter
+        ];
+    }
+
     /**
      * @return int
      */
@@ -26,8 +45,8 @@ class PaymentsImport implements ToCollection, WithStartRow
 
             foreach ($rows as $row) {
                 $ledger = Ledger::whereProviderId($row[0])->first();
-                $compensationDate = Carbon::createFromFormat('d/m/Y', $row[2])->format('Y-m-d H:i:s');
-
+                $compensationDate = Carbon::createFromFormat($this->dateFormat, $row[2])->format('Y-m-d H:i:s');
+                
                 if ($ledger) {
                     $finance = [
                         'created_at' => date('Y-m-d H:i:s'),

@@ -28,7 +28,9 @@ class ImportPaymentsRequest extends FormRequest
     {
         
         return [
-			'file' => ['required', 'file']
+			'file' => ['required', 'file'],
+            'delimeter' => 'required',
+            'date_format' => 'required'
 		];
     }
 
