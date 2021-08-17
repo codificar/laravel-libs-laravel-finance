@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
 use Ledger, Finance;
+use Session;
 
 class PaymentsImport implements ToCollection, WithStartRow, WithCustomCsvSettings
 {
