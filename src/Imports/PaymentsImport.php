@@ -44,8 +44,8 @@ class PaymentsImport implements ToCollection, WithStartRow, WithCustomCsvSetting
             $bulkInsertion = [];
 
             foreach ($rows as $row) {
-                $ledger = Ledger::whereProviderId($row[0])->first();
-                $compensationDate = Carbon::createFromFormat($this->dateFormat, $row[2])->format('Y-m-d H:i:s');
+                $ledger = Ledger::whereProviderId(trim($row[0]))->first();
+                $compensationDate = Carbon::createFromFormat($this->dateFormat, trim($row[2]))->format('Y-m-d H:i:s');
                 
                 if ($ledger) {
                     $finance = [
@@ -53,9 +53,9 @@ class PaymentsImport implements ToCollection, WithStartRow, WithCustomCsvSetting
                         'updated_at' => date('Y-m-d H:i:s'),
                         'compensation_date' => $compensationDate,
                         'ledger_id' => $ledger->id,
-                        'value' => $row[1] * -1,
+                        'value' => trim($row[1]) * -1,
                         'reason' => LibModel::DEPOSIT_IN_ACCOUNT,
-                        'description' => $row[3],
+                        'description' => trim($row[3]),
                     ];
 
                     array_push($bulkInsertion, $finance);
@@ -67,8 +67,10 @@ class PaymentsImport implements ToCollection, WithStartRow, WithCustomCsvSetting
                 Finance::insert($item->toArray());
             }
 
+            Session::flash('success', trans('financeTrans::finance.success_import'));
             return true;
         } catch (\Throwable $th) {
+            Session::flash('danger', trans('financeTrans::finance.success_error'));
             \Log::error($th->getMessage());
         }
     }

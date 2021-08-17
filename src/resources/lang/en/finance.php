@@ -214,6 +214,7 @@ return array(
 	),
 
 	'success_import' => 'Success in importing low payments!',
+	'success_error' => 'There was an error importing payment write-off!',
 	'import_payment' => 'Import write-off of payments to providers',
 	'select_file' => 'Select file',
 	'exemple_file' => 'Download sample file',

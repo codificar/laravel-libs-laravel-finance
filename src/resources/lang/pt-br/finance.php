@@ -216,6 +216,7 @@ return array(
 	),
 	
 	'success_import' => 'Sucesso ao importar baixa de pagamentos!',
+	'success_error' => 'Houve algum erro ao importar baixa de pagamentos!',
 	'import_payment' => 'Importar baixa de pagamentos para prestadores',
 	'select_file' => 'Selecionar arquivo',
 	'exemple_file' => 'Baixar arquivo de exemplo',

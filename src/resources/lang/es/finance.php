@@ -214,6 +214,7 @@ return array(
 	),
 
 	'success_import' => 'Importación exitosa de pagos de cancelación!',
+	'success_error' => 'Se produjo un error al importar la cancelación del pago!',
 	'import_payment' => 'Importar cancelaciones de pagos a proveedores',
 	'select_file' => 'Seleccione Archivo',
 	'exemple_file' => 'Descargar archivo de muestra',

@@ -863,7 +863,6 @@ class FinanceController extends Controller {
 	public function importProviderPayments(ImportPaymentsRequest $request)
 	{
 		Excel::import(new PaymentsImport($request->delimeter, $request->date_format), $request->file);
-		Session::flash('success', trans('financeTrans::finance.success_import'));
 
 		return Redirect::route('AdminProviderExtract');
 	}
