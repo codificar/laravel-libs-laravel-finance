@@ -533,7 +533,7 @@ class FinancialController extends Controller
 						strftime('%d %b %Y', strtotime($date[0])),
 						$hour[0],
 						$entry['reason'],
-						$entry['description'],
+						translateTransactionTypeForReport($entry['description']),
 						$entry['request_id'],
 						$entry['value'],
 					),
@@ -543,7 +543,7 @@ class FinancialController extends Controller
 			//This method creates an empty line between the entries and the balance
 			fputcsv($handle, array(), ";");
 			//This third method creates the balance line that appears at the end of the report
-			fputcsv($handle, array(";", ";", ";", trans('financeTrans::finance.current_balance'), $currentBalance), ";");
+			fputcsv($handle, array("", "", "", "", trans('financeTrans::finance.current_balance'), $currentBalance), ";");
 		}
 		if (sizeof($futureCompensations) > 0) {
 			fputcsv($handle, array(), ";");
@@ -873,7 +873,7 @@ class FinancialController extends Controller
 	 * Traduz Campo de Razão do Relatório do usuário
 	 * @return 
 	 */
-	private function translateTransactionTypeForReport($entry)
+	public function translateTransactionTypeForReport($entry)
 	{
 		switch ($entry) {
 			case 'SIMPLE_INDICATION':
