@@ -532,8 +532,8 @@ class FinancialController extends Controller
 					array(
 						strftime('%d %b %Y', strtotime($date[0])),
 						$hour[0],
-						$entry['reason'],
-						$this->translateTransactionTypeForReport($entry['description']),
+						$this->translateTransactionTypeForReport($entry['reason']),
+						$entry['description'],
 						$entry['request_id'],
 						$entry['value'],
 					),
