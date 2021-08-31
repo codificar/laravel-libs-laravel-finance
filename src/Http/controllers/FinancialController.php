@@ -543,7 +543,7 @@ class FinancialController extends Controller
 			//This method creates an empty line between the entries and the balance
 			fputcsv($handle, array(), "");
 			//This third method creates the balance line that appears at the end of the report
-			fputcsv($handle, array("", "", "", "", trans('financeTrans::finance.current_balance'), $currentBalance), ";");
+			fputcsv($handle, array(';', ';', ';', ';', trans('financeTrans::finance.current_balance'), $currentBalance), ";");
 		}
 		if (sizeof($futureCompensations) > 0) {
 			fputcsv($handle, array(), ";");
