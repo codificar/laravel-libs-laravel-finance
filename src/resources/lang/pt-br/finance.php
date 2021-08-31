@@ -27,7 +27,7 @@ return array(
 	'finance_time' 					=> 'Hora',
 	'transaction' 					=> 'Transação',
 	'reason' 						=> 'Motivo',
-	'request_id' 						=> 'ID da Corrida',
+	'ride_id' 						=> 'ID da Corrida',
 	'finance_value' 				=> 'Valor',
 	'ride_value' 					=> 'Valor utilizado em corridas',
 	'delete_message_1' 				=> 'Este usuário está devendo',

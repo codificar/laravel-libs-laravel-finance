@@ -517,7 +517,7 @@ class FinancialController extends Controller
 				trans("finance.finance_time"),
 				trans("finance.reason"),
 				trans("finance.transaction_type"),
-				trans("finance.request_id"),
+				trans("finance.ride_id"),
 				trans("finance.finance_value"),
 			),
 			";"
@@ -877,68 +877,68 @@ class FinancialController extends Controller
 	{
 		switch ($entry) {
 			case 'SIMPLE_INDICATION':
-				trans('finance.SIMPLE_INDICATION');
+				return trans('finance.SIMPLE_INDICATION');
 				break;
 			case 'COMPENSATION_INDICATION':
-				trans('finance.COMPENSATION_INDICATION');
+				return trans('finance.COMPENSATION_INDICATION');
 				break;
 			case 'SEPARATE_CREDIT':
-				trans('finance.SEPARATE_CREDIT');
+				return trans('finance.SEPARATE_CREDIT');
 				break;
 			case 'SEPARATE_DEBIT':
-				trans('finance.SEPARATE_DEBIT');
+				return trans('finance.SEPARATE_DEBIT');
 				break;
 			case 'WITHDRAW':
-				trans('finance.WITHDRAW');
+				return trans('finance.WITHDRAW');
 				break;
 			case 'RIDE_DEBIT':
-				trans('finance.RIDE_DEBIT');
+				return trans('finance.RIDE_DEBIT');
 				break;
 			case 'RIDE_CREDIT':
-				trans('finance.RIDE_CREDIT');
+				return trans('finance.RIDE_CREDIT');
 				break;
 			case 'MACHINE_RIDE_DEBIT':
-				trans('finance.MACHINE_RIDE_DEBIT');
+				return trans('finance.MACHINE_RIDE_DEBIT');
 				break;
 			case 'MACHINE_RIDE_CREDIT':
-				trans('finance.MACHINE_RIDE_CREDIT');
+				return trans('finance.MACHINE_RIDE_CREDIT');
 				break;
 			case 'RIDE_CANCELLATION_DEBIT':
-				trans('finance.RIDE_CANCELLATION_DEBIT');
+				return trans('finance.RIDE_CANCELLATION_DEBIT');
 				break;
 			case 'RIDE_CANCELLATION_CREDIT':
-				trans('finance.RIDE_CANCELLATION_CREDIT');
+				return trans('finance.RIDE_CANCELLATION_CREDIT');
 				break;
 			case 'RIDE_PAYMENT':
-				trans('finance.RIDE_PAYMENT');
+				return trans('finance.RIDE_PAYMENT');
 				break;
 			case 'CARTO_RIDE_PAYMENT':
-				trans('finance.CARTO_RIDE_PAYMENT');
+				return trans('finance.CARTO_RIDE_PAYMENT');
 				break;
 			case 'RIDE_PAYMENT_FAIL_DEBIT':
-				trans('finance.RIDE_PAYMENT_FAIL_DEBIT');
+				return trans('finance.RIDE_PAYMENT_FAIL_DEBIT');
 				break;
 			case 'RIDE_LEDGER':
-				trans('finance.RIDE_LEDGER');
+				return trans('finance.RIDE_LEDGER');
 				break;
 			case 'AUTO_WITHDRAW':
-				trans('finance.AUTO_WITHDRAW');
+				return trans('finance.AUTO_WITHDRAW');
 				break;
 			case 'CLEANING_FEE_DEBIT':
-				trans('finance.CLEANING_FEE_DEBIT');
+				return trans('finance.CLEANING_FEE_DEBIT');
 				break;
 			case 'CLEANING_FEE_CREDIT':
-				trans('finance.CLEANING_FEE_CREDIT');
+				return trans('finance.CLEANING_FEE_CREDIT');
 				break;
 			case 'SIGNATURE_DEBIT':
-				trans('finance.SIGNATURE_DEBIT');
+				return trans('finance.SIGNATURE_DEBIT');
 				break;
 			case 'SIGNATURE_CREDIT':
-				trans('finance.SIGNATURE_CREDIT');
+				return trans('finance.SIGNATURE_CREDIT');
 				break;
 
 			default:
-				"TIPO_PADRÃO";
+				return "TIPO_PADRÃO";
 		}
 	}
 }
