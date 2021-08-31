@@ -3,7 +3,7 @@
 return array(
 	'user' 							=> 'Usuário',
 	'provider' 						=> 'Motorista',
-	
+
 	'payments' 						=> 'Pagamentos',
 	'ride_ledger' 					=> 'Débito de saldo referente à corrida: ',
 	'ride_payment' 					=> 'Pagamento da corrida: ',
@@ -12,7 +12,7 @@ return array(
 	'ride_debit' 					=> 'Débito referente à corrida:',
 	'ride_debit_machine' 			=> 'Débito referente à corrida com maquineta:',
 	'ride_credit_machine' 			=> 'Credito referente à corrida com maquineta:',
-	'ride_credit' 					=> 'Crédito referente à corrida:',	
+	'ride_credit' 					=> 'Crédito referente à corrida:',
 	'ride_payment' 					=> 'Pagamento referente a corrida número:',
 	'ride_card_payment' 			=> 'Pagamento com cartão de crédito',
 	'ride_debitCard_payment'		=> 'Pagamento com cartão de débito',
@@ -27,12 +27,34 @@ return array(
 	'finance_time' 					=> 'Hora',
 	'transaction' 					=> 'Transação',
 	'reason' 						=> 'Motivo',
+	'ride_id' 						=> 'ID da Corrida',
 	'finance_value' 				=> 'Valor',
 	'ride_value' 					=> 'Valor utilizado em corridas',
 	'delete_message_1' 				=> 'Este usuário está devendo',
 	'delete_message_2' 				=> 'reais, deseja cobrar a divida?',
 	'tax_value'						=> 'Valor da Taxa',
-	
+	'SIMPLE_INDICATION' 		=> 'INDICAÇÃO_SIMPLES',
+	'COMPENSATION_INDICATION' => 'REMUNERAÇÃO_META_INDICAÇÃO',
+	'SEPARATE_CREDIT' 			=> 'CRÉDITO_SEPARADO',
+	'SEPARATE_DEBIT' 			=> 'DÉBITO_SEPARADO',
+	'WITHDRAW' 					=> 'SAQUE',
+	'RIDE_DEBIT' 				=> 'DÉBITO_VIAGEM',
+	'RIDE_CREDIT' 				=> 'CRÉDITO_VIAGEM',
+	'MACHINE_RIDE_DEBIT'		=> 'DÉBITO_CORRIDA_MAQUINETA',
+	'MACHINE_RIDE_CREDIT'		=> 'CRÉDITO_CORRIDA_MAQUINETA',
+	'RIDE_CANCELLATION_DEBIT' 	=> 'DÉBITO_CANCELAMENTO_CORRIDA',
+	'RIDE_CANCELLATION_CREDIT' => 'CRÉDITO_CANCELAMENTO_CORRIDA',
+	'RIDE_PAYMENT' 				=> 'PAGAMENTO_CORRIDA',
+	'CARTO_RIDE_PAYMENT'		=> 'PAGAMENTO_CARRO_PARA_CORRIDA',
+	'RIDE_PAYMENT_FAIL_DEBIT' 	=> 'DÉBITO_FALHA_PAGAMENTO_CORRIDA',
+	'RIDE_LEDGER' 				=> 'REGISTRO_VIAGEM',
+	'AUTO_WITHDRAW'				=> 'SAQUE_AUTOMÁTICO',
+	'CLEANING_FEE_DEBIT' 		=> 'DÉBITO_TAXA_LIMPEZA',
+	'CLEANING_FEE_CREDIT' 		=> 'CRÉDITO_TAXA_LIMPEZA',
+	'SIGNATURE_DEBIT' => 'DÉBITO_ASSINATURA',
+	'SIGNATURE_CREDIT'	=> 'CRÉDITO_ASSINATURA',
+
+
 
 	'op_simple_indication' 			=> 'Indicação Simples',
 	'op_compensation_indication' 	=> 'Remuneração por meta de indicação',
@@ -121,8 +143,8 @@ return array(
 	'pay'							=> 'pagar',
 
 	'bank_account_data' 			=> 'Dados da Conta',
-    'bank_account' 					=> 'Conta Bancária',
-    'holder_name' 					=> 'Nome do Favorecido',
+	'bank_account' 					=> 'Conta Bancária',
+	'holder_name' 					=> 'Nome do Favorecido',
 	'bank' 							=> 'Banco',
 	'account'						=> 'Conta',
 	'agency' 						=> 'Agência',
@@ -130,15 +152,15 @@ return array(
 	'agency_digit' 					=> 'Dígito da Agência',
 	'digit'							=> 'Digito',
 	'account_types'					=> 'Tipo da Conta',
-    'account_number' 				=> 'Número da Conta',
+	'account_number' 				=> 'Número da Conta',
 	'number'						=> 'Número',
-    'account_digit' 				=> 'Dígito Verificador',
-	'holder_document'				=> 'Documento', 
+	'account_digit' 				=> 'Dígito Verificador',
+	'holder_document'				=> 'Documento',
 	'document_number' 				=> 'Número de documento',
 	'document_type' 				=> 'Tipo de documento',
-	
+
 	'holder_name_info' 				=> 'Insira o nome do favorecido tal como informado pelo banco',
-	
+
 	'bank_holder_document'			=> 'Documento do titular',
 	'address_street'				=> 'Endereço',
 	'period_requests'				=> 'Solicitações no período',
@@ -154,8 +176,8 @@ return array(
 	'indexing'						=> 'Mostrando',
 	'items'							=> 'registros',
 	'of'							=> 'de',
-	
-    'save'							=> 'Salvar Dados',
+
+	'save'							=> 'Salvar Dados',
 	'cancel'						=> 'Cancelar',
 	'without'						=> 'sem',
 
@@ -182,21 +204,21 @@ return array(
 	'confirm'						=> 'Confirmar',
 	'billet_success'				=> 'Boleto gerado com sucesso!',
 	'billet_success_msg'			=> 'Para visualizar o boleto ',
-	
+
 	'monthNames' => array(
-									'',
-									'Janeiro - :y',
-									'Fevereiro - :y',
-									'Março - :y',
-									'Abril - :y',
-									'Maio - :y',
-									'Junho - :y',
-									'Julho - :y',
-									'Agosto - :y',
-									'Setembro - :y',
-									'Outubro - :y',
-									'Novembro - :y',
-									'Dezembro - :y'
+		'',
+		'Janeiro - :y',
+		'Fevereiro - :y',
+		'Março - :y',
+		'Abril - :y',
+		'Maio - :y',
+		'Junho - :y',
+		'Julho - :y',
+		'Agosto - :y',
+		'Setembro - :y',
+		'Outubro - :y',
+		'Novembro - :y',
+		'Dezembro - :y'
 	),
 	'vueMonthNames' => array(
 		'Janeiro',
@@ -212,7 +234,7 @@ return array(
 		'Novembro',
 		'Dezembro'
 	),
-	
+
 	'success_import' => 'Sucesso ao importar baixa de pagamentos!',
 	'success_error' => 'Houve algum erro ao importar baixa de pagamentos!',
 	'import_payment' => 'Importar baixa de pagamentos para prestadores',
