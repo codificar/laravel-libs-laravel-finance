@@ -42,7 +42,8 @@ class GetCardsAndBalanceResource extends JsonResource
             'settings'          		=> $this['settings'],
             'error'             		=> $this['error'],
 			'referralBalance'			=> $this['referral_balance'],
-			'cumulated_balance_monthly'	=> $this['cumulated_balance_monthly']
+			'cumulated_balance_monthly'	=> $this['cumulated_balance_monthly'],
+            'add_card_is_webview'       => $this['add_card_is_webview']
         ];
     }
 }
