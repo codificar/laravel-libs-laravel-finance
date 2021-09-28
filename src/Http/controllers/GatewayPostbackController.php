@@ -19,8 +19,12 @@ class GatewayPostbackController extends Controller
         $gateway = PaymentFactory::createGateway();
         $billetVerify = $gateway->billetVerify($request, $transactionid);
         
-        $transaction = Transaction::find($transactionid);
-
+        if($billetVerify['transaction_id']) {
+            $transaction = Transaction::find($billetVerify['transaction_id']);
+        } else {
+            $transaction = Transaction::find($transactionid);
+        }
+       
         if ($transaction && $transaction->ledger_id && $billetVerify['success'] && $billetVerify['status'] == 'paid') {
             //Check if the transaction status is not paid. If is paid, so we cant add a balance value for user again
             //Check se a transaction esta com status diferente de "pago", para evitar pagar em duplicidade. 
