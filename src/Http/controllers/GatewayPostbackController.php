@@ -17,7 +17,7 @@ class GatewayPostbackController extends Controller
     public function postbackBillet($transactionid, Request $request)
     {
         $gateway = PaymentFactory::createGateway();
-        $billetVerify = $gateway->billetVerify(null, $transactionid);
+        $billetVerify = $gateway->billetVerify($request, $transactionid);
         
         $transaction = Transaction::find($transactionid);
 
