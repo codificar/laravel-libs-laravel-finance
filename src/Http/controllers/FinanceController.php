@@ -33,7 +33,7 @@ use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
 use Codificar\Finance\Imports\PaymentsImport;
 use Input, Validator, View, Response, Session;
-use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution, Ledger;
+use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution, Ledger, URL;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
 use DB;
@@ -580,12 +580,20 @@ class FinanceController extends Controller {
 
 		$currency_symbol = LibModel::getCurrencySymbol() . " ";
 
+		$iframe_add_card = null;
+		//if gateway is juno, the add card is iframe
+		if(Settings::findByKey('default_payment') == 'juno') {
+			$envtype = $enviroment['type'] == 'provider' ? 'provider' : 'user'; //corp is user for add card in iframe
+			$iframe_add_card = URL::Route('addCardJuno') . '?holder_type=' . $envtype . '&holder_id=' . $enviroment['holder']->id . '&holder_token=' . $enviroment['holder']->token;
+		} 		
+
 		return View::make('finance::payment.payment')
 						->with('enviroment', $enviroment['type'])
 						->with('user_balance', $user_balance)
 						->with('user_cards', $user_cards)
 						->with('prepaid_settings', $this->getAddBalanceSettings())
-						->with('currency_symbol', $currency_symbol);
+						->with('currency_symbol', $currency_symbol)
+						->with('iframe_add_card', $iframe_add_card);
 						
 
 

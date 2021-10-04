@@ -11,7 +11,8 @@ export default {
     "financial_report_route",
     "delete_user_card",
     "PrepaidSettings",
-    "CurrencySymbol"
+    "CurrencySymbol",
+    "IframeAddCard"
   ],
   /**
    *
@@ -332,6 +333,11 @@ export default {
         }
       });
     },
+    iframeCardAdded() {
+      if($('#modal-add-credit-card').is(':visible')) {
+        location.reload();
+      }
+    }
   },
   mounted() {
     console.log("this.yearNow", this.yearMaks);
@@ -539,7 +545,8 @@ export default {
             <h4 class="modal-title">{{ trans("finance.new_card") }}</h4>
           </div>
           <div class="modal-body">
-            <div class="row">
+          	<iframe v-if="IframeAddCard" class="col-12" @load="iframeCardAdded" height="450" :src="IframeAddCard" title="Juno"></iframe>
+            <div v-else class="row">
               <div class="col-lg-6">
                 <div class="card-wrapper"></div>
               </div>

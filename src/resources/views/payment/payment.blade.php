@@ -50,6 +50,7 @@
 		delete_user_card = "{{ URL::Route($enviroment.'DeleteUserCard') }}"
 		prepaid-settings = "{{ json_encode($prepaid_settings)}}"
 		currency-symbol="{{ $currency_symbol }}"
+		iframe-add-card="{{ $iframe_add_card }}"
 	>
 	</payment>
 </div>
