@@ -12,7 +12,7 @@ use Finance, Settings;
 class GatewayPostbackController extends Controller
 {
     /**
-     * Recebe uma notificacao quando o status da transacao (boleto) muda
+     * Recebe uma notificacao quando o status da transacao (boleto ou pix) muda
      */
     public function postbackBillet($transactionid, Request $request)
     {

@@ -12,6 +12,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/get_cards_and_balance', 'FinanceController@getCardsAndBalanceProvider');
         Route::get('/add_billet_balance', 'FinanceController@addBilletBalanceProvider');
         Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalanceAppProvider');
+        Route::get('/add_pix_balance', 'FinanceController@addPixBalanceProvider');
         Route::post('/add_credit_card', 'FinanceController@addCreditCardProvider');
     });
 
@@ -20,6 +21,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/get_cards_and_balance', 'FinanceController@getCardsAndBalance');
         Route::get('/add_billet_balance', 'FinanceController@addBilletBalance');
         Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalanceApp');
+        Route::get('/add_pix_balance', 'FinanceController@addPixBalance');
         Route::post('/add_credit_card', 'FinanceController@addCreditCardUser');
     });
 
@@ -53,6 +55,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/payment/add_credit_card_balance', array('as' => 'providerRequestPayment', 'uses' => 'FinanceController@addCreditCardBalanceWeb'));
         Route::post('/payment/add_billet_balance', array('as' => 'providerAddNewBillet', 'uses' => 'FinanceController@addBilletBalanceWeb'));
         Route::post('/payment/deleteusercard', array('as' => 'providerDeleteUserCard', 'uses' => 'FinanceController@deleteUserCard'));
+        Route::post('/payment/add_pix_balance', array('as' => 'providerAddPixBalance', 'uses' => 'FinanceController@addPixBalanceWeb'));       
         Route::post('/payment/add_credit_card', array('as' => 'providerAddCreditCard', 'uses' => 'FinanceController@addCreditCard'));
     });
 
@@ -65,6 +68,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/payment', array('as' => 'userPayment', 'uses' => 'FinanceController@userPayment'));
         Route::post('/payment/add_credit_card_balance', array('as' => 'userRequestPayment', 'uses' => 'FinanceController@addCreditCardBalanceWeb'));
         Route::post('/payment/add_billet_balance', array('as' => 'userAddNewBillet', 'uses' => 'FinanceController@addBilletBalanceWeb'));
+        Route::post('/payment/add_pix_balance', array('as' => 'userAddPixBalance', 'uses' => 'FinanceController@addPixBalanceWeb'));
         Route::post('/payment/deleteusercard', array('as' => 'userDeleteUserCard', 'uses' => 'FinanceController@deleteUserCard'));
         Route::post('/payment/add_credit_card', array('as' => 'userAddCreditCard', 'uses' => 'FinanceController@addCreditCard'));
     });
@@ -77,6 +81,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/payment', array('as' => 'corpPayment', 'uses' => 'FinanceController@userPayment'));
         Route::post('/payment/add_credit_card_balance', array('as' => 'corpRequestPayment', 'uses' => 'FinanceController@addCreditCardBalanceWeb'));
         Route::post('/payment/add_billet_balance', array('as' => 'corpAddNewBillet', 'uses' => 'FinanceController@addBilletBalanceWeb'));
+        Route::post('/payment/add_pix_balance', array('as' => 'corpAddPixBalance', 'uses' => 'FinanceController@addPixBalanceWeb'));
         Route::post('/payment/deleteusercard', array('as' => 'corpDeleteUserCard', 'uses' => 'FinanceController@deleteUserCard'));
         Route::post('/payment/add_credit_card', array('as' => 'corpAddCreditCard', 'uses' => 'FinanceController@addCreditCard'));
     });

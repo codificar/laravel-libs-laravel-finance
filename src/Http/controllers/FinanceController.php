@@ -18,6 +18,7 @@ use Codificar\Finance\Http\Requests\AddBilletBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddCardUserFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceWebFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceWebFormRequest;
+use Codificar\Finance\Http\Requests\AddPixBalanceFormRequest;
 
 //Resource
 use Codificar\Finance\Http\Resources\ProviderProfitsResource;
@@ -26,6 +27,7 @@ use Codificar\Finance\Http\Resources\GetCardsAndBalanceResource;
 use Codificar\Finance\Http\Resources\AddCreditCardBalanceResource;
 use Codificar\Finance\Http\Resources\AddBilletBalanceResource;
 use Codificar\Finance\Http\Resources\AddCardUserResource;
+use Codificar\Finance\Http\Resources\AddPixBalanceResource;
 
 use Carbon\Carbon;
 use Auth;
@@ -92,7 +94,8 @@ class FinanceController extends Controller {
 		$providerPrepaid = false;
 		if((bool)Settings::findByKey("payment_prepaid") && (
 			(bool) Settings::findByKey("prepaid_billet_provider") ||
-			(bool) Settings::findByKey("prepaid_card_provider")
+			(bool) Settings::findByKey("prepaid_card_provider") ||
+			(bool) Settings::findByKey("prepaid_pix_provider")
 		)) {
 			$providerPrepaid = true;
 		}
@@ -802,6 +805,9 @@ class FinanceController extends Controller {
 		$data['prepaid_card_user']				= Settings::findByKey('prepaid_card_user');
 		$data['prepaid_card_provider'] 			= Settings::findByKey('prepaid_card_provider');
 		$data['prepaid_card_corp']				= Settings::findByKey('prepaid_card_corp');
+		$data['prepaid_pix_user']				= Settings::findByKey('prepaid_pix_user');
+		$data['prepaid_pix_corp'] 				= Settings::findByKey('prepaid_pix_corp');
+		$data['prepaid_pix_provider']			= Settings::findByKey('prepaid_pix_provider');
 		$data['indication_settings']			= LibModel::getCustomIndicationSettings();
 
 		return $data;
@@ -960,5 +966,65 @@ class FinanceController extends Controller {
 		return response()->json([
 			'consolidated' => LibModel::filterConsolidated($request)
 		]);
+	}
+
+
+	public function addPixBalanceWeb(AddPixBalanceFormRequest $request) {
+		$enviroment = $this->getEnviroment();
+		return $this->newPix($request->value, $enviroment['holder'], $enviroment['type']);
+	}
+
+
+	public function addPixBalance(AddPixBalanceFormRequest $request) {
+		$user = User::find($request->id);
+		return $this->newPix($request->value, $user, 'user');
+	}
+
+	public function addPixBalanceProvider(AddPixBalanceFormRequest $request) {
+		$provider = Provider::find($request->id);
+		return $this->newPix($request->value, $provider, 'provider');
+	}
+
+	private function newPix($value, $holder, $envType) {
+		
+		//cria a transaction, para colocar o id dela no postback. Se der erro, deleta essa transaction, senao, atualiza elas com os dados do gateway
+		$transaction 					= new Transaction();
+		$transaction->type 				= Transaction::SINGLE_TRANSACTION;
+		$transaction->status 			= 'waiting_payment';
+		$transaction->gross_value 	 	= $value;
+		$transaction->provider_value 	= 0;
+		$transaction->gateway_tax_value = 0;
+		$transaction->net_value 		= 0;
+		$transaction->ledger_id			= $holder->ledger->id;
+		$transaction->pix_key 			= Settings::findByKey('pix_key');
+		$transaction->save();
+
+		try {
+			$postBack = route('GatewayPostbackPix') . "/" . $transaction->id;
+			$gateway = PaymentFactory::createGateway();
+			$payment = $gateway->pixCharge($holder, $value);
+			
+			if($payment['success']){
+				$transaction->gateway_transaction_id = $payment['transaction_id'];
+				$transaction->save();
+
+				return response()->json([
+					'success' => true, 
+					'copy_and_paste' => $payment['copy_and_paste'],
+					'qr_code_base64' => $payment['qr_code_base64']
+				]);
+	
+				return new AddPixBalanceResource($data);
+			} 
+			//Se deu erro, deleta a transaction do pix
+			else {
+				$transaction->delete();
+				return response()->json($payment, 503);
+			}
+			
+		} catch (\Throwable $th) {
+			$transaction->delete();
+			return response()->json(["error" => "Erro ao gerar pix"], 503);
+		}
 	}
 }
