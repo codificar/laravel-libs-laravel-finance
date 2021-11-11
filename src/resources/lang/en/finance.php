@@ -165,6 +165,7 @@ return array(
 	'new_billet'					=> 'Pay with Boleto',
 	'payment_card'					=> 'Pay on Card',
 	'add_balance'					=> 'Add Balance',
+	'add_pix_balance'				=> 'Pix Payment',
 
 	'new_card'						=> 'New Card',
 	'card_number'					=> 'Card number',
@@ -182,7 +183,10 @@ return array(
 	'confirm'						=> 'Confirm',
 	'billet_success'				=> 'Boleto generated successfully!',
 	'billet_success_msg'			=> 'To view the boleto',
-	
+	'confirm_create_pix'			=> 'Confirm pix value',
+	'pix_success'					=> 'Pix Success',
+	'pix_success_msg'				=> 'Pix code: ',
+
 	'monthNames' => array(
 									'',
 									'January - :y',

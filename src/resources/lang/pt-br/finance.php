@@ -167,6 +167,7 @@ return array(
 	'new_billet'					=> 'Pagar no Boleto',
 	'payment_card'					=> 'Pagar no Cartão',
 	'add_balance'					=> 'Adicionar Saldo',
+	'add_pix_balance'				=> 'Pagar no Pix',
 
 	'new_card'						=> 'Novo Cartão',
 	'card_number'					=> 'Número do Cartão',
@@ -184,7 +185,10 @@ return array(
 	'confirm'						=> 'Confirmar',
 	'billet_success'				=> 'Boleto gerado com sucesso!',
 	'billet_success_msg'			=> 'Para visualizar o boleto ',
-	
+	'confirm_create_pix'			=> 'Tem certeza que deseja pagar com pix no valor de',
+	'pix_success'					=> 'Pix gerado com sucesso!',
+	'pix_success_msg'				=> 'Código pix: ',
+
 	'monthNames' => array(
 									'',
 									'Janeiro - :y',

@@ -57,6 +57,9 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/payment/deleteusercard', array('as' => 'providerDeleteUserCard', 'uses' => 'FinanceController@deleteUserCard'));
         Route::post('/payment/add_pix_balance', array('as' => 'providerAddPixBalance', 'uses' => 'FinanceController@addPixBalanceWeb'));       
         Route::post('/payment/add_credit_card', array('as' => 'providerAddCreditCard', 'uses' => 'FinanceController@addCreditCard'));
+        Route::get('/payment/pix', array('as' => 'providerPixScreen', 'uses' => 'FinanceController@pixCheckout'));
+        Route::get('/payment/pix/retrieve/{gateway_transaction_id}', 'FinanceController@retrievePix');
+
     });
 
     //Rotas do user (web)
@@ -71,6 +74,8 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/payment/add_pix_balance', array('as' => 'userAddPixBalance', 'uses' => 'FinanceController@addPixBalanceWeb'));
         Route::post('/payment/deleteusercard', array('as' => 'userDeleteUserCard', 'uses' => 'FinanceController@deleteUserCard'));
         Route::post('/payment/add_credit_card', array('as' => 'userAddCreditCard', 'uses' => 'FinanceController@addCreditCard'));
+        Route::get('/payment/pix', array('as' => 'userPixScreen', 'uses' => 'FinanceController@pixCheckout'));
+        Route::get('/payment/pix/retrieve/{gateway_transaction_id}', 'FinanceController@retrievePix');
     });
 
     Route::group(['prefix' => '/corp/libs/finance' ,'middleware' => ['auth.corp_api', 'cors']], function (){
@@ -84,6 +89,8 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/payment/add_pix_balance', array('as' => 'corpAddPixBalance', 'uses' => 'FinanceController@addPixBalanceWeb'));
         Route::post('/payment/deleteusercard', array('as' => 'corpDeleteUserCard', 'uses' => 'FinanceController@deleteUserCard'));
         Route::post('/payment/add_credit_card', array('as' => 'corpAddCreditCard', 'uses' => 'FinanceController@addCreditCard'));
+        Route::get('/payment/pix', array('as' => 'corpPixScreen', 'uses' => 'FinanceController@pixCheckout'));
+        Route::get('/payment/pix/retrieve/{gateway_transaction_id}', 'FinanceController@retrievePix');
     });
 
 });

@@ -104,6 +104,8 @@ return array(
 	'total_compensations'			=> 'Total a receber',
 	'total_compensations_msg'		=> 'É o valor que o usuário ainda vai receber (somatório dos valores com data/hora maior que o momento atual)',
 
+	'pix'							=> 'PIX',
+
 	'insert_entry' 					=> 'Inserir Transação',
 	'insert' 						=> 'Inserir',
 	'add_new'						=> 'Cadastrar nova',
@@ -165,6 +167,7 @@ return array(
 	'new_billet'					=> 'Pagar no Boleto',
 	'payment_card'					=> 'Pagar no Cartão',
 	'add_balance'					=> 'Adicionar Saldo',
+	'add_pix_balance'				=> 'Pagar no Pix',
 
 	'new_card'						=> 'Novo Cartão',
 	'card_number'					=> 'Número do Cartão',
@@ -182,7 +185,10 @@ return array(
 	'confirm'						=> 'Confirmar',
 	'billet_success'				=> 'Boleto gerado com sucesso!',
 	'billet_success_msg'			=> 'Para visualizar o boleto ',
-	
+	'confirm_create_pix'			=> 'Tem certeza que deseja pagar com pix no valor de',
+	'pix_success'					=> 'Pix gerado com sucesso!',
+	'pix_success_msg'				=> 'Código pix: ',
+
 	'monthNames' => array(
 									'',
 									'Janeiro - :y',
@@ -212,7 +218,7 @@ return array(
 		'Novembro',
 		'Dezembro'
 	),
-
+	
 	'success_import' => 'Sucesso ao importar baixa de pagamentos!',
 	'success_error' => 'Houve algum erro ao importar baixa de pagamentos!',
 	'import_payment' => 'Importar baixa de pagamentos para prestadores',

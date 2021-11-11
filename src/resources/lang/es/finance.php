@@ -104,6 +104,8 @@ return array(
 	'total_compensations'			=> 'Total de cuentas por cobrar',
 	'total_compensations_msg'		=> 'Es el valor que el usuario seguirá recibiendo (suma de los valores con una fecha / hora mayor que el momento actual)',
 
+	'pix'							=> 'PIX',
+
 	'insert_entry' 					=> 'Insertar transacción',
 	'insert' 						=> 'Insertar',
 	'add_new'						=> 'Registrar nuevo',
@@ -182,7 +184,10 @@ return array(
 	'confirm'						=> 'Confirmar',
 	'billet_success'				=> '¡Boleto generado con éxito!',
 	'billet_success_msg'			=> 'Para ver el boleto',
-	
+	'confirm_create_pix'			=> 'Tem certeza que deseja pagar com pix no valor de',
+	'pix_success'					=> 'Pix gerado com sucesso!',
+	'pix_success_msg'				=> 'Código pix: ',
+
 	'monthNames' => array(
 									'',
 									'Enero - :y',

@@ -968,6 +968,41 @@ class FinanceController extends Controller {
 		]);
 	}
 
+	public function retrievePix($gateway_transaction_id)
+    {
+		$enviroment = $this->getEnviroment();
+		$gateway = PaymentFactory::createPixGateway();
+		$transaction = Transaction::where("gateway_transaction_id", $gateway_transaction_id)->first();
+		if($transaction) {
+			return response()->json([
+				'success' 			=> true,
+				'paid'              => $transaction->status == 'paid' ? true : false,
+				'value'             => $transaction->gross_value,
+				'copy_and_paste'    => $transaction->pix_copy_paste,
+				'qr_code_base64'    => $transaction->pix_base64
+			]);
+		} else {
+			abort(404);
+		}
+	}
+
+	public function pixCheckout()
+    {
+		$gateway_transaction_id = Input::get('id');
+		$enviroment = $this->getEnviroment();
+		$transaction = Transaction::where("gateway_transaction_id", $gateway_transaction_id)->first();
+		if($transaction) {
+			return View::make('finance::payment.pix')
+			->with('enviroment', $enviroment['type'])
+			->with('gateway_transaction_id', $gateway_transaction_id)
+			->with('pix_copy_paste', $transaction->pix_copy_paste)
+			->with('pix_base64', $transaction->pix_base64)
+			->with('value', currency_format(currency_converted($transaction->gross_value)));
+		} else {
+			abort(404);
+		}
+	}
+
 
 	public function addPixBalanceWeb(AddPixBalanceFormRequest $request) {
 		$enviroment = $this->getEnviroment();
@@ -996,7 +1031,6 @@ class FinanceController extends Controller {
 		$transaction->gateway_tax_value = 0;
 		$transaction->net_value 		= 0;
 		$transaction->ledger_id			= $holder->ledger->id;
-		$transaction->pix_key 			= Settings::findByKey('pix_key');
 		$transaction->save();
 
 		try {
@@ -1006,15 +1040,16 @@ class FinanceController extends Controller {
 			
 			if($payment['success']){
 				$transaction->gateway_transaction_id = $payment['transaction_id'];
+				$transaction->pix_base64 = $payment['qr_code_base64'];
+				$transaction->pix_copy_paste = $payment['copy_and_paste'];
 				$transaction->save();
 
 				return response()->json([
 					'success' => true, 
 					'copy_and_paste' => $payment['copy_and_paste'],
-					'qr_code_base64' => $payment['qr_code_base64']
+					'qr_code_base64' => $payment['qr_code_base64'],
+					'gateway_transaction_id' => $transaction->gateway_transaction_id 
 				]);
-	
-				return new AddPixBalanceResource($data);
 			} 
 			//Se deu erro, deleta a transaction do pix
 			else {
@@ -1024,6 +1059,8 @@ class FinanceController extends Controller {
 			
 		} catch (\Throwable $th) {
 			$transaction->delete();
+			\Log::error($th->getMessage());
+
 			return response()->json(["error" => "Erro ao gerar pix"], 503);
 		}
 	}

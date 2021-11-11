@@ -10,7 +10,8 @@ class AddPixKeyInTransaction extends Migration
     public function up()
     {
         Schema::table('transaction', function(Blueprint $table) {
-            $table->string('pix_key')->nullable();
+            $table->text('pix_base64')->nullable();
+            $table->text('pix_copy_paste')->nullable();
 		});
     }
 
@@ -22,7 +23,8 @@ class AddPixKeyInTransaction extends Migration
     public function down()
     {
         Schema::table('transaction',function(Blueprint $table){
-			$table->dropColumn('pix_key');
+			$table->dropColumn('pix_base64');
+            $table->dropColumn('pix_copy_paste');
 		});
     }
 }
