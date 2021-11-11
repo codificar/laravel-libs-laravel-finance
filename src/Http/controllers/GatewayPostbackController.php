@@ -12,7 +12,7 @@ use Finance, Settings;
 class GatewayPostbackController extends Controller
 {
     /**
-     * Recebe uma notificacao quando o status da transacao (boleto ou pix) muda
+     * Recebe uma notificacao quando o status da transacao boleto muda
      */
     public function postbackBillet($transactionid, Request $request)
     {
@@ -38,5 +38,15 @@ class GatewayPostbackController extends Controller
                 $transaction->save();
             }
         }
+    }
+
+    /**
+     * Recebe uma notificacao quando o status da transacao pix muda
+     * Obs: alguns gateways (ex: juno) o postback do pix eh o mesmo do boleto, pois o gateway nao permite ter endpoints diferentes. Por isso, nesses gateways, o postack do pix nao e chamado aqui, e sim no metodo postbackBillet
+     */
+    public function postbackPix($transactionid, Request $request)
+    {
+        #todo
+        
     }
 }
