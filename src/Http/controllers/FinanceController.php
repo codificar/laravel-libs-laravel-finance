@@ -968,11 +968,10 @@ class FinanceController extends Controller {
 		]);
 	}
 
-	public function retrievePix($gateway_transaction_id)
+	public function retrievePix($transaction_id)
     {
 		$enviroment = $this->getEnviroment();
-		$gateway = PaymentFactory::createPixGateway();
-		$transaction = Transaction::where("gateway_transaction_id", $gateway_transaction_id)->first();
+		$transaction = Transaction::find($transaction_id);
 		if($transaction) {
 			return response()->json([
 				'success' 			=> true,
@@ -988,13 +987,15 @@ class FinanceController extends Controller {
 
 	public function pixCheckout()
     {
-		$gateway_transaction_id = Input::get('id');
+		$transaction_id = Input::get('id');
 		$enviroment = $this->getEnviroment();
-		$transaction = Transaction::where("gateway_transaction_id", $gateway_transaction_id)->first();
-		if($transaction) {
+		$transaction = Transaction::find($transaction_id);
+
+		//check if trasaction is from the holder
+		if($transaction && $transaction->ledger_id == $enviroment['holder']->ledger->id) {
 			return View::make('finance::payment.pix')
 			->with('enviroment', $enviroment['type'])
-			->with('gateway_transaction_id', $gateway_transaction_id)
+			->with('transaction_id', $transaction_id)
 			->with('pix_copy_paste', $transaction->pix_copy_paste)
 			->with('pix_base64', $transaction->pix_base64)
 			->with('value', currency_format(currency_converted($transaction->gross_value)));
@@ -1036,7 +1037,7 @@ class FinanceController extends Controller {
 		try {
 			$postBack = route('GatewayPostbackPix') . "/" . $transaction->id;
 			$gateway = PaymentFactory::createGateway();
-			$payment = $gateway->pixCharge($holder, $value);
+			$payment = $gateway->pixCharge($value, $holder);
 			
 			if($payment['success']){
 				$transaction->gateway_transaction_id = $payment['transaction_id'];
@@ -1048,7 +1049,7 @@ class FinanceController extends Controller {
 					'success' => true, 
 					'copy_and_paste' => $payment['copy_and_paste'],
 					'qr_code_base64' => $payment['qr_code_base64'],
-					'gateway_transaction_id' => $transaction->gateway_transaction_id 
+					'transaction_id' => $transaction->id 
 				]);
 			} 
 			//Se deu erro, deleta a transaction do pix

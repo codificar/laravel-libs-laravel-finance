@@ -196,7 +196,7 @@ export default {
               })
               .then((response) => {
                 if (response.data.success) {
-                  window.location.href = this.pix_screen_route + "?id=" + response.data.gateway_transaction_id;
+                  window.location.href = this.pix_screen_route + "?id=" + response.data.transaction_id;
                 } else {
                   this.showErrorMsg(response.data);
                 }

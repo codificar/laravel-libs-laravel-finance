@@ -37,7 +37,8 @@
 <div id="VueJs" class="col-md-12">
 	<pix
 		enviroment="{{ $enviroment }}"
-		gateway-transaction-id="{{ $gateway_transaction_id }}"
+		laravel-echo-port = "{{ env('LARAVEL_ECHO_PORT', 6001) }}"
+		transaction-id="{{ $transaction_id }}"
 		pix-copy-paste="{{ $pix_copy_paste }}"
 		pix-base64="{{ $pix_base64 }}"
 		value="{{ $value }}"

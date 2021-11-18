@@ -186,6 +186,12 @@ return array(
 	'confirm_create_pix'			=> 'Confirm pix value',
 	'pix_success'					=> 'Pix Success',
 	'pix_success_msg'				=> 'Pix code: ',
+	'pix_info_1'					=> 'Pay with Pix and receive confirmation instantly',
+	'pix_info_2'					=> 'Open your financial institutions app',
+	'pix_info_3'					=> 'Make a Pix by reading the QR Code or copying the payment code',
+	'pix_info_4'					=> 'Review the information, wait for confirmation and go!',
+	'copy'							=> 'Copy',
+	'copied'						=> 'Copied!',
 
 	'monthNames' => array(
 									'',

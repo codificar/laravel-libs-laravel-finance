@@ -8,6 +8,7 @@ use Transaction, Invoice;
 use App\Jobs\SubscriptionBilletPaid;
 use PaymentFactory;
 use Finance, Settings;
+use Codificar\Finance\Events\PixUpdate;
 
 class GatewayPostbackController extends Controller
 {
@@ -41,12 +42,31 @@ class GatewayPostbackController extends Controller
     }
 
     /**
-     * Recebe uma notificacao quando o status da transacao pix muda
-     * Obs: alguns gateways (ex: juno) o postback do pix eh o mesmo do boleto, pois o gateway nao permite ter endpoints diferentes. Por isso, nesses gateways, o postack do pix nao e chamado aqui, e sim no metodo postbackBillet
+     * Recebe uma notificacao quando o status da transacao pix e alterada
      */
     public function postbackPix($transactionid, Request $request)
     {
-        #todo
+
+        $gateway = PaymentFactory::createGateway();
+        $retrievePix = $gateway->retrievePix($transactionid, $request);
+        
+        $transaction = Transaction::find($retrievePix['transaction_id']);
+       
+        if ($transaction && $transaction->ledger_id && $retrievePix['success'] && $retrievePix['paid']) {
+            //Se a transaction ja esta com status pago, nao faz sentido adicionar um saldo para o usuario novamente
+            if($transaction->status != "paid") {
+                // Agora podemos dar baixa no pix
+                // se a transacao e pre-pago (ou seja, nao e referente a uma request) entao adiciona saldo 
+                if(!$transaction->request_id) {
+                    $finance = Finance::createCustomEntry($transaction->ledger_id, Finance::SEPARATE_CREDIT, "Pagamento Pix", $transaction->gross_value, null, null);
+                }
+                $transaction->status = 'paid';
+                $transaction->save();
+
+                // disparar evento pix
+                event(new RequestUpdate($transaction->id));
+            }
+        }
         
     }
 }

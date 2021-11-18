@@ -188,6 +188,12 @@ return array(
 	'confirm_create_pix'			=> 'Tem certeza que deseja pagar com pix no valor de',
 	'pix_success'					=> 'Pix gerado com sucesso!',
 	'pix_success_msg'				=> 'Código pix: ',
+	'pix_info_1'					=> 'Pague com Pix e receba a confirmação na hora',
+	'pix_info_2'					=> 'Abra o app da sua instituição financeira',
+	'pix_info_3'					=> 'Faça um Pix lendo o QR Code ou copiando o código para pagamento',
+	'pix_info_4'					=> 'Revise as informações, aguarde a confirmação e pronto!',
+	'copy'							=> 'Copiar',
+	'copied'						=> 'Copiado!',
 
 	'monthNames' => array(
 									'',

@@ -1,9 +1,11 @@
 <script>
 import axios from "axios";
+import Echo from 'laravel-echo';
 export default {
   props: [
     "Enviroment",
-    "GatewayTransactionId",
+    "LaravelEchoPort",
+    "TransactionId",
     "PixCopyPaste",
     "PixBase64",
     "Value"
@@ -23,15 +25,15 @@ export default {
       }, 2000);
     },
     onError: function (e) {
-      alert('Erro ao copiar')
+      alert('Error')
     },
 
     retrievePix() {
       new Promise((resolve, reject) => {
-        axios.get('pix/retrieve/' + this.GatewayTransactionId, {}).then(response => {
+        axios.get('pix/retrieve/' + this.TransactionId, {}).then(response => {
           if(response.data.paid) {
             this.$swal({
-              title: 'Pagamento confirmado!',
+              title: trans("finance.payment_creditcard_success"),
               type: "success",
             }).then((result) => {
               window.history.back();
@@ -42,16 +44,35 @@ export default {
           console.log(error);
         });
       });
-    }
+    },
+    subscribeToChannelPix() {
+      var vm = this;
+      window.Echo.channel('pix.' + this.TransactionId).listen('.pixUpate', e => {
+        vm.retrievePix();
+      });
+    },
   },
+
   mounted() {
+
     this.retrievePix(); // ao entrar na tela, verifica se o pagamento ja foi realizado
-    var that = this;
-    //verificar de 15 em 15 segundos se o pagamento foi realizado
+
+		window.Echo = new Echo({
+			broadcaster: 'socket.io',
+			client: require('socket.io-client'),
+			host: window.location.hostname + ":" + this.LaravelEchoPort
+		});
+
+		window.io = require('socket.io-client');
+		
+		this.subscribeToChannelPix();
+
+    var vm = this;
+    // verificacao extra de 30 em 30 segundos, check se pagamento foi realizado (nos casos em que o socket tenha problemas)
     setInterval(function(){
-      that.retrievePix();
-    },15000);
-  },
+      vm.retrievePix();
+    },30000);
+	},
   created() {
     
   },
@@ -76,18 +97,18 @@ export default {
         <div class="container">
           <div class="row">
             <div class="col-sm-8">
-              <h4 style="margin: 5px;">Pague com Pix e receba a confirmação na hora</h4>
+              <h4 style="margin: 5px;">{{ trans("finance.pix_info_1") }}</h4>
               <div class="d-flex flex-row" style="margin-top: 10px">
                 <div class="circle"><div class="text"><b>1</b></div></div>
-                <p class="instructions">Abra o app da sua instituição financeira</p>
+                <p class="instructions">{{ trans("finance.pix_info_2") }}</p>
               </div>
               <div class="d-flex flex-row" style="margin-top: 10px">
                 <div class="circle"><div class="text"><b>2</b></div></div>
-                <p class="instructions">Faça um Pix lendo o QR Code ou copiando o código para pagamento</p>
+                <p class="instructions">{{ trans("finance.pix_info_3") }}</p>
               </div>
               <div class="d-flex flex-row" style="margin-top: 10px">
                 <div class="circle"><div class="text"><b>3</b></div></div>
-                <p class="instructions">Revise as informações, aguarde a confirmação e pronto!</p>
+                <p class="instructions">{{ trans("finance.pix_info_4") }}</p>
               </div>
             </div>
             <div class="col-sm-4">
@@ -111,7 +132,7 @@ export default {
               v-clipboard:copy="PixCopyPaste"
               v-clipboard:success="onCopy"
               v-clipboard:error="onError">
-              {{ copied ? 'Copiado!' : 'Copiar' }}
+              {{ copied ? trans("finance.copied") : trans("finance.copy") }}
             </button>
           </div>  
           
