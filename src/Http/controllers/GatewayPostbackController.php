@@ -4,6 +4,7 @@ namespace Codificar\Finance\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Log, Response;
 use Transaction, Invoice;
 use App\Jobs\SubscriptionBilletPaid;
 use PaymentFactory;
@@ -39,6 +40,9 @@ class GatewayPostbackController extends Controller
                 $transaction->save();
             }
         }
+
+        // resposta 200 para o gateway saber que deu certo
+        return Response::json(["success" => true], 200);
     }
 
     /**
@@ -51,8 +55,8 @@ class GatewayPostbackController extends Controller
         $retrievePix = $gateway->retrievePix($transactionid, $request);
         
         $transaction = Transaction::find($retrievePix['transaction_id']);
-       
-        if ($transaction && $transaction->ledger_id && $retrievePix['success'] && $retrievePix['paid']) {
+        
+        if ($transaction && $transaction->ledger_id && $transaction->pix_copy_paste && $retrievePix['success'] && $retrievePix['paid']) {
             //Se a transaction ja esta com status pago, nao faz sentido adicionar um saldo para o usuario novamente
             if($transaction->status != "paid") {
                 // Agora podemos dar baixa no pix
@@ -64,9 +68,11 @@ class GatewayPostbackController extends Controller
                 $transaction->save();
 
                 // disparar evento pix
-                event(new RequestUpdate($transaction->id));
+                event(new PixUpdate($transaction->id, true));
             }
         }
-        
+
+        // resposta 200 para o gateway saber que deu certo
+        return Response::json(["success" => true], 200);
     }
 }

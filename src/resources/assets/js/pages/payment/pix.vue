@@ -33,7 +33,7 @@ export default {
         axios.get('pix/retrieve/' + this.TransactionId, {}).then(response => {
           if(response.data.paid) {
             this.$swal({
-              title: trans("finance.payment_creditcard_success"),
+              title: this.trans("finance.payment_creditcard_success"),
               type: "success",
             }).then((result) => {
               window.history.back();
