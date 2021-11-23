@@ -4,6 +4,7 @@ namespace Codificar\Finance\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Response;
 use Transaction, Invoice;
 use App\Jobs\SubscriptionBilletPaid;
 use PaymentFactory;
@@ -19,10 +20,10 @@ class GatewayPostbackController extends Controller
         $gateway = PaymentFactory::createGateway();
         $billetVerify = $gateway->billetVerify($request, $transactionid);
         
-        if($billetVerify['transaction_id']) {
-            $transaction = Transaction::find($billetVerify['transaction_id']);
-        } else {
+        if($transactionid && is_numeric($transactionid)) {
             $transaction = Transaction::find($transactionid);
+        } else {
+            $transaction = Transaction::find($billetVerify['transaction_id']);
         }
        
         if ($transaction && $transaction->ledger_id && $billetVerify['success'] && $billetVerify['status'] == 'paid') {
@@ -38,5 +39,8 @@ class GatewayPostbackController extends Controller
                 $transaction->save();
             }
         }
+
+        // resposta 200 para o gateway saber que deu certo
+        return Response::json(["success" => true], 200);
     }
 }
