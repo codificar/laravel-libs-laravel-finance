@@ -21,10 +21,10 @@ class GatewayPostbackController extends Controller
         $gateway = PaymentFactory::createGateway();
         $billetVerify = $gateway->billetVerify($request, $transactionid);
         
-        if($billetVerify['transaction_id']) {
-            $transaction = Transaction::find($billetVerify['transaction_id']);
-        } else {
+        if($transactionid && is_numeric($transactionid)) {
             $transaction = Transaction::find($transactionid);
+        } else {
+            $transaction = Transaction::find($billetVerify['transaction_id']);
         }
        
         if ($transaction && $transaction->ledger_id && $billetVerify['success'] && $billetVerify['status'] == 'paid') {
