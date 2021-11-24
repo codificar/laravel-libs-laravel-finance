@@ -13,6 +13,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/add_billet_balance', 'FinanceController@addBilletBalanceProvider');
         Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalanceAppProvider');
         Route::get('/add_pix_balance', 'FinanceController@addPixBalanceProvider');
+        Route::get('/retrieve_pix/{transaction_id}', 'FinanceController@retrievePix');
         Route::post('/add_credit_card', 'FinanceController@addCreditCardProvider');
     });
 
@@ -22,6 +23,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/add_billet_balance', 'FinanceController@addBilletBalance');
         Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalanceApp');
         Route::get('/add_pix_balance', 'FinanceController@addPixBalance');
+        Route::get('/retrieve_pix/{transaction_id}', 'FinanceController@retrievePix');
         Route::post('/add_credit_card', 'FinanceController@addCreditCardUser');
     });
 

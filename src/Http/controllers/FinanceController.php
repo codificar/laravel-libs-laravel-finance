@@ -970,7 +970,6 @@ class FinanceController extends Controller {
 
 	public function retrievePix($transaction_id)
     {
-		$enviroment = $this->getEnviroment();
 		$transaction = Transaction::find($transaction_id);
 		if($transaction) {
 			return response()->json([
