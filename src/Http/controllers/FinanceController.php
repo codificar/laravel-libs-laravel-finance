@@ -971,14 +971,12 @@ class FinanceController extends Controller {
 	// Params: transaction_id or request_id
 	public function retrievePix()
     {
+
 		$transaction = null;
-		if(Input::has('transaction_id')) {
+		if(Input::get('transaction_id')) {
 			$transaction = Transaction::find(Input::get('transaction_id'));
-		} else if(Input::has('request_id')) {
-			$request = Request::find(Input::get('request_id'));
-			if($request) {
-				$transaction = Transaction::where('request_id', $request)->first();
-			}
+		} else if(Input::get('request_id')) {
+			$transaction = Transaction::where('request_id', Input::get('request_id'))->first();
 		}
 		if($transaction) {
 			return response()->json([
