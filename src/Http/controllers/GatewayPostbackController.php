@@ -8,7 +8,7 @@ use Log, Response;
 use Transaction, Invoice;
 use App\Jobs\SubscriptionBilletPaid;
 use PaymentFactory;
-use Finance, Settings;
+use Finance, Settings, Requests;
 use Codificar\Finance\Events\PixUpdate;
 
 class GatewayPostbackController extends Controller
@@ -60,8 +60,15 @@ class GatewayPostbackController extends Controller
             //Se a transaction ja esta com status pago, nao faz sentido adicionar um saldo para o usuario novamente
             if($transaction->status != "paid") {
                 // Agora podemos dar baixa no pix
+                
+                // se a transacao e referente a uma request
+                if($transaction->request_id) {
+                    $request = Requests::find($transaction->request_id);
+                    $request->is_paid = 1;
+                    $request->save();
+                } 
                 // se a transacao e pre-pago (ou seja, nao e referente a uma request) entao adiciona saldo 
-                if(!$transaction->request_id) {
+                else {
                     $finance = Finance::createCustomEntry($transaction->ledger_id, Finance::SEPARATE_CREDIT, "Pagamento Pix", $transaction->gross_value, null, null);
                 }
                 $transaction->status = 'paid';
