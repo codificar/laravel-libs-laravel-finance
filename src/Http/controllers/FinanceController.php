@@ -968,12 +968,22 @@ class FinanceController extends Controller {
 		]);
 	}
 
-	public function retrievePix($transaction_id)
+	// Params: transaction_id or request_id
+	public function retrievePix()
     {
-		$transaction = Transaction::find($transaction_id);
+		$transaction = null;
+		if(Input::has('transaction_id')) {
+			$transaction = Transaction::find(Input::get('transaction_id'));
+		} else if(Input::has('request_id')) {
+			$request = Request::find(Input::get('request_id'));
+			if($request) {
+				$transaction = Transaction::where('request_id', $request)->first();
+			}
+		}
 		if($transaction) {
 			return response()->json([
 				'success' 			=> true,
+				'transaction_id'	=> $transaction->id,
 				'paid'              => $transaction->status == 'paid' ? true : false,
 				'value'             => $transaction->gross_value,
 				'copy_and_paste'    => $transaction->pix_copy_paste,
