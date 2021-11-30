@@ -984,6 +984,7 @@ class FinanceController extends Controller {
 				'transaction_id'	=> $transaction->id,
 				'paid'              => $transaction->status == 'paid' ? true : false,
 				'value'             => $transaction->gross_value,
+				'formatted_value'	=> currency_format(currency_converted($transaction->gross_value)),
 				'copy_and_paste'    => $transaction->pix_copy_paste,
 				'qr_code_base64'    => $transaction->pix_base64
 			]);
