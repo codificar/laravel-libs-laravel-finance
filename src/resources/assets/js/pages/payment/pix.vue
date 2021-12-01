@@ -30,7 +30,7 @@ export default {
 
     retrievePix() {
       new Promise((resolve, reject) => {
-        axios.get('pix/retrieve/' + this.TransactionId, {}).then(response => {
+        axios.get('pix/retrieve?transaction_id=' + this.TransactionId, {}).then(response => {
           if(response.data.paid) {
             this.$swal({
               title: this.trans("finance.payment_creditcard_success"),
