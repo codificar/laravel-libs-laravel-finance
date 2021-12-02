@@ -1044,7 +1044,7 @@ class FinanceController extends Controller {
 
 		try {
 			$postBack = route('GatewayPostbackPix') . "/" . $transaction->id;
-			$gateway = PaymentFactory::createGateway();
+			$gateway = PaymentFactory::createPixGateway();
 			$payment = $gateway->pixCharge($value, $holder);
 			
 			if($payment['success']){

@@ -51,7 +51,7 @@ class GatewayPostbackController extends Controller
     public function postbackPix($transactionid, Request $request)
     {
 
-        $gateway = PaymentFactory::createGateway();
+        $gateway = PaymentFactory::createPixGateway();
         $retrievePix = $gateway->retrievePix($transactionid, $request);
         
         $transaction = Transaction::find($retrievePix['transaction_id']);
