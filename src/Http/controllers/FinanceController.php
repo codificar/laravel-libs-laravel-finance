@@ -33,9 +33,10 @@ use Carbon\Carbon;
 use Auth;
 use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
+use Codificar\Finance\Http\Requests\changePixPaymentRequest;
 use Codificar\Finance\Imports\PaymentsImport;
 use Input, Validator, View, Response, Session;
-use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution, Ledger, URL;
+use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution, Ledger, URL, RequestCharging, Requests;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
 use DB;
@@ -1071,6 +1072,40 @@ class FinanceController extends Controller {
 			\Log::error($th->getMessage());
 
 			return response()->json(["error" => "Erro ao gerar pix"], 503);
+		}
+	}
+
+	public function changePixPaymentTypes() {		
+		return response()->json(array(
+			'money' 			=> (bool)Settings::getPaymentMoney(),
+			'money_code' 		=> RequestCharging::PAYMENT_MODE_MONEY,
+
+			'direct_pix' 		=> (bool)Settings::getPaymentDirectPix(),
+			'direct_pix_code' 	=> RequestCharging::PAYMENT_MODE_DIRECT_PIX,
+
+			'machine' 			=> (bool)Settings::getPaymentMachine(),
+			'machine_code' 		=> RequestCharging::PAYMENT_MODE_MACHINE
+		));
+	}
+
+	public function changePixPayment(changePixPaymentRequest $request) {
+		$providerId = $request->provider_id ? $request->provider_id : $request->id;
+		$req = Requests::find($request->request_id);
+		if($req && $req->confirmed_provider == $providerId) {
+			if($req->payment_mode == RequestCharging::PAYMENT_MODE_GATEWAY_PIX) {
+				// troca a forma de pagamento
+				$req->payment_mode = $request->new_payment_mode;
+				$req->save();
+
+				//faz a logica da cobranca com a nova forma de pagamento
+				RequestCharging::request_complete_charge($req->id);
+			}
+
+			return response()->json([
+				'success' => true
+			]);
+		} else { // this request is not of the auth provider
+			abort(404);
 		}
 	}
 }
