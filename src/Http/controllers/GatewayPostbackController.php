@@ -66,6 +66,11 @@ class GatewayPostbackController extends Controller
                     $request = Requests::find($transaction->request_id);
                     $request->is_paid = 1;
                     $request->save();
+
+                    //gera saldo para o motorista
+                    if ($request->confirmedProvider && $request->confirmedProvider->Ledger) {
+                        Finance::createRideCredit($request->confirmedProvider->Ledger->id, $transaction->provider_value * -1, $request->id);
+                    }
                 } 
                 // se a transacao e pre-pago (ou seja, nao e referente a uma request) entao adiciona saldo 
                 else {
