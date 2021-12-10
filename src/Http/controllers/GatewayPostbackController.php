@@ -80,7 +80,7 @@ class GatewayPostbackController extends Controller
                 $transaction->save();
 
                 // disparar evento pix
-                event(new PixUpdate($transaction->id, true));
+                event(new PixUpdate($transaction->id, true, false));
             }
         }
 

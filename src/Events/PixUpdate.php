@@ -38,16 +38,18 @@ class PixUpdate implements ShouldBroadcast
 
     public $transaction_id;
     public $is_paid;
+    public $payment_change;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($transaction_id, $is_paid)
+    public function __construct($transaction_id, $is_paid, $payment_change)
     {   
         $this->transaction_id = $transaction_id;
         $this->is_paid = $is_paid;
+        $this->payment_change = $payment_change;
     }
 
     /**
@@ -71,7 +73,8 @@ class PixUpdate implements ShouldBroadcast
       
         return [
             'transaction_id'    => $this->transaction_id,
-            'is_paid'           => $this->is_paid
+            'is_paid'           => $this->is_paid,
+            'payment_change'    => $this->payment_change
         ];
     }
 

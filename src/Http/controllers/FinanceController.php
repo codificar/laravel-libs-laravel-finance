@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 // Importar models
 use Codificar\Finance\Models\LibModel;
 
+use Codificar\Finance\Events\PixUpdate;
+
 //FormRequest
 use Codificar\Finance\Http\Requests\ProviderProfitsRequest;
 use Codificar\Finance\Http\Requests\GetProviderSummaryByTypeAndDateFormRequest;
@@ -1100,6 +1102,8 @@ class FinanceController extends Controller {
 				//faz a logica da cobranca com a nova forma de pagamento
 				RequestCharging::request_complete_charge($req->id);
 			}
+			//dispara eveneto para o usuario
+			event(new PixUpdate($transaction->id, false, true));
 
 			return response()->json([
 				'success' => true,
