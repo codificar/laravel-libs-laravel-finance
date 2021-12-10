@@ -974,11 +974,16 @@ class FinanceController extends Controller {
 	// Params: transaction_id or request_id
 	public function retrievePix()
     {
-
+		$payment_changed = false;
 		$transaction = null;
 		if(Input::get('transaction_id')) {
 			$transaction = Transaction::find(Input::get('transaction_id'));
 		} else if(Input::get('request_id')) {
+			$req = Requests::find(Input::get('request_id'));
+			if($req && $req->payment_mode != RequestCharging::PAYMENT_MODE_GATEWAY_PIX){
+				$payment_changed = true;
+			}
+
 			$transaction = Transaction::where('request_id', Input::get('request_id'))->first();
 		}
 		if($transaction) {
@@ -986,6 +991,7 @@ class FinanceController extends Controller {
 				'success' 			=> true,
 				'transaction_id'	=> $transaction->id,
 				'paid'              => $transaction->status == 'paid' ? true : false,
+				'payment_changed'	=> $payment_changed,
 				'value'             => $transaction->gross_value,
 				'formatted_value'	=> currency_format(currency_converted($transaction->gross_value)),
 				'copy_and_paste'    => $transaction->pix_copy_paste,
