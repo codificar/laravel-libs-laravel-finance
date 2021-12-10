@@ -1109,7 +1109,7 @@ class FinanceController extends Controller {
 				RequestCharging::request_complete_charge($req->id);
 			}
 			//dispara eveneto para o usuario
-			event(new PixUpdate($transaction->id, false, true));
+			event(new PixUpdate($req->request_price_transaction_id, false, true));
 
 			return response()->json([
 				'success' => true,
