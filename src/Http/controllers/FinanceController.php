@@ -1102,7 +1102,8 @@ class FinanceController extends Controller {
 			}
 
 			return response()->json([
-				'success' => true
+				'success' => true,
+				'bill' => $req->getBill()
 			]);
 		} else { // this request is not of the auth provider
 			abort(404);
