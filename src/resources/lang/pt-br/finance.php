@@ -37,6 +37,8 @@ return array(
 	'op_simple_indication' 			=> 'Indicação Simples',
 	'op_compensation_indication' 	=> 'Remuneração por meta de indicação',
 	'op_ride_payment' 				=> 'Pagamento por corrida',
+	
+	'op_invoice_payment'			=> 'Pagamento fatura',
 	'op_ride_debit' 				=> 'Débito por corrida',
 	'op_ride_credit' 				=> 'Crédito por corrida',
 	'op_ride_ledger' 				=> 'Débito de saldo',
