@@ -37,6 +37,8 @@ return array(
 	'op_simple_indication' 			=> 'Simple indication',
 	'op_compensation_indication' 	=> 'Remuneration by referral target',
 	'op_ride_payment' 				=> 'Pay per run',
+	
+	'op_invoice_payment'			=> 'Invoice Payment',
 	'op_ride_debit' 				=> 'Debt per race',
 	'op_ride_credit' 				=> 'Credit per race',
 	'op_ride_ledger' 				=> 'Balance Debit',

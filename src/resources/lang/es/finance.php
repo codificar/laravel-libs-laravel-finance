@@ -37,6 +37,9 @@ return array(
 	'op_simple_indication' 			=> 'Indicación simple',
 	'op_compensation_indication' 	=> 'Remuneración por objetivo de referencia',
 	'op_ride_payment' 				=> 'Pago por ejecución',
+	
+	
+	'op_invoice_payment'			=> 'Pago de la factura',
 	'op_ride_debit' 				=> 'Deuda por carrera',
 	'op_ride_credit' 				=> 'Crédito por carrera',
 	'op_ride_ledger' 				=> 'Saldo Débito',
