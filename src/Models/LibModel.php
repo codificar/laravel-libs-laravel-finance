@@ -684,5 +684,64 @@ class LibModel extends Eloquent
 		if ($chrAcronym) $chrAcronym = $chrAcronym . ' ';
 		return $chrAcronym . number_format(floatval($fltNumber), $intPrecision, $chrDecimal, $chrThousand);
 	}
+
+	/**
+	 * Get the user current week profits
+	 * @param int $ledgerId
+	 */
+	public static function getUserProfitsOfWeek($ledgerId)
+	{
+		$startDate = LibModel::getStartDateEarningsReport();
+		$endDate = $startDate->copy()->addDays(6)->endOfDay();
+
+		$query = DB::table('finance')->select(DB::raw(
+			"concat(DAYOFWEEK(compensation_date)) AS day, SUM(value) AS value")
+			)
+			->whereBetween('compensation_date', [
+				$startDate->format('Y-m-d H:i:s'),
+				$endDate->format('Y-m-d H:i:s')
+			])
+			->where('ledger_id', $ledgerId)
+			->groupBy('day')
+			->get();
+	
+		$finance = array();
+
+		for ($i=0; $i < 7; $i++) {
+			$finance[$i] = array(
+				"day" => $startDate->copy()->addDays($i)->dayOfWeek + 1,
+				"value" => 0.0,
+				"value_text" => currency_format(0.0)
+			);
+			
+			foreach ($query as $item) {
+				if($finance[$i]['day'] == intval($item->day)) {
+					$finance[$i]['value'] = round($item->value, 2);
+					$finance[$i]['value_text'] = currency_format(abs(round($item->value, 2)));
+				}
+			}
+			
+		}
+		
+		return $finance;
+	}
+
+	/**
+	 * Count rides in current week
+	 * @param int $providerId
+	 * @return array
+	 */
+	public static function getUserWeekRidesCount ($userId)
+	{
+		$startDate = Carbon::now()->addDay();
+		$endDate = Carbon::now()->addDay();
+
+		return DB::table('request')->where("user_id", $userId)
+					->where("is_completed", true)
+					->whereBetween("created_at", [
+						$startDate->startOfWeek()->subDay(), 
+						$endDate->endOfWeek()->subDay()
+					])->count();
+	}
 	
 }

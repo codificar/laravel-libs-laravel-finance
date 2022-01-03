@@ -42,6 +42,7 @@ use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, Em
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
 use DB;
+use Illuminate\Http\Request as HttpRequest;
 
 class FinanceController extends Controller {
 	use PartnerFilter;
@@ -1118,5 +1119,32 @@ class FinanceController extends Controller {
 		} else { // this request is not of the auth provider
 			abort(404);
 		}
+	}
+
+	/**
+     * @api {GET} /libs/finance/user/profits
+	 * 
+     * @description Retorna as informações financeiras por ano
+     * @param Request $request
+	 * @return ProviderProfitsResource
+     */
+    public function getUserProfits(HttpRequest $request)
+	{
+		$user = $request->user;
+		$ledgerId = $user->ledger->id;
+
+		$finance = LibModel::getUserProfitsOfWeek($user->id);
+		$currentBalance = Finance::sumValueByLedgerId($ledgerId);
+		$totalMoney = 0;
+		$isWithdrawEnabled = LibModel::getWithDrawEnabled();
+
+		return new ProviderProfitsResource([
+			"finance" => $finance,
+			"total_money" => $totalMoney,
+			"current_balance" => $currentBalance,
+			"available" => 0,
+			"rides" => LibModel::getUserWeekRidesCount($user->id),
+			"is_withdraw_enabled" => $isWithdrawEnabled
+		]);
 	}
 }

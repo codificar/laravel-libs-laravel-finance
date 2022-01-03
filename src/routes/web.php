@@ -21,6 +21,9 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
 
     // Rotas do app user
     Route::group(['prefix' => 'libs/finance/user', 'middleware' => 'auth.user_api:api'], function () {
+        Route::get('/profits', 'FinanceController@getUserProfits');
+        Route::get('/financial/user_summary', 'FinanceController@getProviderSummaryByTypeAndDate');
+
         Route::get('/get_cards_and_balance', 'FinanceController@getCardsAndBalance');
         Route::get('/add_billet_balance', 'FinanceController@addBilletBalance');
         Route::get('/add_credit_card_balance', 'FinanceController@addCreditCardBalanceApp');
