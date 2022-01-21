@@ -24,7 +24,7 @@ use App\Http\Resources\api\v3\ProviderProfitsResource;
 use App\Http\Requests\FinanceFormRequest;
 use App\Http\Resources\FinanceResource;
 use App\Models\Institution;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
