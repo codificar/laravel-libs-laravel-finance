@@ -33,11 +33,11 @@
 @stop
 
 @section('styles')
-<link rel="stylesheet" href="{{elixir('css/provider_financial.css')}}" />
+<link rel="stylesheet" href="{{asset('css/provider_financial.css')}}" />
 @stop
 
 @section('javascripts')
 <script type="text/javascript" src="/js/lang.trans/finance,dashboard,keywords"></script>
 <script src="/libs/finance/lang.trans/finance"> </script> 
-<script src="{{ elixir('vendor/codificar/finance/finance.vue.js') }}"> </script>
+<script src="{{ asset('vendor/codificar/finance/finance.vue.js') }}"> </script>
 @stop

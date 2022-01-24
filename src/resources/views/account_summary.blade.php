@@ -530,7 +530,7 @@
 	}
 </style>
 @stop @section('javascripts')
-<script type="text/javascript" src="{{ elixir('js/providers.list.js') }}"> </script>
+<script type="text/javascript" src="{{ asset('js/providers.list.js') }}"> </script>
 <script type="text/javascript">
 	var $form = $('#providersFilter');
 	$form.submit(function() {

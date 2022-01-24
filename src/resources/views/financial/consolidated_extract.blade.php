@@ -24,5 +24,5 @@
 
 @section('javascripts')
 <script src="/libs/finance/lang.trans/finance"> </script> 
-<script src="{{ elixir('vendor/codificar/finance/finance.vue.js') }}"> </script>
+<script src="{{ asset('vendor/codificar/finance/finance.vue.js') }}"> </script>
 @stop
