@@ -43,7 +43,7 @@ class LibModel extends Eloquent
 		return (double)number_format(self::where('ledger_id', $ledgerId)->whereBetween('compensation_date', [$startDateNew, $endDateNew])->sum('value'), 2, '.', '');
 	}
 
-	private function getStartDateEarningsReport() {
+	private static function getStartDateEarningsReport() {
 		$startWeek = intval(Settings::findByKey("earnings_report_weekday"));
 		if(!$startWeek) {
 			$startWeek = 1;
