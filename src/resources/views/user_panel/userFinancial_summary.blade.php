@@ -15,7 +15,7 @@
 @stop
 
 @section('content')
-<div id="VueJs" class="col-md-12">
+<div id="codificar-finance" class="col-md-12">
 	<financial-account-statement
 		enviroment="{{ $enviroment }}" 
 		:holder="{{ $holder }}"

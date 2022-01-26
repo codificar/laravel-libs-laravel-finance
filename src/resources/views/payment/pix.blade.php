@@ -34,7 +34,7 @@
 @stop
 
 @section('content')
-<div id="VueJs" class="col-md-12">
+<div id="codificar-finance" class="col-md-12">
 	<pix
 		enviroment="{{ $enviroment }}"
 		laravel-echo-port = "{{ Settings::getLaravelEchoServerPort() }}"

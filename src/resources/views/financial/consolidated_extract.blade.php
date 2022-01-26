@@ -14,7 +14,7 @@
 @stop
 
 @section('content')
-<div id="VueJs">
+<div id="codificar-finance">
     <consolidated-statement
 		:locations="{{ json_encode($locations) }}"
 		:partners="{{ json_encode($partners) }}"

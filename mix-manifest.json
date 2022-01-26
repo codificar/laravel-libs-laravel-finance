@@ -1,3 +1,4 @@
 {
-    "/public/js/finance.vue.js": "/public/js/finance.vue.js"
+    "/public/js/finance.vue.js": "/public/js/finance.vue.js",
+    "/public/vendor/codificar/finance/finance.vue.js": "/public/vendor/codificar/finance/finance.vue.js"
 }

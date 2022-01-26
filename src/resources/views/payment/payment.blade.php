@@ -38,7 +38,7 @@
 @stop
 
 @section('content')
-<div id="VueJs" class="col-md-12">
+<div id="codificar-finance" class="col-md-12">
 	<payment
 		enviroment="{{ $enviroment }}"
 		user_balance="{{ $user_balance }}"

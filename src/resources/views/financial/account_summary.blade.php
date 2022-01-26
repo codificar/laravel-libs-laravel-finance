@@ -13,7 +13,7 @@
 </div>	
 @stop
 @section('content')
-<div id="VueJs" class="col-sm-12">
+<div id="codificar-finance" class="col-sm-12">
 	<financial-account-statement 
 		enviroment="{{ isset($enviroment) ? $enviroment : 'admin' }}"
 		:holder="{{ $holder }}"

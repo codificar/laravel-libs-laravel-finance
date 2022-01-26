@@ -12,3 +12,7 @@ let mix = require('laravel-mix');
  */
 
 mix.js('src/resources/assets/js/finance.vue.js', 'public/js').vue();
+
+mix.copy('public/js/finance.vue.js', '../../../public/vendor/codificar/finance/finance.vue.js');
+
+
