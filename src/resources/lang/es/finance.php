@@ -257,5 +257,6 @@ return array(
 	'corp' => 'Institución',
 	'op_deposit_in_account' => 'Depósito en cuenta (cancelación de pago)',
 	'delimiter' => 'Delimitador',
-	'date_format' => 'Formato da data'
+	'date_format' => 'Formato da data',
+	'max_value' => 'O valor ultrapassou o limite de :value'
 );

@@ -685,4 +685,23 @@ class LibModel extends Eloquent
 		return $chrAcronym . number_format(floatval($fltNumber), $intPrecision, $chrDecimal, $chrThousand);
 	}
 	
+	/**
+	 * Get max value for add balance
+	 * 
+	 * @return int
+	 */
+	public static function getMaxValueOnAddBalanceSetting()
+	{
+		try {
+			return 5;
+			$setting = Settings::where('key', 'max_value_on_add_balance')->first();
+
+			if ($setting)
+				return $setting->value;
+
+			return 0;
+		} catch (\Throwable $th) {
+			return 0;
+		}
+	}
 }

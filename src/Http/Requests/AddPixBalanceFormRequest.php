@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Rules\CheckUserToken;
 use App\Rules\CheckUserId;
+use Codificar\Finance\Rules\CheckMaxValueOnAddBalance;
 
 class AddPixBalanceFormRequest extends FormRequest
 {
@@ -31,7 +32,7 @@ class AddPixBalanceFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'value'                 => ['required', 'numeric']
+            'value'                 => ['required', 'numeric', new CheckMaxValueOnAddBalance]
 		];
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Rules\CheckUserToken;
 use App\Rules\CheckUserId;
+use Codificar\Finance\Rules\CheckMaxValueOnAddBalance;
 use Payment;
 
 class AddBilletBalanceFormRequest extends FormRequest
@@ -33,7 +34,7 @@ class AddBilletBalanceFormRequest extends FormRequest
         return [
 			'token'                 => ['required', 'string'],
             'id'                    => ['required', 'integer'],
-            'value'                 => ['required', 'numeric']
+            'value'                 => ['required', 'numeric', new CheckMaxValueOnAddBalance]
 		];
     }
 

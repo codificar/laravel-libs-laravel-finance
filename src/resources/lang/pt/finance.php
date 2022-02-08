@@ -258,5 +258,6 @@ return array(
 	'corp' => 'Instituição',
 	'op_deposit_in_account' => 'Depósito em conta (baixa de pagamento)',
 	'delimiter' => 'Delimitador',
-	'date_format' => 'Formato da data'
+	'date_format' => 'Formato da data',
+	'max_value' => 'O valor ultrapassou o limite de :value'
 );
