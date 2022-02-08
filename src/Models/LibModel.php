@@ -693,7 +693,6 @@ class LibModel extends Eloquent
 	public static function getMaxValueOnAddBalanceSetting()
 	{
 		try {
-			return 5;
 			$setting = Settings::where('key', 'max_value_on_add_balance')->first();
 
 			if ($setting)
