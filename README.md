@@ -1,7 +1,81 @@
 # laravel-finance
+
 laravel-finance é uma bilioteca genérica para o laravel. É um exemplo de uma Lib que possui rotas próprias, controllers, models, migrations, FormRequests, resources, arquivos de tradução, views (integração do blade do laravel com vue.js)
 
+## Getting Started
+
+Add in composer.json:
+
+```php
+"repositories": [
+    {
+        "type": "vcs",
+        "url": "https://libs:ofImhksJ@git.codificar.com.br/laravel-libs/laravel-finance.git"
+    }
+]
+```
+
+```php
+require:{
+        "codificar/finance": "1.2.4",
+}
+```
+
+```php
+"autoload": {
+    "psr-4": {
+        "Codificar\\Finance\\": "vendor/codificar/finance/src/"
+    }
+}
+```
+Update project dependencies:
+
+```shell
+$ composer update
+```
+
+Register the service provider in `config/app.php`:
+
+```php
+'providers' => [
+  /*
+   * Package Service Providers...
+   */
+  Codificar\Finance\FinanceServiceProvider::class,
+],
+```
+
+
+
+Check if has the laravel publishes in composer.json with public_vuejs_libs tag:
+
+```
+    "scripts": {
+        //...
+		"post-autoload-dump": [
+			"@php artisan vendor:publish --tag=public_vuejs_libs --force"
+		]
+	},
+```
+
+Or publish by yourself
+
+
+Publish Js Libs and Tests:
+
+```shell
+$ php artisan vendor:publish --tag=public_vuejs_libs --force
+```
+
+- Migrate the database tables
+
+```shell
+php artisan migrate
+```
+
+
 # Observações
+
 - É importante sempre especificar qual middleware a biblioteca que você for desenvolver utiliza. Tais middleware deverão ser pré requisitos para os projetos que for instalar a sua lib. Exemplo: middleware para verificar se o admin fez login `'middleware' => 'auth.admin_api'`
 - Utilizar preferencialmente os models criados na bibliotecas. Se utilizar models de um projeto especifíco, outro projeto pode não conter os mesmos models.
 - Arquivos de traduções também devem ser feitos na biblioteca (evitar utilizar traduções de um projeto)
@@ -30,76 +104,3 @@ $this->publishes([
 
 # Estrutura
  ![alt text](https://i.imgur.com/PsahJHb.jpg)
-
-
-# Instalação
-
-- Adiciona o projeto no composer.json (direto do gitlab)
-
-```
-
-"repositories": [
-    {
-        "type":"package",
-        "package": {
-            "name": "codificar/contactform",
-            "version":"master",
-            "source": {
-                "url": "https://libs:ofImhksJ@git.codificar.com.br/laravel-libs/laravel-finance.git",
-                "type": "git",
-                "reference":"master"
-            }
-        }
-    }
-],
-
-// ...
-
-"require": {
-    // ADD this
-    "codificar/finance": "dev-master",
-},
-
-```
-
-- Procure o psr-4 do autoload e adione a pasta src da sua biblioteca
-```
-"psr-4": {
-    // Adicionar aqui
-    "Codificar\\Finance\\": "vendor/codificar/finance/src",
-}
-```
-
-- Agora, precisamos adicionar o novo Service Provider no arquivo `config/app.php` dentro do array `providers`:
-
-```
-'providers' => [
-         ...,
-            // The new package class
-            Codificar\Finance\FinanceServiceProvider::class,
-        ],
-```
-- Precisamos copiar os arquivos da pasta public da biblioteca para a pasta public do projeto. Para isso adicione dentro do composer.json, no objeto `"scripts": {`. Repare que especificamos a tag. Nesse caso é public_vuejs_libs. Essa tag é a mesma que fica no arquivo FinanceServiceProvider.php da biblioteca. Não tem problema várias bibliotecas utilizarem a mesma tag. Inclusive é bom que todos os componentes utilizem a mesma tag, para não ter que ficar adicionando isso a cada novo projeto que precisar da sua lib.
-```
-"post-autoload-dump": [
-	"@php artisan vendor:publish --tag=public_vuejs_libs --force"
-]
-```
-
-- Dump o composer autoloader
-
-```
-composer dump-autoload -o
-```
-
-- Rode as migrations
-
-```
-php artisan migrate
-```
-
-Por fim, teste se tudo está ok e acesse as rotas de exemplo:
-
-```
-php artisan serve
-```
