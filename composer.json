@@ -1,10 +1,17 @@
 {
     "name": "codificar/finance",
     "description": "A finance library for laravel.",
-    "authors": [{
-        "name": "Codificar",
-        "email": "libs@codificar.com.br"
-    }],
+    "authors": [
+        {
+            "name": "Guilherme Assis",
+            "email": "guilherme.assis@codificar.com.br"
+        },
+        {
+            "name": "Raphael Canguçu",
+            "email": "raphael.cangucu@codificar.com.br"
+        }
+
+    ],
     "require": {
         "maatwebsite/excel": "^3.1"
     },
@@ -12,5 +19,26 @@
         "psr-4": {
             "Codificar\\Finance\\": "src/"
         }
-    }
+    },
+    "repositories": [
+        {
+          "type": "package",
+          "package": {
+            "name": "codificar/finance",
+            "version": "master",
+            "source": {
+              "url": "https://libs:ofImhksJ@git.codificar.com.br/laravel-libs/laravel-finance.git",
+              "type": "git",
+              "reference": "master"
+            }
+          }
+        }
+    ],    
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "dev"
+
 }
