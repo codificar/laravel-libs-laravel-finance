@@ -145,7 +145,6 @@ class FinanceController extends Controller {
 					->with('providers', $providers)
 					->with('partners', $this->partners)
 					->with('type','id')
-					->with(['id' => $id, 'holder' => $holder->first_name.' '.$holder->last_name, 'ledger' => $holder, 'title' => $title, 'balances' => $balances, 'start' => $startDate, 'end' => $endDate, 'page' => 'financial'])
 					->with('order',1)
 					->with('currency_symbol', $currency_symbol)
 					->with('balances',$balances);
