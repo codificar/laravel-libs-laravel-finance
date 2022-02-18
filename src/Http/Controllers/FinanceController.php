@@ -62,7 +62,7 @@ class FinanceController extends Controller {
 		$totalMoney = LibModel::getProviderProfitsOfWeekMoneyValue($provider->id);
 		$currentBalance = Finance::sumValueByLedgerId($ledgerId);
 		$isWithdrawEnabled = LibModel::getWithDrawEnabled();
-		
+
 		return new ProviderProfitsResource([
 			"finance" => $finance,
 			"total_money" => $totalMoney,
@@ -72,24 +72,24 @@ class FinanceController extends Controller {
 			"is_withdraw_enabled" => $isWithdrawEnabled
 		]);
     }
-    
+
 
 	 /**
      * @api {get} /libs/finance/provider/financial/provider_summary
      * @apiDescription Permite buscar o extrato de contas com datas pré-definidas e filtros
      * @return Json
-     */	
+     */
 	public function getProviderSummaryByTypeAndDate(GetProviderSummaryByTypeAndDateFormRequest $request)
 	{
         // Pega holder
 		$holder = $request->holder;
-		
+
         // Realiza busca do extrato
         $balance = LibModel::getLedgerDetailedBalanceByPeriod(
-			$holder->ledger->id, 
-			$request->typeEntry, 
-			$request->start_date, 
-			$request->end_date, 
+			$holder->ledger->id,
+			$request->typeEntry,
+			$request->start_date,
+			$request->end_date,
 			$request->page,
 			$request->itemsPerPage
 		);
@@ -111,15 +111,15 @@ class FinanceController extends Controller {
 
 
 
-	public function providerExtract(){		
+	public function providerExtract(){
 		$providers = $this->index(true);
 		$providers = $providers->paginate(20);
 		$locations = $this->locationModel->get();
 		$balances = array();
-		
+
 		foreach($providers as $provider){
 			$id =  $provider->id;
-			$holder = Provider::find($id);			
+			$holder = Provider::find($id);
 			if(Input::get('type-entry') != ''){
 				$typeEntry = Input::get('type-entry');
 			}else{
@@ -133,7 +133,7 @@ class FinanceController extends Controller {
 				$title = trans('finance.account_statement');
 				array_push($balances, Finance::getLedgerDetailedBalanceByPeriod($holder->ledger->id, $typeEntry, $startDate, $endDate) );
 			}else{
-				$balance = array("previous_balance"=>0.0, "current_balance" => 0.0, "total_balance_by_period" => 0.0, "detailed_balance"=> array());				
+				$balance = array("previous_balance"=>0.0, "current_balance" => 0.0, "total_balance_by_period" => 0.0, "detailed_balance"=> array());
 				array_push($balances, $balance);
 			}
 		}
@@ -153,25 +153,25 @@ class FinanceController extends Controller {
 
 
 	public function providerExtractFilter(){
-		
+
 		$start_date_compensation = Input::get('start-date-compensation');
 	  	$end_date_compensation = Input::get('end-date-compensation');
 		$start_date_created = Input::get('start_date_created');
 		$end_date_created = Input::get('end_date_created');
 		$orderBalance = Input::get('order_balance');
-		
+
 		$currency_symbol = LibModel::getCurrencySymbol() . " ";
 
 		$providers = $this->filter(true,$start_date_compensation, $end_date_compensation, $start_date_created, $end_date_created, $orderBalance);
 		$locations = $this->locationModel->get();
 		if (Input::get('submit') && Input::get('submit') == 'Download_Report') {
-			return $this->downloadExtractReport($providers);				
+			return $this->downloadExtractReport($providers);
 		}else{
 			$providersss = $providers->paginate(20);
 			$balances = array();
 			foreach($providersss as $provider){
 				$id =  $provider->id;
-				$holder = Provider::find($id);			
+				$holder = Provider::find($id);
 				if(Input::get('type-entry') != ''){
 					$typeEntry = Input::get('type-entry');
 				}else{
@@ -199,12 +199,12 @@ class FinanceController extends Controller {
 			}
 		}
 
-		if (count($providers->paginate(20)) > 0) {				
+		if (count($providers->paginate(20)) > 0) {
 			return View::make('finance::account_summary')
 					->with('locations', $locations)
 					->with('providers', $providersss)
 					->with('partners', $this->partners)
-					->with('currency_symbol', $currency_symbol)						
+					->with('currency_symbol', $currency_symbol)
 					->with('type','id')
 					->with(['id' => $id, 'holder' => $holder->first_name.' '.$holder->last_name, 'ledger' => $holder, 'title' => $title, 'balances' => $balances, 'start' => $startDate, 'end' => $endDate, 'page' => 'financial'])
 					->with('order',1)
@@ -215,7 +215,7 @@ class FinanceController extends Controller {
 					->with('providers', $providersss)
 					->with('partners', $this->partners)
 					->with('currency_symbol', $currency_symbol)
-					->with('type','id')						
+					->with('type','id')
 					->with('order',1)
 					->with('balances',$balances);
 		}
@@ -231,7 +231,7 @@ class FinanceController extends Controller {
 		} catch (\Throwable $th) {
 			return date('Y-m-d');
 		}
-		
+
 	}
 
 
@@ -241,7 +241,7 @@ class FinanceController extends Controller {
 	 * @return void
 	 */
 	public function filter($providerExtract=false, $start_date_compensation=null, $end_date_compensation=null, $start_date_created=null, $end_date_created=null, $orderBalance = null){
-		
+
 		$this->initPartnerFilter();
 		$id = Input::get('id');
 		$name = Input::get('name');
@@ -264,7 +264,7 @@ class FinanceController extends Controller {
 		$statusId = 0;
 
 		if ($phone)
-			$phone = preg_replace( "/(\W)+/", '', $phone); 
+			$phone = preg_replace( "/(\W)+/", '', $phone);
 
 		// Getting the app language
 		$language = Settings::getLocale();
@@ -272,15 +272,15 @@ class FinanceController extends Controller {
 		if(ProviderStatus::where('name', $status)->first())
 			$statusId = ProviderStatus::where('name', $status)->first()->id;
 		$providers = LibModel::providerSearch($id, $name, $email, $state, $city, $plate, null, $statusId, $order, $type, $this->partnersId, $locationId, $cnh, $phone, $start_date_compensation, $end_date_compensation, null, null, $registerStep,$providerExtract, $start_date_created, $end_date_created, $sendDocs, $orderBalance);
-		
+
 		$title = ucwords(trans('customize.Provider') . " | " . trans('adminController.search_result'));
-		if(!$providerExtract && Input::get('submit') && Input::get('submit') == 'Download_Report'){						
+		if(!$providerExtract && Input::get('submit') && Input::get('submit') == 'Download_Report'){
 			//if (Input::get('submit') && Input::get('submit') == 'Download_Report') {
-				return $this->downloadReport($providers);							
-			//}			
-		}		
+				return $this->downloadReport($providers);
+			//}
+		}
 		else {
-			if (!$providerExtract) {				
+			if (!$providerExtract) {
 				return View::make('providers.list')
 				->with('providers', $providers->paginate(20))
 				->with('partners', $this->partners)
@@ -301,7 +301,7 @@ class FinanceController extends Controller {
 				->with('language', $language);
 			}else{
 				return $providers;
-			} 
+			}
 		}
 	}
 
@@ -329,9 +329,9 @@ class FinanceController extends Controller {
 					->with('type','id')
 					->with('language', $language)
 					->with('order',1);
-		}else{			
+		}else{
 			return $providers;
-		}		
+		}
 	}
 
 
@@ -339,14 +339,14 @@ class FinanceController extends Controller {
 	 * Download csv of provider extract report
 	 *
 	 * @return void
-	 */	
+	 */
 	public function downloadExtractReport($providers){
 
-		// Setting the output filename 
+		// Setting the output filename
 		$filename = "relatorio-prestadores-".date("Y-m-d-hms", time()).".csv";
 		$handle = fopen(storage_path('tmp/').$filename, 'w+');
 		fputs( $handle, $bom = chr(0xEF) . chr(0xBB) . chr(0xBF) );
-		
+
 		// Setting the csv header
 		$vars = array(
 					trans('map.id'),
@@ -386,53 +386,53 @@ class FinanceController extends Controller {
 
 		$providers = $providers->get();
 		$locations = $this->locationModel->get();
-		$balances = array();		
+		$balances = array();
 
 		foreach ($providers as $key => $provider) {
 
 			$bank_account = $provider->getBankAccount();
-			
+
 			$id =  $provider->id;
-			$holder = Provider::find($id);			
-			
+			$holder = Provider::find($id);
+
 			if(Input::get('type-entry') != ''){
 				$typeEntry = Input::get('type-entry');
 			}else{
 				$typeEntry = '';
 			}
 			if($holder && $holder->ledger){
-				$startDate =  !empty(Input::get('start_date_created')) ? 
+				$startDate =  !empty(Input::get('start_date_created')) ?
 					Carbon::createFromFormat('d/m/Y', Input::get('start_date_created'))->format('Y-m-d 00:00:00') :
 					$holder->created_at->format('Y-m-d H:i:s');
-				$endDate = !empty(Input::get('end_date_created')) ? 
-					Carbon::createFromFormat('d/m/Y', Input::get('end_date_created'))->format('Y-m-d 23:59:59') : 
+				$endDate = !empty(Input::get('end_date_created')) ?
+					Carbon::createFromFormat('d/m/Y', Input::get('end_date_created'))->format('Y-m-d 23:59:59') :
 					date('Y-m-d 23:59:59');
-				
+
 				$startDateCompensation = Input::has('start-date-compensation') ? date('Y-m-d', strtotime(Input::get('start-date-compensation'))) : date('Y-m-d', strtotime($holder->created_at));
 				$endDateCompensation = Input::has('end-date-compensation') ? date("Y-m-d 23:59:59", strtotime(Input::get('end-date-compensation'))) : date('Y-m-d 23:59:59');
 				$title = trans('finance.account_statement');
 				array_push($balances, LibModel::getLedgerDetailedBalanceByPeriod($holder->ledger->id, $typeEntry, $startDate, $endDate) );
 			}else{
-				$balance = array("previous_balance"=>0.0, "current_balance" => 0.0, "total_balance_by_period" => 0.0, "detailed_balance"=> array(), "period_balance" => 0);				
+				$balance = array("previous_balance"=>0.0, "current_balance" => 0.0, "total_balance_by_period" => 0.0, "detailed_balance"=> array(), "period_balance" => 0);
 				array_push($balances, $balance);
 			}
 
 			$total = 0;
-			$totalizer = 0;	
-			
+			$totalizer = 0;
+
 			$entries = $balances[$key];
 
 			$total_balance_by_period = formated_value($entries['period_balance']);
-			
-			$totalizer=0;									
-			
+
+			$totalizer=0;
+
 			$totalizer = $entries['total_balance'] - $entries['current_balance'];
 			$total += $totalizer;
-			
+
 			$total_receivable = formated_value($totalizer);
-			
+
 			$total_result = formated_value($entries['total_balance']);
-			
+
 			$bankCode 		= $this->checkBankInfo($bank_account, ['code']);
 			$bankName 		= $this->checkBankInfo($bank_account, ['name']);
 			$bankAgency 	= $this->checkBankInfo($bank_account, 'agency');
@@ -450,7 +450,7 @@ class FinanceController extends Controller {
 			}else{
 				$personType = "";
 			}
-			
+
 			$vars = array(
 						$provider->id,
 						$provider->first_name." ".$provider->last_name,
@@ -478,16 +478,16 @@ class FinanceController extends Controller {
 						$total_result,
 						$total_result >= 0 ? $total_result : trans('financeTrans::finance.provider_in_debit')
 					);
-				
+
 			if((config('app.locale') == 'pt-br') && method_exists($provider, 'getPix') && method_exists($provider, 'getPixType') &&  Settings::findByKey("show_pix_information") == 1)
-			{	
+			{
 				$pix = $provider->getPixType();;
 				if($pix == Provider::PIX_EMAIL){
-					$pix = 'E-mail'; 
+					$pix = 'E-mail';
 				}else if($pix == Provider::PIX_PHONE){
-					$pix = 'Celular'; 
+					$pix = 'Celular';
 				}else if($pix ==  Provider::PIX_CPF){
-					$pix = 'CPF'; 
+					$pix = 'CPF';
 				} else{
 					$pix = '';
 				}
@@ -503,17 +503,17 @@ class FinanceController extends Controller {
 			'Content-Type' => 'text/csv; charset=utf-8',
 			'Content-Disposition' => 'attachment; filename='. $filename,
 		);
-		return Response::download(storage_path('tmp/').$filename, $filename, $headers);		
+		return Response::download(storage_path('tmp/').$filename, $filename, $headers);
 	}
 
 	public function checkBankInfo($bank, $key)
 	{
 		if (!$bank || !$bank->bank)
 			return '';
-			
+
 		if(is_array($key) && $bank->bank)
 			return $bank->bank[$key[0]];
-		
+
 		return $bank->$key;
 	}
 
@@ -529,20 +529,20 @@ class FinanceController extends Controller {
         $payments = LibModel::getCardsList($userId, 'user');
 		$user = User::where('id', $userId)->first();
 		$ledgerId = $user->ledger->id;
-		
+
         $data = array();
 
 		$data['success']    				= true;
 		$data['current_balance'] 			= currency_format(LibModel::sumValueByLedgerId($ledgerId));
 		$data['cards']       				= $payments;
 		$data['settings']					= $this->getAddBalanceSettings();
-		$data['error']      				= null; 
+		$data['error']      				= null;
 		$data['referral_balance']			= currency_format(LibModel::getSumTotalIndication($ledgerId));
 		$data['cumulated_balance_monthly']	= currency_format(LibModel::getSumMonthlyIndication($ledgerId));
 
 		//juno gateway is webview to add card
 		$data['add_card_is_webview']		= Settings::findByKey('default_payment') == 'juno' ? true : false;
-		
+
         return new GetCardsAndBalanceResource($data);
 	}
 
@@ -564,22 +564,22 @@ class FinanceController extends Controller {
 		$data['current_balance'] 	= currency_format(LibModel::sumValueByLedgerId($ledgerId));
 		$data['cards']       		= $payments;
 		$data['settings']			= $this->getAddBalanceSettings();
-		$data['error']      		= null; 
+		$data['error']      		= null;
 		$data['referral_balance']			= currency_format(LibModel::getSumTotalIndication($ledgerId));
 		$data['cumulated_balance_monthly']	= currency_format(LibModel::getSumMonthlyIndication($ledgerId));
 
 		//juno gateway is webview to add card
 		$data['add_card_is_webview']		= Settings::findByKey('default_payment') == 'juno' ? true : false;
-		
+
         return new GetCardsAndBalanceResource($data);
 	}
 
 
-	
+
 	public function userPayment(Request $request)
     {
 		$enviroment = $this->getEnviroment();
-		
+
         $user_cards = $enviroment['holder']->payments;
         $user_balance = $enviroment['holder']->getBalance();
 
@@ -590,7 +590,7 @@ class FinanceController extends Controller {
 		if(Settings::findByKey('default_payment') == 'juno') {
 			$envtype = $enviroment['type'] == 'provider' ? 'provider' : 'user'; //corp is user for add card in iframe
 			$iframe_add_card = URL::Route('addCardJuno') . '?holder_type=' . $envtype . '&holder_id=' . $enviroment['holder']->id . '&holder_token=' . $enviroment['holder']->token;
-		} 		
+		}
 
 		return View::make('finance::payment.payment')
 						->with('enviroment', $enviroment['type'])
@@ -599,7 +599,7 @@ class FinanceController extends Controller {
 						->with('prepaid_settings', $this->getAddBalanceSettings())
 						->with('currency_symbol', $currency_symbol)
 						->with('iframe_add_card', $iframe_add_card);
-						
+
 
 
 	}
@@ -609,8 +609,8 @@ class FinanceController extends Controller {
 		$card_id = Input::get('card_id');
 
 		$validator = Validator::make(
-			array('card_id' => $card_id), 
-			array('card_id' => 'required'), 
+			array('card_id' => $card_id),
+			array('card_id' => 'required'),
 			array('card_id' => trans('userController.unique_card_id_missing'))
 		);
 
@@ -619,9 +619,9 @@ class FinanceController extends Controller {
 			$response_array = array('success' => false, 'data' => null, 'error' => array('code' => \ApiErrors::BAD_REQUEST, 'messages' => $error_messages));
 		} else {
 
-			if($enviroment['type'] == 'user' || $enviroment['type'] == 'corp') 
+			if($enviroment['type'] == 'user' || $enviroment['type'] == 'corp')
 				$payment = Payment::deleteByIdAndUserId($card_id, $enviroment['holder']->id);
-			else 
+			else
 				$payment = Payment::deleteByIdAndProviderId($card_id, $enviroment['holder']->id);
 
 			$response_array = array(
@@ -629,7 +629,7 @@ class FinanceController extends Controller {
 				'payments' => $payment["data"],
 				'error' => $payment["error"]
 			);
-				
+
 		}
 
 		$response = Response::json($response_array, 200);
@@ -648,33 +648,33 @@ class FinanceController extends Controller {
 		//Se nao encontrou o card, entao da erro
 		if(!$payment) {
 			$data['success']	= false;
-			$data['error']		= 'Cartão não encontrado ou não pertence ao usuário'; 
+			$data['error']		= 'Cartão não encontrado ou não pertence ao usuário';
 			$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
 		} else {
 			//Tenta realizar a cobranca com o cartao
 			$gateway = PaymentFactory::createGateway();
 			$return = $gateway->charge($payment, $value, trans('financeTrans::finance.single_credit'), true);
-			
+
 			//Se conseguiu cobrar no cartao, entao adicionar um saldo para o usuario/prestador, senao, retorna erro
 			if($return['success'] && $return['captured'] == 'true') {
 				$financeEntry = Finance::createCustomEntry($holder->ledger->id, 'SEPARATE_CREDIT', trans('financeTrans::finance.single_credit'), $value, null, null);
 				if($financeEntry) {
 					$data['success']	= true;
-					$data['error']		= null; 
+					$data['error']		= null;
 					$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
 				}
 			} else {
 				$data['success']	= false;
-				$data['error']		= 'O cartão foi recusado.'; 
+				$data['error']		= 'O cartão foi recusado.';
 				$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
 			}
 		}
 
         return new AddCreditCardBalanceResource($data);
 	}
-	
+
 	public function addCreditCardBalanceWeb(AddCreditCardBalanceWebFormRequest $request) {
-		
+
 		$enviroment = $this->getEnviroment();
 		return $this->addCreditCardBalance($request->value, $enviroment['holder'], $request->card_id, $enviroment['type']);
 	}
@@ -690,7 +690,7 @@ class FinanceController extends Controller {
 	private function newBillet($value, $holder, $envType) {
 
 		$data = array();
-		
+
 		$billetTax = (float) Settings::findByKey('prepaid_tax_billet');
 		$value = $value + $billetTax;
 
@@ -710,14 +710,14 @@ class FinanceController extends Controller {
 			$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
 			$gateway = PaymentFactory::createGateway();
 			$payment = $gateway->billetCharge($value, $holder, $postBack, $billetExpiration, "Adicionar saldo em conta.");
-			
+
 			if($payment['success']){
 				$billet_link = $payment['billet_url'];
 				$digitable_line = isset($payment['digitable_line']) ? $payment['digitable_line'] : '';
 				$gateway_transaction_id = $payment['transaction_id'];
 
 				$paymentTax = $gateway->getGatewayTax();
-				$paymentFee = $gateway->getGatewayFee();	
+				$paymentFee = $gateway->getGatewayFee();
 
 				//Save the billet in transaction table (not in finance yet. In finance table is when billet is paid)
 				$transaction->type 				= Transaction::SINGLE_TRANSACTION;
@@ -730,7 +730,7 @@ class FinanceController extends Controller {
 				$transaction->billet_link		= $billet_link;
 				$transaction->ledger_id			= $holder->ledger->id;
 				$transaction->save();
-				
+
 				//send email
 				try {
 					$key_email = "billet_mail";
@@ -742,19 +742,19 @@ class FinanceController extends Controller {
 						'billet_url' => $billet_link,
 					);
 					email_notification(
-						$holder->id, 
-						$envType == 'provider' ? 'provider' : 'user', 
-						$vars, 
-						$subject, 
-						$key_email, 
+						$holder->id,
+						$envType == 'provider' ? 'provider' : 'user',
+						$vars,
+						$subject,
+						$key_email,
 						null
-					);	
+					);
 				} catch(\Exception $e){
 					\Log::error("Erro ao enviar boleto por email.");
 					\Log::error($e->getMessage());
 				}
-				
-			} 
+
+			}
 			//Se deu erro, deleta a transaction do boleto
 			else {
 				$transaction->delete();
@@ -762,20 +762,20 @@ class FinanceController extends Controller {
 			}
 
 			return response()->json([
-				'success' => true, 
+				'success' => true,
 				'billet_url' => $billet_link,
 				'digitable_line' => $digitable_line,
 				'error' => false
 			]);
 
 			return new AddBilletBalanceResource($data);
-			
+
 		} catch (\Throwable $th) {
 			$transaction->delete();
 			return response()->json(["error" => "Erro ao gerar boleto"], 503);
 		}
 	}
-	
+
 	public function addBilletBalanceWeb(AddBilletBalanceWebFormRequest $request) {
 		$enviroment = $this->getEnviroment();
 		return $this->newBillet($request->value, $enviroment['holder'], $enviroment['type']);
@@ -795,10 +795,10 @@ class FinanceController extends Controller {
 		$ledgerId = $provider->ledger->id;
 		return $this->newBillet($request->value, $provider, 'provider');
 	}
-	
+
 	private function getAddBalanceSettings() {
 		$data = array();
-		
+
 		$data['prepaid_min_billet_value']		= Settings::findByKey('prepaid_min_billet_value');
 		$data['prepaid_tax_billet'] 			= Settings::findByKey('prepaid_tax_billet');
 		$data['prepaid_billet_user'] 			= Settings::findByKey('prepaid_billet_user');
@@ -839,13 +839,13 @@ class FinanceController extends Controller {
 		} else {
 			$payment->user_id = $holder->id;
 		}
-		
+
 		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv, $request->cardHolder);
 
 		if($return['success']){
             return new AddCardUserResource($payment);
 		} else {
-			return response()->json(['message' => $return['message'],'success'=> false, 'type' => $return['type'], 'card' => $payment]);
+			return response()->json(['message' => $return['message'],'success'=> false, 'type' => $return['type'], 'card' => $payment], 406);
 		}
 	}
 
@@ -878,7 +878,7 @@ class FinanceController extends Controller {
 
 	/**
 	 * Importa baixa de pagamentos para prestadores
-	 * 
+	 *
 	 * @param ImportPaymentsRequest $request
 	 * @return Redirect
 	 */
@@ -891,7 +891,7 @@ class FinanceController extends Controller {
 
 	/**
 	 * Render consolidated statement blade
-	 * 
+	 *
 	 * @return view
 	 */
 	public function consolidatedExtract()
@@ -907,7 +907,7 @@ class FinanceController extends Controller {
 
 	/**
 	 * Download the consolidated statement
-	 * 
+	 *
 	 * @param GetConsolidatedStatementRequest $request
 	 * @return Response
 	 */
@@ -954,12 +954,12 @@ class FinanceController extends Controller {
 			'Content-Type' => 'text/csv; charset=utf-8',
 			'Content-Disposition' => 'attachment; filename='. $filename,
 		);
-		return Response::download(storage_path('tmp/').$filename, $filename, $headers);	
+		return Response::download(storage_path('tmp/').$filename, $filename, $headers);
 	}
 
 	/**
 	 * Fetch the consolidated statement data
-	 * 
+	 *
 	 * @param GetConsolidatedStatementRequest $request
 	 * @return json
 	 */
@@ -1038,7 +1038,7 @@ class FinanceController extends Controller {
 	}
 
 	private function newPix($value, $holder, $envType) {
-		
+
 		//cria a transaction, para colocar o id dela no postback. Se der erro, deleta essa transaction, senao, atualiza elas com os dados do gateway
 		$transaction 					= new Transaction();
 		$transaction->type 				= Transaction::SINGLE_TRANSACTION;
@@ -1054,7 +1054,7 @@ class FinanceController extends Controller {
 			$postBack = route('GatewayPostbackPix') . "/" . $transaction->id;
 			$gateway = PaymentFactory::createPixGateway();
 			$payment = $gateway->pixCharge($value, $holder);
-			
+
 			if($payment['success']){
 				$transaction->gateway_transaction_id = $payment['transaction_id'];
 				$transaction->pix_base64 = $payment['qr_code_base64'];
@@ -1062,18 +1062,18 @@ class FinanceController extends Controller {
 				$transaction->save();
 
 				return response()->json([
-					'success' => true, 
+					'success' => true,
 					'copy_and_paste' => $payment['copy_and_paste'],
 					'qr_code_base64' => $payment['qr_code_base64'],
-					'transaction_id' => $transaction->id 
+					'transaction_id' => $transaction->id
 				]);
-			} 
+			}
 			//Se deu erro, deleta a transaction do pix
 			else {
 				$transaction->delete();
 				return response()->json($payment, 503);
 			}
-			
+
 		} catch (\Throwable $th) {
 			$transaction->delete();
 			\Log::error($th->getMessage());
@@ -1082,7 +1082,7 @@ class FinanceController extends Controller {
 		}
 	}
 
-	public function changePixPaymentTypes() {		
+	public function changePixPaymentTypes() {
 		return response()->json(array(
 			'money' 			=> (bool)Settings::getPaymentMoney(),
 			'money_code' 		=> RequestCharging::PAYMENT_MODE_MONEY,

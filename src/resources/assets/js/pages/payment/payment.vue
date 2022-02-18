@@ -132,11 +132,11 @@ export default {
       let titleError;
       if(errData && errData.type)
         titleError = errData.type;
-      else if(errData && errData.error) 
+      else if(errData && errData.error)
         titleError = errData.error;
-      else if(errData)
+      else if(typeof(errData) == "string")
         titleError = errData;
-      else 
+      else
         titleError = this.trans("finance.card_declined");
 
       this.$swal({
@@ -144,7 +144,7 @@ export default {
         type: "error",
       });
     },
-  
+
     changeValue() {
       this.$swal({
         title: this.trans("finance.change_value"),
@@ -157,7 +157,7 @@ export default {
           return (
             parseFloat(value) < 0 &&
               parseFloat(this.user_balance) > 0 &&
-              this.trans("finance.value_cant_be_lower") + " 0,00" 
+              this.trans("finance.value_cant_be_lower") + " 0,00"
           );
         },
       }).then((result) => {
@@ -399,7 +399,7 @@ export default {
     this.cards_list = JSON.parse(this.user_cards);
 
     this.prepaid_settings = JSON.parse(this.PrepaidSettings);
-    
+
     if (parseFloat(this.user_balance) < 0)
       this.value = -1 * parseFloat(this.user_balance);
     else this.value = 0;
@@ -441,9 +441,9 @@ export default {
                   <i class="mdi mdi-cash-multiple"></i>
                   {{ trans("finance.change_value") }}
               </button>
-            </div>  
+            </div>
           </div>
-          
+
         </div>
         <br />
       </div>
@@ -511,7 +511,7 @@ export default {
       </div>
       <br />
     </div>
-    
+
     <!-- Modal to pay with card -->
     <div id="modal-card-selected" class="modal fade" role="dialog">
       <div class="modal-dialog modal-lg">
@@ -531,7 +531,7 @@ export default {
                     <div class="card-block">
 
                       <div class="row justify-content-center">
-                        
+
                         <div
                           data-toggle="buttons"
                           class="btn-group-vertical col-sm-7"
@@ -592,8 +592,8 @@ export default {
                       </button>
                   </div>
                   </div>
-                                    
-                  
+
+
 
               </div>
             </div>
