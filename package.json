@@ -2,12 +2,12 @@
 	"private": true,
 	"scripts": {
 		"dev": "npm run development",
-        "development": "mix",
-        "watch": "mix watch",
-        "watch-poll": "mix watch -- --watch-options-poll=1000",
-        "hot": "mix watch --hot",
-        "prod": "npm run production",
-        "production": "mix --production"
+		"development": "mix",
+		"watch": "mix watch",
+		"watch-poll": "mix watch -- --watch-options-poll=1000",
+		"hot": "mix watch --hot",
+		"prod": "npm run production",
+		"production": "mix --production"
 	},
 	"devDependencies": {
 		"axios": "^0.18.0",
@@ -15,6 +15,8 @@
 		"cross-env": "^5.1",
 		"lodash": "^4.17.4",
 		"vue": "^2.5.17",
+		"vue-loader": "^15.9.7",
+		"vue-template-compiler": "^2.6.14",
 		"vuejs-datepicker": "^1.6.2"
 	},
 	"dependencies": {
@@ -23,6 +25,7 @@
 		"axios": "^0.18.0",
 		"laravel-echo": "^1.6.1",
 		"laravel-echo-server": "^1.5.5",
+		"laravel-mix": "^6.0.6",
 		"laravel-vue-pagination": "^2.0.1",
 		"lodash": "^4.17.10",
 		"lodash.clonedeep": "^4.5.0",
@@ -50,7 +53,6 @@
 		"vue2-google-maps": "^0.10.2",
 		"vuedraggable": "^2.23.2",
 		"vuejs-auto-complete": "^0.9.0",
-		"laravel-mix": "^6.0.6",
 		"vuelidate": "^0.7.4"
 	}
 }
