@@ -44,7 +44,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/summary/{id}', array('as' => 'userAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));
         Route::post('/{type}/{id}/add-entry', array('as' => 'addFinancialEntry', 'uses' => 'FinancialController@addFinancialEntry'));
         Route::post('/{type}/{id}/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
-        Route::post('/{type}/{id}/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'LedgerBankAccountController@createUserBankAccount'));
+        Route::post('/{type}/{id}/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'FinancialController@createUserBankAccount'));
     });
 
     //Rotas do provider (web)
@@ -52,7 +52,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/', array('as' => 'webProviderAccountStatement', 'uses' => 'FinancialController@userProviderCheckingAccount'));
         Route::get('/summary/{id}', array('as' => 'providerAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));
         Route::post('/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
-        Route::post('/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'LedgerBankAccountController@createUserBankAccount'));    
+        Route::post('/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'FinancialController@createUserBankAccount'));    
     
         //Pre-paid Payment Apis
         Route::get('/payment', array('as' => 'providerPayment', 'uses' => 'FinanceController@userPayment'));
@@ -71,7 +71,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/', array('as' => 'webUserAccountStatement', 'uses' => 'FinancialController@userProviderCheckingAccount'));
         Route::get('/summary/{id}', array('as' => 'userAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));
         Route::post('/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
-        Route::post('/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'LedgerBankAccountController@createUserBankAccount'));    
+        Route::post('/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'FinancialController@createUserBankAccount'));    
         Route::get('/payment', array('as' => 'userPayment', 'uses' => 'FinanceController@userPayment'));
         Route::post('/payment/add_credit_card_balance', array('as' => 'userRequestPayment', 'uses' => 'FinanceController@addCreditCardBalanceWeb'));
         Route::post('/payment/add_billet_balance', array('as' => 'userAddNewBillet', 'uses' => 'FinanceController@addBilletBalanceWeb'));

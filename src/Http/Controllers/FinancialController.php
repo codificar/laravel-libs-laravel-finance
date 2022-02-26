@@ -847,5 +847,122 @@ class FinancialController extends Controller
 
         return Response::download(storage_path('framework/views/') . $filename, $filename, $headers);
     }
+
+
+	/**
+	 *  Create new user Bank Account
+	 */
+	public function createUserBankAccount() {
+        $userId = Input::get('user-id');
+        $providerId = Input::get('provider-id');
+		$ledgerId = Input::get('ledger-id');
+
+		/**conta bancária*/
+		$holder = Input::get('holder');
+		$document = Input::get('document');
+		$document = preg_replace('/\D/', '', $document); //deixa apenas numeros
+		$bankId = Input::get('bank-id');
+		$agency = Input::get('agency');
+		$agency_digit = Input::get('agency-digit');
+		$account = Input::get('account');
+		$accountDigit = Input::get('account-digit');
+		$optionDocument = Input::get('option-document');
+		$account_types = Input::get('account-type');
+		$validator = Validator::make(
+			array(
+				trans('finance.holder_name') 		=> $holder,
+				trans('finance.holder_document')	=> $document,
+				'bank_id' 							=> $bankId,
+				trans('finance.agency_number' )		=> $agency,
+				trans('finance.agency_digit') 		=> $agency_digit,
+				trans('finance.account_number') 	=> $account,
+				trans('finance.account_digit')	 	=> $accountDigit,
+				'option_document'					=> $optionDocument,
+			),
+			array(
+				trans('finance.holder_name') 		=> 'required',
+				trans('finance.holder_document') 	=> 'required',
+				'bank_id' 							=> 'required',
+				trans('finance.agency_number') 		=> 'required',
+				trans('finance.agency_digit')		=> 'required',
+				trans('finance.account_number') 	=> 'required',
+				trans('finance.account_digit') 		=> 'required',
+				'option_document' 					=> 'required'
+			),
+			array(
+				trans('finance.holder_name' )		=> trans('user_provider_controller.holder_required'),
+				trans('finance.holder_document')	=> trans('user_provider_controller.document_required'),
+				'bank_id' 							=> trans('user_provider_controller.bank_required'),
+				trans('finance.agency_number')		=> trans('user_provider_controller.agency_required'),
+				trans('finance.agency_digit')		=> trans('user_provider_controller.agency_digit_required'),
+				trans('finance.account_number') 	=> trans('user_provider_controller.account_required'),
+				trans('finance.account_digit')	 	=> trans('user_provider_controller.account_digit_required'),
+				'option_document'				 	=> trans('user_provider_controller.option_document_required'),
+			)
+		);
+
+		if($optionDocument == LedgerBankAccount::INDIVIDUAL){
+			$validatorDocument = Validator::make(
+							array(
+								'cpf' => $document,
+							),
+							array(
+								'cpf' => 'cpf'
+							),
+							array(
+								'cpf' => trans('providerController.cpf_invalid')
+							)
+			);
+		}
+
+		else{
+			$validatorDocument = Validator::make(
+							array(
+								'cnpj' => $document,
+							),
+							array(
+								'cnpj' => 'cnpj'
+							),
+							array(
+								'cnpj' => trans('providerController.cnpj_invalid')
+							)
+			);
+
+        }
+        if ($validator->fails()) {
+			$errorMessages = $validator->messages()->all();
+			$responseArray = array('success' => false, 'error' => trans('accountController.invalid_input'), 'errorCode' => 401, 'messages' => $errorMessages);
+		}else if($validatorDocument->fails()){
+			$errorMessages = $validatorDocument->messages();
+			$responseArray = array('success' => false, 'error' => trans('accountController.invalid_input'), 'errorCode' => 401, 'messages' => $errorMessages);
+		} else {
+			// salvar informações da conta bancária
+			
+			$ledgerBankAccount = new LedgerBankAccount();
+            
+
+			$ledgerBankAccount->ledger_id = $ledgerId;
+			$ledgerBankAccount->holder = $holder;
+			$ledgerBankAccount->document = $document;
+			$ledgerBankAccount->bank_id = $bankId;
+			$ledgerBankAccount->agency = $agency;
+			$ledgerBankAccount->agency_digit = $agency_digit;
+			$ledgerBankAccount->account = $account;
+			$ledgerBankAccount->account_type = $account_types;
+			$ledgerBankAccount->account_digit = $accountDigit;
+			$ledgerBankAccount->recipient_id = 'empty';
+            $ledgerBankAccount->person_type = $optionDocument;
+            if ($userId > 0) 		$ledgerBankAccount->user_id = $userId;
+            if ($providerId > 0) 	$ledgerBankAccount->provider_id = $providerId;
+            $ledgerBankAccount->save();
+            
+
+			$responseArray = array('success' => true, 'bank_account' => $ledgerBankAccount);
+
+        }
+        $responseCode = 200;
+		$response = Response::json($responseArray, $responseCode);
+		return $response;
+	}
 	
 }
