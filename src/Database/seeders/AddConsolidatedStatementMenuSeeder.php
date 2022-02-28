@@ -1,5 +1,6 @@
 <?php
 
+namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 
 class AddConsolidatedStatementMenuSeeder extends Seeder
@@ -32,11 +33,6 @@ class AddConsolidatedStatementMenuSeeder extends Seeder
                 $findProfiles = array();
 
                 foreach($admins as $admin) {
-                    \AdminPermission::updateOrCreate(
-                        ['admin_id' => $admin->id, 'permission_id' => $permission1->id],
-                        ['admin_id' => $admin->id, 'permission_id' => $permission1->id]
-                    );
-
                     if ($admin->profile_id && !in_array($admin->profile_id, $findProfiles)) {
                         \ProfilePermission::updateOrCreate(
                             ['profile_id' => $admin->profile_id, 'permission_id' => $permission1->id],
