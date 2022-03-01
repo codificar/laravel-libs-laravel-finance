@@ -7,7 +7,6 @@ use Codificar\Finance\Models\LibModel;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use App\Http\Controllers\Controller;
-use AccountController;
 use Finance;
 use Schema;
 use User;
@@ -35,10 +34,8 @@ use Requests;
 class FinancialController extends Controller
 {
 	
-	protected $accountController ;
 
 	public function __construct(){
-		$this->accountController = new AccountController;
 	}
 
 	/**
@@ -75,7 +72,7 @@ class FinancialController extends Controller
 			$responseCode = 200;
 			$response = Response::json($responseArray, $responseCode);
 		} else {
-			$response = $this->accountController->getAnalyticalBalanceByLedgerIdAndMonth($ledgerId, $transactionType, $startDate, $endDate);
+			$response = $this->getAnalyticalBalance($ledgerId, $transactionType, $startDate, $endDate);
 		}
 		return $response;
 	}
@@ -964,5 +961,39 @@ class FinancialController extends Controller
 		$response = Response::json($responseArray, $responseCode);
 		return $response;
 	}
+
+	/**
+	 * Display the ledger`s financial statement.
+	 * @param $ledgerId, $transactionType, $startDate, $endDate
+	 * @return Response
+	 */
+	public function getAnalyticalBalance($ledgerId, $transactionType, $startDate, $endDate){
+		try{
+			if ($ledger = Ledger::find($ledgerId)) {
+				$balance = Finance::getLedgerDetailedBalanceByPeriod($ledgerId, $transactionType, $startDate, $endDate);
+				
+				$responseArray = array(
+					'success' => true,
+					'period' =>  trans('finance.period',
+						array(
+							'start' => date_format(date_create($startDate), trans('finance.datePattern')),
+							'end' => date_format(date_create($endDate), trans('finance.datePattern'))
+						)),
+					'report' => $balance
+				);
+			} else {
+				$responseArray = array('success' => false, 'error' => trans('accountController.ledger_not_found'), 'errorCode' => 402);
+			}
+			$responseCode = 200;
+			$response = Response::json($responseArray, $responseCode);
+			return $response;
+		}catch(Exception $e){
+			$responseArray = array('success' => false, 'error' => $e->getMessage(), 'errorCode' => 402);
+			$responseCode = 200;
+			$response = Response::json($responseArray, $responseCode);
+			return $response;
+		}
+	}
+
 	
 }
