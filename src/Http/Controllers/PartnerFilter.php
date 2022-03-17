@@ -3,6 +3,7 @@
 namespace Codificar\Finance\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 use Admin, Location, PromoCodes, Requests, Provider, User, Partner;
 /**
@@ -27,7 +28,7 @@ trait PartnerFilter
 
 			$partners = $admin->partners()->get();
 			$this->partners = $partners;
-			$this->partnersId =  ArrayUtils::filterArrOnlyKey($this->partners->toArray(), 'id');
+			$this->partnersId =  \ArrayUtils::filterArrOnlyKey($this->partners->toArray(), 'id');
 
 			$this->locationModel = Location::byPartners($this->partnersId);
 			$this->promoCodeModel = PromoCodes::byPartners($this->partnersId);
