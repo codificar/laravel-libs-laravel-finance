@@ -441,15 +441,11 @@ class FinanceController extends Controller {
 			$bankAccountDv 	= $this->checkBankInfo($bank_account, 'account_digit');
 			$bankHolderName = $this->checkBankInfo($bank_account, 'holder');
 			$bankHolderDoc  = $this->checkBankInfo($bank_account, 'document');
+			$personType  	= $this->checkBankInfo($bank_account, 'person_type');
 
-			$bankTrans 		= trans("bank_account");
+			$personTypeTrans 		= trans("bank_account.".$personType);
 
 			$accountType 	= $bank_account ? "" : '';
-			if(isset($bankTrans[$bank_account['person_type']])){
-				$personType		= $bank_account ? $bankTrans[$bank_account['person_type']] : '';
-			}else{
-				$personType = "";
-			}
 
 			$vars = array(
 						$provider->id,
@@ -468,7 +464,7 @@ class FinanceController extends Controller {
 						$bankCode,
 						$bankName,
 						$accountType,
-						$personType,
+						$personTypeTrans,
 						$bankAgency,
 						$bankAgencyDv,
 						$bankAccount,
