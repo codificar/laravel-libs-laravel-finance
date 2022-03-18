@@ -450,7 +450,7 @@ class FinanceController extends Controller {
 			$vars = array(
 						$provider->id,
 						$provider->first_name." ".$provider->last_name,
-						$bank_account['document'],
+						$bankHolderDoc,
 						$provider->address,
 						$provider->address_number,
 						$provider->address_complements,
