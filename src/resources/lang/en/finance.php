@@ -48,6 +48,7 @@ return array(
 	'op_separate_credit' 			=> 'Loan Loans',
 	'op_separate_debit' 			=> 'Debit Debit',
 	'op_delivery_package'			=> 'Delivery Package',
+	'op_invoice_payment'			=> 'Invoice Payment',
 	'op_withdraw' 					=> 'Withdraw',
 	'op_cleaning_fee_debit'			=> 'Debit per cleaning fee',
 	'op_cleaning_fee_credit'		=> 'Cleaning fee credit',

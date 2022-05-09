@@ -51,6 +51,7 @@ return array(
 	'op_cleaning_fee_debit'			=> 'Débito por taxa de limpeza',
 	'op_cleaning_fee_credit'		=> 'Crédito por taxa de limpeza',
 	'op_delivery_package'			=> 'Pacote de entrega',
+	'op_invoice_payment'			=> 'Pagamento de fatura',
 	'separate_credit' 				=> 'Crédito Avulso',
 	'separate_debit' 				=> 'Débito Avulso',
 	'withdraw' 						=> 'Saque',
