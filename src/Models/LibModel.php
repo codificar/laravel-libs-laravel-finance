@@ -569,7 +569,7 @@ class LibModel extends Eloquent
 			$startDateCreated = date("Y-m-d 00:00:00", strtotime($startDate));
 			$endDateCreated = date("Y-m-d 23:59:59", strtotime($endDate));
 			$leders->join('finance', 'finance.ledger_id', '=', 'ledger.id');
-			$leders->whereBetween('finance.created_at', array($startDateCreated, $endDateCreated));
+			$leders->whereBetween('finance.compensation_date', array($startDateCreated, $endDateCreated));
 		}
 
 		if ($type == 'user') {
@@ -634,7 +634,7 @@ class LibModel extends Eloquent
 				'period_balance' => self::sumValueByLedgerIdByPeriod($item->ledger_id, $start, $end),
 				'period_request_count' => self::where('ledger_id', $item->ledger_id)
 					->whereNotNull('request_id')
-					->whereBetween('finance.created_at', array($start, $end))
+					->whereBetween('finance.compensation_date', array($start, $end))
 					->count()
 			];
 
