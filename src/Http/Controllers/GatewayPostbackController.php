@@ -51,9 +51,9 @@ class GatewayPostbackController extends Controller
     public function postbackPix($transactionid, Request $request)
     {
         // verify is post
-        if(Request::isMethod('post')) {
+        if($request->isMethod('post')) {
             $gatewayPix = Settings::getDefaultPaymentPix();
-            
+
             if($gatewayPix == 'ipag') {
                 $this->postbackPixIpag($request);
             } else if($gatewayPix == 'juno'){
