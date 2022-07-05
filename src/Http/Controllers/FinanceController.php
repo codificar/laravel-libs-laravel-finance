@@ -983,18 +983,26 @@ class FinanceController extends Controller {
 			$transaction = Transaction::where('request_id', Input::get('request_id'))->first();
 		}
 		if($transaction) {
+			$expirated_formated = strtotime($transaction->pix_expiration_date_time);
+			$expirated_formated = date('d/m/Y H:i:s', $expirated_formated);
 			return response()->json([
-				'success' 			=> true,
-				'transaction_id'	=> $transaction->id,
-				'paid'              => $transaction->status == 'paid' ? true : false,
-				'payment_changed'	=> $payment_changed,
-				'value'             => $transaction->gross_value,
-				'formatted_value'	=> currency_format(currency_converted($transaction->gross_value)),
-				'copy_and_paste'    => $transaction->pix_copy_paste,
-				'qr_code_base64'    => $transaction->pix_base64
+				'success' 								=> true,
+				'transaction_id'						=> $transaction->id,
+				'paid'              					=> $transaction->status == 'paid' ? true : false,
+				'payment_changed'						=> $payment_changed,
+				'value'             					=> $transaction->gross_value,
+				'formatted_value'						=> currency_format(currency_converted($transaction->gross_value)),
+				'copy_and_paste'    					=> $transaction->pix_copy_paste,
+				'qr_code_base64'    					=> $transaction->pix_base64,
+				'pix_expiration_date_time'  			=> $transaction->pix_expiration_date_time,
+				'pix_expiration_date_time_formated'  	=> $expirated_formated
 			]);
 		} else {
 			abort(404);
+			/* return response()->json([
+				'success' 			=> false,
+				'message'			=> 'transaction not found'
+			]); */
 		}
 	}
 
