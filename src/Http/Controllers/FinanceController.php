@@ -529,10 +529,16 @@ class FinanceController extends Controller {
         $data = array();
 
 		$currency_symbol = LibModel::getCurrencySymbol() . " ";
+		$current_balance = LibModel::sumValueByLedgerId($ledgerId);
+		$current_balance = $current_balance < 0 ? $current_balance * -1 : $current_balance;
+		$balance = currency_format($current_balance);
+		if (strpos($balance, $currency_symbol) === false) {
+			$balance = $currency_symbol . $balance;
+		}
 
 		$data['success']    				= true;
 		$data['current_balance'] 			= currency_format(LibModel::sumValueByLedgerId($ledgerId));
-		$data['current_balance_formated'] 	= $currency_symbol . currency_format(LibModel::sumValueByLedgerId($ledgerId));
+		$data['current_balance_formated'] 	= $balance;
 		$data['cards']       				= $payments;
 		$data['settings']					= $this->getAddBalanceSettings();
 		$data['error']      				= null;
@@ -560,10 +566,16 @@ class FinanceController extends Controller {
         $data = array();
 
 		$currency_symbol = LibModel::getCurrencySymbol() . " ";
+		$current_balance = LibModel::sumValueByLedgerId($ledgerId);
+		$current_balance = $current_balance < 0 ? $current_balance * -1 : $current_balance;
+		$balance = currency_format($current_balance);
+		if (strpos($balance, $currency_symbol) === false) {
+			$balance = $currency_symbol . $balance;
+		}
 
 		$data['success']    				= true;
 		$data['current_balance'] 			= currency_format(LibModel::sumValueByLedgerId($ledgerId));
-		$data['current_balance_formated'] 	= $currency_symbol . currency_format(LibModel::sumValueByLedgerId($ledgerId) * -1);
+		$data['current_balance_formated'] 	= $balance;
 		$data['cards']       		= $payments;
 		$data['settings']			= $this->getAddBalanceSettings();
 		$data['error']      		= null;
