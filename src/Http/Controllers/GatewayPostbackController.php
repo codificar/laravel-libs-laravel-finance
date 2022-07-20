@@ -50,8 +50,6 @@ class GatewayPostbackController extends Controller
      */
     public function postbackPix($transactionid, Request $request)
     {
-        // verify is post
-        if($request->isMethod('post')) {
             $gatewayPix = Settings::getDefaultPaymentPix();
 
             Log::info('Pix postback: ');
@@ -62,7 +60,10 @@ class GatewayPostbackController extends Controller
             } else if($gatewayPix == 'juno'){
                 $this->postbackPixJuno($transactionid, $request);
             }
-        }
+    }
+
+    public function getPostbackPix()
+    {
         // resposta 200 para o gateway saber que deu certo
         return Response::json(["success" => true], 200);
     }
