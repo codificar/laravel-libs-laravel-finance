@@ -474,16 +474,17 @@ class FinanceController extends Controller {
 						$total_result,
 						$total_result >= 0 ? $total_result : trans('financeTrans::finance.provider_in_debit')
 					);
-
 			if((config('app.locale') == 'pt-br') && method_exists($provider, 'getPix') && method_exists($provider, 'getPixType') &&  Settings::findByKey("show_pix_information") == 1)
 			{
-				$pix = $provider->getPixType();;
+				$pix = $provider->getPixType();
 				if($pix == Provider::PIX_EMAIL){
 					$pix = 'E-mail';
 				}else if($pix == Provider::PIX_PHONE){
 					$pix = 'Celular';
 				}else if($pix ==  Provider::PIX_CPF){
 					$pix = 'CPF';
+				}else if($pix ==  Provider::PIX_CNPJ){
+					$pix = 'CNPJ';
 				} else{
 					$pix = '';
 				}
