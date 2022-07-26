@@ -1003,10 +1003,21 @@ class FinanceController extends Controller {
 		if($transaction) {
 			$expirated_formated = strtotime($transaction->pix_expiration_date_time);
 			$expirated_formated = date('d/m/Y H:i:s', $expirated_formated);
+			$success = true;
+			$isPaid = $transaction->status == 'paid' ? true : false;
+			if(!$isPaid) {
+				$request = Requests::find($transaction->request_id);
+				if($request->is_paid) {
+					$isPaid = true;
+				}
+			}
+			if($transaction->status == 'error') {
+				$success = false;
+			}
 			return response()->json([
-				'success' 								=> true,
+				'success' 								=> $success,
 				'transaction_id'						=> $transaction->id,
-				'paid'              					=> $transaction->status == 'paid' ? true : false,
+				'paid'              					=> $isPaid,
 				'payment_changed'						=> $payment_changed,
 				'value'             					=> $transaction->gross_value,
 				'formatted_value'						=> currency_format(currency_converted($transaction->gross_value)),
@@ -1016,6 +1027,7 @@ class FinanceController extends Controller {
 				'pix_expiration_date_time_formated'  	=> $expirated_formated
 			]);
 		} else {
+			\Log::error('LIB Finance Error > Transaction Not Found > retrievePix'. json_encode(Input::all()));
 			abort(404);
 			/* return response()->json([
 				'success' 			=> false,
