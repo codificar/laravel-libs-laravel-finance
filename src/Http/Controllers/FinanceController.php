@@ -1027,7 +1027,6 @@ class FinanceController extends Controller {
 				'pix_expiration_date_time_formated'  	=> $expirated_formated
 			]);
 		} else {
-			\Log::error('LIB Finance Error > Transaction Not Found > retrievePix'. json_encode(Input::all()));
 			abort(404);
 			/* return response()->json([
 				'success' 			=> false,
