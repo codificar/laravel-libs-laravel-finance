@@ -1007,7 +1007,7 @@ class FinanceController extends Controller {
 			$isPaid = $transaction->status == 'paid' ? true : false;
 			if(!$isPaid) {
 				$request = Requests::find($transaction->request_id);
-				if($request->is_paid) {
+				if($request && $request->is_paid) {
 					$isPaid = true;
 				}
 			}
