@@ -50,22 +50,20 @@ class GatewayPostbackController extends Controller
      */
     public function postbackPix($transactionid, Request $request)
     {
-            $gatewayPix = Settings::getDefaultPaymentPix();
+        if($request && $request->method() == 'GET') {
+            return Response::json(["success" => true], 200);
+        }
 
-            Log::info('Pix postback: ');
-            Log::info(json_encode($request->all()));
-            Log::info('gatewaqy: ' . $gatewayPix);
-            if($gatewayPix == 'ipag') {
-                $this->postbackPixIpag($request);
-            } else if($gatewayPix == 'juno'){
-                $this->postbackPixJuno($transactionid, $request);
-            }
-    }
+        $gatewayPix = Settings::getDefaultPaymentPix();
 
-    public function getPostbackPix()
-    {
-        // resposta 200 para o gateway saber que deu certo
-        return Response::json(["success" => true], 200);
+        Log::info('Pix postback: ');
+        Log::info(json_encode($request->all()));
+        Log::info('gateway: ' . $gatewayPix);
+        if($gatewayPix == 'ipag') {
+            $this->postbackPixIpag($request);
+        } else if($gatewayPix == 'juno'){
+            $this->postbackPixJuno($transactionid, $request);
+        }
     }
 
     /**
