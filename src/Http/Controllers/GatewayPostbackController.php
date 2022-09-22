@@ -18,6 +18,17 @@ class GatewayPostbackController extends Controller
      */
     public function postbackBillet($transactionid, Request $request)
     {
+        \Log::notice('transactionid: ' 
+            . $transactionid 
+            .  ' - postbackBillet: ' 
+            .  json_decode($request)
+        );
+        
+        if($request && $request->method() == 'GET') {
+            return Response::json(["success" => true], 200);
+        }
+
+        
         $gateway = PaymentFactory::createGateway();
         $billetVerify = $gateway->billetVerify($request, $transactionid);
         
