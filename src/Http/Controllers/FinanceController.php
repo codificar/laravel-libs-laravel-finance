@@ -529,8 +529,17 @@ class FinanceController extends Controller {
 
         $data = array();
 
+		$currency_symbol = LibModel::getCurrencySymbol() . " ";
+		$current_balance = LibModel::sumValueByLedgerId($ledgerId);
+		$current_balance = $current_balance < 0 ? $current_balance * -1 : $current_balance;
+		$balance = currency_format($current_balance);
+		if (strpos($balance, $currency_symbol) === false) {
+			$balance = $currency_symbol . $balance;
+		}
+
 		$data['success']    				= true;
 		$data['current_balance'] 			= currency_format(LibModel::sumValueByLedgerId($ledgerId));
+		$data['current_balance_formated'] 	= $balance;
 		$data['cards']       				= $payments;
 		$data['settings']					= $this->getAddBalanceSettings();
 		$data['error']      				= null;
@@ -557,8 +566,17 @@ class FinanceController extends Controller {
 		$ledgerId = $provider->ledger->id;
         $data = array();
 
-		$data['success']    		= true;
-		$data['current_balance'] 	= currency_format(LibModel::sumValueByLedgerId($ledgerId));
+		$currency_symbol = LibModel::getCurrencySymbol() . " ";
+		$current_balance = LibModel::sumValueByLedgerId($ledgerId);
+		$current_balance = $current_balance < 0 ? $current_balance * -1 : $current_balance;
+		$balance = currency_format($current_balance);
+		if (strpos($balance, $currency_symbol) === false) {
+			$balance = $currency_symbol . $balance;
+		}
+
+		$data['success']    				= true;
+		$data['current_balance'] 			= currency_format(LibModel::sumValueByLedgerId($ledgerId));
+		$data['current_balance_formated'] 	= $balance;
 		$data['cards']       		= $payments;
 		$data['settings']			= $this->getAddBalanceSettings();
 		$data['error']      		= null;
@@ -807,6 +825,7 @@ class FinanceController extends Controller {
 		$data['prepaid_pix_user']				= Settings::findByKey('prepaid_pix_user');
 		$data['prepaid_pix_corp'] 				= Settings::findByKey('prepaid_pix_corp');
 		$data['prepaid_pix_provider']			= Settings::findByKey('prepaid_pix_provider');
+		$data['with_draw_enabled']				= Settings::findByKey('with_draw_enabled', false);
 		$data['indication_settings']			= LibModel::getCustomIndicationSettings();
 
 		return $data;
@@ -983,18 +1002,37 @@ class FinanceController extends Controller {
 			$transaction = Transaction::where('request_id', Input::get('request_id'))->first();
 		}
 		if($transaction) {
+			$expirated_formated = strtotime($transaction->pix_expiration_date_time);
+			$expirated_formated = date('d/m/Y H:i:s', $expirated_formated);
+			$success = true;
+			$isPaid = $transaction->status == 'paid' ? true : false;
+			if(!$isPaid) {
+				$request = Requests::find($transaction->request_id);
+				if($request && $request->is_paid) {
+					$isPaid = true;
+				}
+			}
+			if($transaction->status == 'error') {
+				$success = false;
+			}
 			return response()->json([
-				'success' 			=> true,
-				'transaction_id'	=> $transaction->id,
-				'paid'              => $transaction->status == 'paid' ? true : false,
-				'payment_changed'	=> $payment_changed,
-				'value'             => $transaction->gross_value,
-				'formatted_value'	=> currency_format(currency_converted($transaction->gross_value)),
-				'copy_and_paste'    => $transaction->pix_copy_paste,
-				'qr_code_base64'    => $transaction->pix_base64
+				'success' 								=> $success,
+				'transaction_id'						=> $transaction->id,
+				'paid'              					=> $isPaid,
+				'payment_changed'						=> $payment_changed,
+				'value'             					=> $transaction->gross_value,
+				'formatted_value'						=> currency_format(currency_converted($transaction->gross_value)),
+				'copy_and_paste'    					=> $transaction->pix_copy_paste,
+				'qr_code_base64'    					=> $transaction->pix_base64,
+				'pix_expiration_date_time'  			=> $transaction->pix_expiration_date_time,
+				'pix_expiration_date_time_formated'  	=> $expirated_formated
 			]);
 		} else {
 			abort(404);
+			/* return response()->json([
+				'success' 			=> false,
+				'message'			=> 'transaction not found'
+			]); */
 		}
 	}
 
