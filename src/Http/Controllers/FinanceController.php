@@ -22,6 +22,8 @@ use Codificar\Finance\Http\Requests\AddCreditCardBalanceWebFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceWebFormRequest;
 use Codificar\Finance\Http\Requests\AddPixBalanceFormRequest;
 
+// use Codificar\PaymentGateways\Libs\PaymentFactory;
+
 //Resource
 use Codificar\Finance\Http\Resources\ProviderProfitsResource;
 use Codificar\Finance\Http\Resources\GetFinancialSummaryByTypeAndDateResource;
@@ -30,6 +32,8 @@ use Codificar\Finance\Http\Resources\AddCreditCardBalanceResource;
 use Codificar\Finance\Http\Resources\AddBilletBalanceResource;
 use Codificar\Finance\Http\Resources\AddCardUserResource;
 use Codificar\Finance\Http\Resources\AddPixBalanceResource;
+//use Omnipay\Common\CreditCard;
+use Codificar\PaymentGateways\Libs\PaymentFactory;
 
 use Carbon\Carbon;
 use Auth;
@@ -38,7 +42,7 @@ use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
 use Codificar\Finance\Http\Requests\changePixPaymentRequest;
 use Codificar\Finance\Imports\PaymentsImport;
 use Input, Validator, View, Response, Session;
-use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution, Ledger, URL, RequestCharging, Requests;
+use Finance, Admin, Settings, Provider, ProviderStatus, User, EmailTemplate, Transaction, Request, Payment, AdminInstitution, Ledger, URL, RequestCharging, Requests;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
 use DB;
@@ -722,7 +726,7 @@ class FinanceController extends Controller {
 
 			$postBack = route('GatewayPostbackBillet') . "/" . $transaction->id;
 			$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
-			$gateway = PaymentFactory::createGateway();
+			$gateway = PaymentFactory::createBilletGateway();
 			$payment = $gateway->billetCharge($value, $holder, $postBack, $billetExpiration, "Adicionar saldo em conta.");
 
 			if($payment['success']){
