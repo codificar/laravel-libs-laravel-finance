@@ -726,7 +726,7 @@ class FinanceController extends Controller {
 
 			$postBack = route('GatewayPostbackBillet') . "/" . $transaction->id;
 			$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
-			$gateway = PaymentFactory::createBilletGateway();
+			$gateway = PaymentFactory::createGateway();
 			$payment = $gateway->billetCharge($value, $holder, $postBack, $billetExpiration, "Adicionar saldo em conta.");
 
 			if($payment['success']){
