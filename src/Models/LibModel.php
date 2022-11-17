@@ -583,7 +583,7 @@ class LibModel extends Eloquent
 		}
 
 		if ($keyWord != '' && ($keyWord)) {
-			if($type == 'user') {
+			if($type == 'user' || $type == 'corp') {
 				$leders->where(DB::raw('CONCAT_WS(" ", user.first_name, user.last_name)'), "LIKE", '%' . $keyWord . '%')
 				->orWhere('user.email', "LIKE", '%' . $keyWord . '%');
 			}else{
