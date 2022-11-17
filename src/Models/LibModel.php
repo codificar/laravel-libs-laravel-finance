@@ -582,12 +582,16 @@ class LibModel extends Eloquent
 				->where('institution.id', '<>', null);
 		}
 
-		if ($keyWord != '') {
-			$leders->where(DB::raw('CONCAT_WS(" ", user.first_name, user.last_name)'), "LIKE", '%' . $keyWord . '%')
-				->orWhere(DB::raw('CONCAT_WS(" ", provider.first_name, provider.last_name)'), "LIKE", '%' . $keyWord . '%')
-				->orWhere('user.email', "LIKE", '%' . $keyWord . '%')
+		if ($keyWord != '' && ($keyWord)) {
+			if($type == 'user' || $type == 'corp') {
+				$leders->where(DB::raw('CONCAT_WS(" ", user.first_name, user.last_name)'), "LIKE", '%' . $keyWord . '%')
+				->orWhere('user.email', "LIKE", '%' . $keyWord . '%');
+			}else{
+				$leders->where(DB::raw('CONCAT_WS(" ", provider.first_name, provider.last_name)'), "LIKE", '%' . $keyWord . '%')
 				->orWhere('provider.email', "LIKE", '%' . $keyWord . '%');
+			}
 		}
+
 
 		$leders->groupBy('ledger.id');
 
