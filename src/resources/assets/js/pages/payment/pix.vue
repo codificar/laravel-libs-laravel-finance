@@ -1,6 +1,8 @@
 <script>
 import axios from "axios";
 import Echo from 'laravel-echo';
+import Qrcode from "v-qrcode";
+
 export default {
   props: [
     "Enviroment",
@@ -15,7 +17,9 @@ export default {
       copied: false
     };
   },
-  components: {},
+  components: {
+    Qrcode
+  },
   methods: {
     onCopy: function (e) {
       this.copied = true;
@@ -112,7 +116,11 @@ export default {
               </div>
             </div>
             <div class="col-sm-4">
-              <img width="200" height="200" :src="'data:image/png;base64, ' + PixBase64" />
+              <qrcode
+                v-if="PixBase64"
+                :size="200"
+                :value="PixBase64"
+              ></qrcode>
             </div>  
           </div>
           <div class="row">
@@ -148,11 +156,12 @@ export default {
 <style>
 .circle {
   background: #2c8aff;
-  width: 30px;
+  width: 30px !important;
   height: 30px;
   border-radius: 50%;
-  padding:8px;
+  padding:8px !important;
   position:relative;
+  margin-right: 5px !important;
 }
 .text{
   transform:translate(-50%,-50%);

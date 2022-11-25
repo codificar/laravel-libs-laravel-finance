@@ -32,7 +32,9 @@ Vue.component('paginator-counter', Counter);
 
 Vue.component('pagination', pagination);
 Vue.component('loading', Loading);
-Vue.component('pix', require('./pages/payment/pix.vue'));
+
+import Pix from './pages/payment/pix.vue';
+Vue.component('pix', Pix);
 
 
 Vue.use(VueTheMask);
