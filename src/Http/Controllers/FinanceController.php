@@ -773,7 +773,7 @@ class FinanceController extends Controller {
 			//Se deu erro, deleta a transaction do boleto
 			else {
 				$transaction->delete();
-				return response()->json($payment, 503);
+				return response()->json($payment, 400);
 			}
 
 			return response()->json([
