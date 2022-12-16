@@ -263,9 +263,9 @@ export default {
                 }
               })
               .catch((error) => {
-                console.log(error);
+                console.log(error.response);
                 reject(error);
-                this.showErrorMsg("Erro ao gerar boleto");
+                this.showErrorMsg(error.response.data.message);
                 return false;
               });
           });
