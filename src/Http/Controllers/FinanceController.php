@@ -1151,11 +1151,18 @@ class FinanceController extends Controller {
 					'bill' => $req->getBill()
 				]);
 			} else { // this request is not of the auth provider
-				abort(404);
+				return response()->json([
+					'success' => false,
+					'bill' => null
+				]);
 			}
 
 		} catch (\Exception $e) {
 			\Log::error($e->getMessage() . $e->getTraceAsString());
+			return response()->json([
+				'success' => false,
+				'bill' => null
+			]);
 		}
 	}
 }
