@@ -440,15 +440,7 @@ class LibModel extends Eloquent
 
 	private static function prepareQuery()
 	{
-		$subQuery = DB::table('request_meta')
-			->select(DB::raw('count(*)'))
-			->whereRaw('provider_id = provider.id and status != 0');
-
-		$subQuery1 = DB::table('request_meta')
-			->select(DB::raw('count(*)'))
-			->whereRaw('provider_id = provider.id and status = 1');
-
-		$query = Provider::select('provider.*', 'ledger.id as ledger_id', 'provider_status.name as status_name', DB::raw("(" . $subQuery->toSql() . ") as 'total_requests'"), DB::raw("(" . $subQuery1->toSql() . ") as 'accepted_requests'"))
+		$query = Provider::select('provider.*', 'ledger.id as ledger_id', 'provider_status.name as status_name')
 					->leftJoin('provider_status', 'provider.status_id', '=', 'provider_status.id');
 
 		$query->leftJoin('ledger as ledger', 'provider.id', '=', 'ledger.provider_id');
@@ -457,16 +449,7 @@ class LibModel extends Eloquent
 	}
 
 	private static function prepareQueryExtract(){
-
-		$subQuery = DB::table('request_meta')
-			->select(DB::raw('count(*)'))
-			->whereRaw('provider_id = provider.id and status != 0');
-
-		$subQuery1 = DB::table('request_meta')
-			->select(DB::raw('count(*)'))
-			->whereRaw('provider_id = provider.id and status = 1');
-
-		$query = Provider::select('finance.compensation_date','finance.created_at as finance_created_at','provider.*', 'ledger.id as ledger_id', 'provider_status.name as status_name', DB::raw("(" . $subQuery->toSql() . ") as 'total_requests'"), DB::raw("(" . $subQuery1->toSql() . ") as 'accepted_requests'"))
+		$query = Provider::select('finance.compensation_date','finance.created_at as finance_created_at','provider.*', 'ledger.id as ledger_id', 'provider_status.name as status_name')
 					->leftJoin('provider_status', 'provider.status_id', '=', 'provider_status.id');
 
 		$query->leftJoin('ledger as ledger', 'provider.id', '=', 'ledger.provider_id')

@@ -256,7 +256,6 @@
 						<th>{{ trans('provider.bank_grid') }}</th>
 						<th>{{ trans('provider.agency_grid') }}</th>
 						<th>{{ trans('provider.account_grid') }}</th>
-						<th>{{ trans('financeTrans::finance.period_requests') }}</th>
 						
 
 						@if(Input::get('start_date_created') && Input::get('end_date_created'))
@@ -347,10 +346,6 @@
 						</td>												
 						@endif						
 						<!-- Request -->
-						
-						<td>
-							<?php echo $provider->total_requests ;?>
-						</td>												
 						
 						<?php 
 							$total = 0;

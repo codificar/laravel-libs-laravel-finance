@@ -167,9 +167,9 @@ class FinanceController extends Controller {
 		if (Input::get('submit') && Input::get('submit') == 'Download_Report') {
 			return $this->downloadExtractReport($providers);
 		}else{
-			$providersss = $providers->paginate(20);
+			$paginatedProviders = $providers->paginate(20);
 			$balances = array();
-			foreach($providersss as $provider){
+			foreach($paginatedProviders as $provider){
 				$id =  $provider->id;
 				$holder = Provider::find($id);
 				if(Input::get('type-entry') != ''){
@@ -202,7 +202,7 @@ class FinanceController extends Controller {
 		if (count($providers->paginate(20)) > 0) {
 			return View::make('finance::account_summary')
 					->with('locations', $locations)
-					->with('providers', $providersss)
+					->with('providers', $paginatedProviders)
 					->with('partners', $this->partners)
 					->with('currency_symbol', $currency_symbol)
 					->with('type','id')
@@ -212,7 +212,7 @@ class FinanceController extends Controller {
 		}else{
 			return View::make('finance::account_summary')
 					->with('locations', $locations)
-					->with('providers', $providersss)
+					->with('providers', $paginatedProviders)
 					->with('partners', $this->partners)
 					->with('currency_symbol', $currency_symbol)
 					->with('type','id')
@@ -370,7 +370,6 @@ class FinanceController extends Controller {
 					trans('bank_account.bank_agency_dig'),
 					trans('bank_account.bank_account'),
 					trans('bank_account.bank_account_dig'),
-					trans('financeTrans::finance.period_requests'),
 					trans('financeTrans::finance.period_balance'),
 					trans('financeTrans::finance.total_balance'),
 					trans('financeTrans::finance.hit_value')
@@ -469,7 +468,6 @@ class FinanceController extends Controller {
 						$bankAgencyDv,
 						$bankAccount,
 						$bankAccountDv,
-						$provider->total_requests,
 						$total_balance_by_period,
 						$total_result,
 						$total_result >= 0 ? $total_result : trans('financeTrans::finance.provider_in_debit')
