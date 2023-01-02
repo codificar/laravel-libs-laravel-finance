@@ -22,6 +22,7 @@ class AddCardUserFormRequest extends FormRequest {
     public $cardExpYear;
     public $carDate;
     public $cardType;
+    public $document;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -44,6 +45,7 @@ class AddCardUserFormRequest extends FormRequest {
         $this->cardExpMonth = request()->card_expiration_month;
         $this->cardExpYear = request()->card_expiration_year;
         $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
+        $this->document = request()->document;
 
         if (request()->card_type) {
             $this->cardType = strtoupper(request()->card_type);
