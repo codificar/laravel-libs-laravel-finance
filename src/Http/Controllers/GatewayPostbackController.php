@@ -10,6 +10,7 @@ use App\Jobs\SubscriptionBilletPaid;
 use PaymentFactory;
 use Finance, Settings, Requests;
 use Codificar\Finance\Events\PixUpdate;
+use Codificar\LaravelSubscriptionPlan\Models\Plan;
 
 class GatewayPostbackController extends Controller
 {
@@ -106,7 +107,7 @@ class GatewayPostbackController extends Controller
                     else if($transaction->signature_id) {
                         $signature = \Signature::find($transaction->signature_id);
                         if($signature) {
-                            $plan = \Plan::find($signature->plan_id);
+                            $plan = Plan::find($signature->plan_id);
                              // Define a data de expiração da assinatura
                             $period = $plan->period;
                             $period = $plan->period + \Settings::getDaysForSubscriptionRecurrency();

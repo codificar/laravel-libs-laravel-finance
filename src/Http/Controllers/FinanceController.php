@@ -991,11 +991,13 @@ class FinanceController extends Controller {
     {
 		$payment_changed = false;
 		$transaction = null;
+		$requestId = null;
 		if(Input::get('transaction_id')) {
 			$transaction = Transaction::find(Input::get('transaction_id'));
 		} else if(Input::get('request_id')) {
-			$req = Requests::find(Input::get('request_id'));
-			if($req && $req->payment_mode != RequestCharging::PAYMENT_MODE_GATEWAY_PIX){
+			$ride = Requests::find(Input::get('request_id'));
+			$requestId = $ride ? $ride->id  : null;
+			if($ride && $ride->payment_mode != RequestCharging::PAYMENT_MODE_GATEWAY_PIX){
 				$payment_changed = true;
 			}
 
@@ -1007,8 +1009,9 @@ class FinanceController extends Controller {
 			$success = true;
 			$isPaid = $transaction->status == 'paid' ? true : false;
 			if(!$isPaid) {
-				$request = Requests::find($transaction->request_id);
-				if($request && $request->is_paid) {
+				$ride = Requests::find($transaction->request_id);
+				$requestId = $ride ? $ride->id  : null;
+				if($ride && $ride->is_paid) {
 					$isPaid = true;
 				}
 			}
@@ -1017,7 +1020,9 @@ class FinanceController extends Controller {
 			}
 			return response()->json([
 				'success' 								=> $success,
+				'request_id'							=> $requestId,
 				'transaction_id'						=> $transaction->id,
+				'transaction_type'						=> $transaction->type,
 				'paid'              					=> $isPaid,
 				'payment_changed'						=> $payment_changed,
 				'value'             					=> $transaction->gross_value,
