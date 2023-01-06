@@ -13,13 +13,13 @@
  */
 
 /*!
- * Vue.js v2.6.14
- * (c) 2014-2021 Evan You
+ * Vue.js v2.7.14
+ * (c) 2014-2022 Evan You
  * Released under the MIT License.
  */
 
 /*!
- * clipboard.js v2.0.8
+ * clipboard.js v2.0.11
  * https://clipboardjs.com/
  *
  * Licensed MIT © Zeno Rocha
@@ -30,6 +30,8 @@
 /*! https://mths.be/utf8js v2.1.2 by @mathias */
 
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
+
+/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
 
 /**
  * @license
