@@ -39,6 +39,7 @@ return array(
 	'op_ride_payment' 				=> 'Pay per run',
 	'op_ride_debit' 				=> 'Debt per race',
 	'op_ride_credit' 				=> 'Credit per race',
+	'op_ride_debit_pending_pix'		=> 'Debt for pending payment pix',
 	'op_ride_ledger' 				=> 'Balance Debit',
 	'op_debit_cancellation' 		=> 'Race cancellation charge',
 	'op_credit_cancellation' 		=> 'Race cancellation credit',
