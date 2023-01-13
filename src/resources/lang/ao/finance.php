@@ -40,6 +40,7 @@ return array(
 	'op_ride_debit' 				=> 'Débito por corrida',
 	'op_ride_credit' 				=> 'Crédito por corrida',
 	'op_ride_debit_pending_pix'		=> 'Débito de corrida por pagamento pendente em pix gateway',
+	'op_ride_credit_pending_pix'	=> 'Crédito de corrida por pagamento pendente em pix gateway',
 	'op_ride_ledger' 				=> 'Débito de saldo',
 	'op_debit_cancellation' 		=> 'Débito por cancelamento de corrida',
 	'op_credit_cancellation' 		=> 'Crédito por cancelamento de corrida',
