@@ -31,6 +31,11 @@ use Codificar\Finance\Http\Resources\AddBilletBalanceResource;
 use Codificar\Finance\Http\Resources\AddCardUserResource;
 use Codificar\Finance\Http\Resources\AddPixBalanceResource;
 
+
+use LVR\CreditCard\CardCvc as CardCvc;
+use LVR\CreditCard\CardNumber as CardNumber;
+use LVR\CreditCard\CardExpirationYear as CardExpirationYear;
+use LVR\CreditCard\CardExpirationMonth as CardExpirationMonth;
 use Carbon\Carbon;
 use Auth;
 use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
@@ -855,7 +860,22 @@ class FinanceController extends Controller {
 		} else {
 			$payment->user_id = $holder->id;
 		}
-
+		$request -> validate(
+			['cardNumber' => str_replace('-', '',$request->cardNumber)],
+			['cardNumber' => new CardNumber]
+		);
+		$request -> validate(
+			['cvc' => $request->cardCvv],
+			['cvc' => new CardCvc($request->get('cardNumber'))]
+		);
+		$request ->validate(
+			['cardExpMonth' =>  $request->cardExpMonth],
+			['cardExpMonth' => ['required', new CardExpirationMonth($request->get('cardExpYear'))]]
+		);
+		$request->validate(
+			['cardExpYear' => $request->cardExpYear],
+			['cardExpYear' => ['required', new CardExpirationYear($request->get('cardExpMonth'))]]
+		);
 		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv, $request->cardHolder);
 
 		if($return['success']){

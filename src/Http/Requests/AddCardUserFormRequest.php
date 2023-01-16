@@ -2,6 +2,10 @@
 
 namespace Codificar\Finance\Http\Requests;
 
+use LVR\CreditCard\CardCvc as CardCvc;
+use LVR\CreditCard\CardNumber as CardNumber;
+use LVR\CreditCard\CardExpirationYear as CardExpirationYear;
+use LVR\CreditCard\CardExpirationMonth as CardExpirationMonth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -53,10 +57,10 @@ class AddCardUserFormRequest extends FormRequest {
 
         return [
             'card_holder' => 'required',
-            'card_number' => 'required',
-            'card_expiration_year' => 'required',
-            'card_expiration_month' => 'required',
-            'card_cvv' => 'required|digits_between:3,4',
+            'card_number' => ['required', new CardNumber],
+            'expiration_year' => ['required', new CardExpirationYear($this->get('expiration_month'))],
+            'card_expiration_month' => ['required', new CardExpirationMonth($this->get('expiration_year'))],
+            'card_cvv' => ['required', new CardCvc($this->get('card_number'))]
         ];
     }
 
