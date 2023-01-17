@@ -56,21 +56,21 @@ class AddCardUserFormRequest extends FormRequest {
         }
 
         return [
-            'card_holder' => 'required',
-            'card_number' => ['required', new CardNumber],
-            'expiration_year' => ['required', new CardExpirationYear($this->get('expiration_month'))],
-            'card_expiration_month' => ['required', new CardExpirationMonth($this->get('expiration_year'))],
-            'card_cvv' => ['required', new CardCvc($this->get('card_number'))]
+            'cardHolder' => 'required',
+            'cardNumber' => ['required', new CardNumber],
+            'cardExpYear' => ['required', new CardExpirationYear($this->cardExpMonth)],
+            'cardExpMonth' => ['required', new CardExpirationMonth($this->cardExpYear)],
+            'cardCvv' => ['required', new CardCvc($this->cardNumber)]
         ];
     }
 
     public function messages() {
         return [
-            'card_holder' => '',
-            'card_number' => '',
-            'card_expiration_year' => '',
-            'card_expiration_month' => '',
-            'card_cvv' => '',
+            'cardHolder' => '',
+            'cardNumber' => '',
+            'cardExpYear' => '',
+            'cardExpMonth' => '',
+            'cardCvv' => '',
         ];
     }
 
