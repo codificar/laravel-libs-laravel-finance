@@ -42,19 +42,6 @@ class AddCardUserFormRequest extends FormRequest {
      * @return array
      */
     public function rules() {
-        $this->cardHolder = request()->card_holder;
-        $this->cardNumber = str_replace('-', '', request()->card_number);
-        $this->cardCvv = request()->card_cvv;
-        $this->cardExpMonth = request()->card_expiration_month;
-        $this->cardExpYear = request()->card_expiration_year;
-        $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
-
-        if (request()->card_type) {
-            $this->cardType = strtoupper(request()->card_type);
-        } else {
-            $this->cardType = detectCardType($this->cardNumber);
-        }
-
         return [
             'cardHolder' => 'required',
             'cardNumber' => ['required', new CardNumber],
@@ -85,6 +72,59 @@ class AddCardUserFormRequest extends FormRequest {
             'errors' => $validator->errors()->all(),
             'error_code' => \ApiErrors::REQUEST_FAILED
         ]));
+    }
+
+    protected function prepareForValidation(){
+        $holder = "";
+        $number = "";
+        $ccv = "";
+        $cardDate = "";
+        $cardExpirationMonth = "";
+        $cardExpirationYear = "";
+
+        if($this->name){
+            $holder = $this->name;
+        }else if (request()->card_holder){
+            $holder = request()->card_holder;
+        }
+
+        if($this->number){
+            $number = $this->number;
+        }else if (request()->card_number){
+            $number = str_replace('-', '', request()->card_number);
+        }
+
+        if($this->cvc){
+            $ccv = $this->cvc;
+        }else if (request()->card_cvv){
+            $ccv = request()->card_cvv;
+        }
+
+        if($this->expiry){
+            $cardDate = str_replace(' ', '',$this->expiry);
+            if(strpos($cardDate, '/') > 0){
+                list($cardExpirationMonth, $cardExpirationYear) = explode('/', $cardDate);
+                $cardExpirationMonth = intval($cardExpirationMonth);
+                $cardExpirationYear = intval($cardExpirationYear);
+            }
+        }else if (request()->card_expiration_month){
+            $cardExpirationMonth = request()->card_expiration_month;
+            $cardExpirationYear = request()->card_expiration_year;
+        }
+
+        $this->cardHolder = $holder;
+        $this->cardNumber = $number;
+        $this->cardCvv = $ccv;
+        $this->cardExpMonth =  $cardExpirationMonth;
+        $this->cardExpYear =  $cardExpirationYear;
+        $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
+
+        if (request()->card_type) {
+            $this->cardType = strtoupper(request()->card_type);
+        } else {
+            $this->cardType = detectCardType($this->cardNumber);
+        }
+
     }
 
 }
