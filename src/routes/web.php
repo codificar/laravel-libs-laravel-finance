@@ -83,13 +83,6 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/payment/pix/retrieve', 'FinanceController@retrievePix');
     });
 
-
-    //Rota de add cartão via painel
-    Route::group(['prefix' => 'admin', 'middleware' => 'auth.admin'], function () {
-        Route::post('/user/libs/finance/payment/add_credit_card', array('as' => 'userAddCreditCardPanel', 'uses' => 'FinanceController@addCreditCard'));
-    });
-
-
     Route::group(['prefix' => '/corp/libs/finance' ,'middleware' => ['auth.corp_api', 'cors']], function (){
         Route::get('/financial-report', array('as' => 'corpAccountStatement', 'uses' => 'FinancialController@userProviderCheckingAccount'));
         Route::get('/summary/{id}', array('as' => 'corpAccountStatementByTypeAndDate', 'uses' => 'FinancialController@getFinancialSummaryByTypeAndDate'));
