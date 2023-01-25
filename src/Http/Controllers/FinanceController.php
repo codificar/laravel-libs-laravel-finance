@@ -31,6 +31,7 @@ use Codificar\Finance\Http\Resources\AddBilletBalanceResource;
 use Codificar\Finance\Http\Resources\AddCardUserResource;
 use Codificar\Finance\Http\Resources\AddPixBalanceResource;
 
+
 use Carbon\Carbon;
 use Auth;
 use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
@@ -855,7 +856,6 @@ class FinanceController extends Controller {
 		} else {
 			$payment->user_id = $holder->id;
 		}
-
 		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv, $request->cardHolder);
 
 		if($return['success']){
