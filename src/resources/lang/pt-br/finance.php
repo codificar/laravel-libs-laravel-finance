@@ -107,6 +107,9 @@ return array(
 	'total_compensations_msg'		=> 'É o valor que o usuário ainda vai receber (somatório dos valores com data/hora maior que o momento atual)',
 
 	'pix'							=> 'PIX',
+	'type_pix'                      => 'Tipo de chave',
+	'key_pix'                       => 'Chave PIX',
+
 
 	'insert_entry' 					=> 'Inserir Transação',
 	'insert' 						=> 'Inserir',

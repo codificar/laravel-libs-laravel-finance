@@ -249,9 +249,9 @@
 						<th>{{ trans('provider.name_grid') }}</th>
 						<th>{{ trans('provider.mail_grid') }}</th>
 						<!-- PIX -->
-						@if(\Settings::findByKey("show_pix_information") == 1)
-							<th>PIX</th>
-							<th>Chave PIX</th>
+						@if(Settings::findByKey("allow_pix_register"))
+							<th>{{ trans('financeTrans::finance.type_pix') }}</th>
+							<th>{{ trans('financeTrans::finance.key_pix') }}</th>
 						@endif
 						<th>{{ trans('provider.bank_grid') }}</th>
 						<th>{{ trans('provider.agency_grid') }}</th>
@@ -302,24 +302,38 @@
 							<?php echo $provider->email; ?>
 						</td>
 						<!-- PIX -->
-						@if(\Settings::findByKey("show_pix_information") == 1 && method_exists($provider, 'getPix') && method_exists($provider, 'getPixType'))
+						@if(Settings::findByKey('allow_pix_register'))
 							<td>
 								<?php 
-									$pix = $provider->getPixType();;
-									if($pix == Provider::PIX_EMAIL){
-										$pix = 'E-mail'; 
-									}else if($pix == Provider::PIX_PHONE){
-										$pix = 'Celular'; 
-									}else if($pix ==  Provider::PIX_CPF){
-										$pix = 'CPF'; 
-									} else{
-										$pix = '';
+									$type_pix = $provider->type_pix;
+									$type_pix_formatted = $type_pix;
+									if($type_pix == 'chave_aleatoria'){
+										$type_pix_formatted = 'Chave Aleatória'; 
+									}else if ($type_pix == 'telefone'){
+										$type_pix_formatted = 'Telefone'; 
+									}else if ($type_pix == 'documento'){
+										$type_pix_formatted = 'Documento'; 
+									}else if ($type_pix == 'email'){
+										$type_pix_formatted = 'Email'; 
 									}
-									echo $pix;
+									 else{
+										$type_pix_formatted = 'N/A';
+									}
+									echo $type_pix_formatted;
 								?>
 							</td>
 
-							<td>{{ $provider->getPix() }}</td>
+							<td>
+								<?php  
+									$key_pix = $provider->key_pix;
+									if($key_pix == "" || $key_pix == null){
+										echo 'N/A';
+									}
+									else{
+										echo $key_pix;
+									}
+								?>
+							</td>
 						@endif
 
 						@if($bankAccount = $provider->getBankAccount())
