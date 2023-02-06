@@ -837,7 +837,6 @@ class FinanceController extends Controller {
 		return $this->newCreditCard($enviroment['holder'], $enviroment['type'], $request);
 	}
 
-
 	public function addCreditCardProvider(AddCardUserFormRequest $request) {
 		$provider = Provider::find($request->id);
 		return $this->newCreditCard($provider, 'provider', $request);
@@ -848,21 +847,39 @@ class FinanceController extends Controller {
 		return $this->newCreditCard($user, 'user', $request);
 	}
 
-	private function newCreditCard($holder, $type, $request) {
-		$data = array();
-		$payment = new Payment;
-		if($type == 'provider') {
-			$payment->provider_id = $holder->id;
-		} else {
-			$payment->user_id = $holder->id;
-		}
-		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv, $request->cardHolder);
+	public function addCreditCardAdminUser(AddCardUserFormRequest $request) {
+		$user = User::find($request->id);
+		return $this->newCreditCard($user, 'user', $request);
+	}
 
-		if($return['success']){
-            return new AddCardUserResource($payment);
+	private function newCreditCard($holder, $type, $request) {
+		$payment = new Payment;
+
+		if($type == 'provider') {
+			$return = Payment::providerCreateCardByGateway( $request->id, $request->cardNumber, $request->cardHolder, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv,);
 		} else {
-			return response()->json(['message' => $return['message'],'success'=> false, 'type' => $return['type'], 'card' => $payment], 406);
+			$return = Payment::createCardByGateway($request->id, $request->cardNumber, $request->cardHolder, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv,);
 		}
+		$payment = $return['payment'];
+			if($return['success']){
+				
+				$message = trans('user_provider_controller.card_add');
+				$response_array = array(
+					'success' => true,
+					'message' => $message,
+					'payment' => $payment->getData(),
+					'toRemove' => URL::Route('AdminUserRemovePayment'),
+					'setDefault' => URL::Route('AdminUserDefaultPayment')
+				);
+				$response_code = 200;
+			}
+			else {
+				$errorMessages = trans($return['message']);
+				$response_array = array('success' => false, 'error' => array($errorMessages), 'error_code' => 429);
+				$response_code = 200;
+			}
+		$response = Response::json($response_array, $response_code);
+		return $response;
 	}
 
 	private function getEnviroment() {

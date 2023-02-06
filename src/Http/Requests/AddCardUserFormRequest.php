@@ -124,7 +124,13 @@ class AddCardUserFormRequest extends FormRequest {
         } else {
             $this->cardType = detectCardType($this->cardNumber);
         }
-
+        $this->merge([
+            'cardHolder' => $this->cardHolder,
+            'cardNumber' => $this->cardNumber,
+            'cardExpYear' => $this->cardExpYear,
+            'cardExpMonth' => $this->cardExpMonth,
+            'cardCvv' =>  $this->cardCvv,
+        ]);
     }
 
 }
