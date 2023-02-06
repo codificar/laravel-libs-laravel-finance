@@ -26,6 +26,7 @@ class AddCardUserFormRequest extends FormRequest {
     public $cardExpYear;
     public $carDate;
     public $cardType;
+    public $userId;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -47,17 +48,18 @@ class AddCardUserFormRequest extends FormRequest {
             'cardNumber' => ['required', new CardNumber],
             'cardExpYear' => ['required', new CardExpirationYear($this->cardExpMonth)],
             'cardExpMonth' => ['required', new CardExpirationMonth($this->cardExpYear)],
-            'cardCvv' => ['required', new CardCvc($this->cardNumber)]
+            'cardCvv' => ['required', new CardCvc($this->cardNumber)],
+            'userId' => 'required'
         ];
     }
 
     public function messages() {
         return [
-            'cardHolder' => '',
-            'cardNumber' => '',
-            'cardExpYear' => '',
-            'cardExpMonth' => '',
-            'cardCvv' => '',
+            'cardHolder' => trans('finance.holder_error'),
+            'cardNumber' => trans('finance.number_error'),
+            'cardExpYear' => trans('finance.data_error'),
+            'cardExpMonth' => trans('finance.data_error'),
+            'cardCvv' => trans('finance.cvc_error'),
         ];
     }
 
@@ -81,11 +83,18 @@ class AddCardUserFormRequest extends FormRequest {
         $cardDate = "";
         $cardExpirationMonth = "";
         $cardExpirationYear = "";
+        $userId = "";
 
         if($this->name){
             $holder = $this->name;
         }else if (request()->card_holder){
             $holder = request()->card_holder;
+        }
+
+        if($this->user_id){
+            $userId = $this->user_id;
+        }else if (request()->userId){
+            $userId = request()->userId;
         }
 
         if($this->number){
@@ -118,6 +127,7 @@ class AddCardUserFormRequest extends FormRequest {
         $this->cardExpMonth =  $cardExpirationMonth;
         $this->cardExpYear =  $cardExpirationYear;
         $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
+        $this->userId = $userId ;
 
         if (request()->card_type) {
             $this->cardType = strtoupper(request()->card_type);
@@ -130,6 +140,7 @@ class AddCardUserFormRequest extends FormRequest {
             'cardExpYear' => $this->cardExpYear,
             'cardExpMonth' => $this->cardExpMonth,
             'cardCvv' =>  $this->cardCvv,
+            'userId' =>  $this->userId,
         ]);
     }
 

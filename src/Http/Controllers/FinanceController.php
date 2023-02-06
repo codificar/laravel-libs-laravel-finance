@@ -848,17 +848,16 @@ class FinanceController extends Controller {
 	}
 
 	public function addCreditCardAdminUser(AddCardUserFormRequest $request) {
-		$user = User::find($request->id);
-		return $this->newCreditCard($user, 'user', $request);
+		return $this->newCreditCard('user', $request);
 	}
 
-	private function newCreditCard($holder, $type, $request) {
+	private function newCreditCard($type, $request) {
 		$payment = new Payment;
 
 		if($type == 'provider') {
-			$return = Payment::providerCreateCardByGateway( $request->id, $request->cardNumber, $request->cardHolder, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv,);
+			$return = Payment::providerCreateCardByGateway( $request->userId, $request->cardNumber, $request->cardHolder, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv,);
 		} else {
-			$return = Payment::createCardByGateway($request->id, $request->cardNumber, $request->cardHolder, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv,);
+			$return = Payment::createCardByGateway($request->userId, $request->cardNumber, $request->cardHolder, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv,);
 		}
 		$payment = $return['payment'];
 			if($return['success']){

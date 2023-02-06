@@ -264,5 +264,9 @@ return array(
 	'corp' => 'Instituição',
 	'op_deposit_in_account' => 'Depósito em conta (baixa de pagamento)',
 	'delimiter' => 'Delimitador',
-	'date_format' => 'Formato da data'
+	'date_format' => 'Formato da data',
+	'holder_error' => 'Nome incompleto ou não fornecido',
+	'number_error' => 'Número incompleto ou não fornecido',
+	'data_error' => 'Data incompleta ou não fornecida',
+	'cvc_error' => 'Código de segurança incompleto ou não fornecido',
 );
