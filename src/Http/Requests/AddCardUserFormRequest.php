@@ -55,11 +55,11 @@ class AddCardUserFormRequest extends FormRequest {
 
     public function messages() {
         return [
-            'cardHolder' => trans('finance.holder_error'),
-            'cardNumber' => trans('finance.number_error'),
-            'cardExpYear' => trans('finance.data_error'),
-            'cardExpMonth' => trans('finance.data_error'),
-            'cardCvv' => trans('finance.cvc_error'),
+            'cardHolder.required' => trans('financeTrans::finance.holder_error'),
+            'cardNumber.required' => trans('financeTrans::finance.number_error'),
+            'cardExpYear.required' => trans('financeTrans::finance.data_error'),
+            'cardExpMonth.required' => trans('financeTrans::finance.data_error'),
+            'cardCvv.required' => trans('financeTrans::finance.cvc_error'),
         ];
     }
 
@@ -68,12 +68,23 @@ class AddCardUserFormRequest extends FormRequest {
      * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator) {
+        // $validator->messages->messages["cardNumber"]
+        // $validator->messages->messages["cardCvv"]
         throw new HttpResponseException(
         response()->json([
             'success' => false,
-            'errors' => $validator->errors()->all(),
+            'errors' => self::errorTrait($validator),
             'error_code' => \ApiErrors::REQUEST_FAILED
         ]));
+    }
+
+    protected function errorTrait($validator){
+        if ($validator->messages()->messages()){
+            return array(
+                trans('financeTrans::finance.error_card')
+            );
+        }
+        return $validator->errors()->all();
     }
 
     protected function prepareForValidation(){
@@ -93,8 +104,8 @@ class AddCardUserFormRequest extends FormRequest {
 
         if($this->user_id){
             $userId = $this->user_id;
-        }else if (request()->userId){
-            $userId = request()->userId;
+        }else if (request()->user_id){
+            $userId = request()->user_id;
         }
 
         if($this->number){
@@ -126,14 +137,8 @@ class AddCardUserFormRequest extends FormRequest {
         $this->cardCvv = $ccv;
         $this->cardExpMonth =  $cardExpirationMonth;
         $this->cardExpYear =  $cardExpirationYear;
-        $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
         $this->userId = $userId ;
 
-        if (request()->card_type) {
-            $this->cardType = strtoupper(request()->card_type);
-        } else {
-            $this->cardType = detectCardType($this->cardNumber);
-        }
         $this->merge([
             'cardHolder' => $this->cardHolder,
             'cardNumber' => $this->cardNumber,

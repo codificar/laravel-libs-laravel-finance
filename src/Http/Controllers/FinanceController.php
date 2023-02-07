@@ -838,13 +838,11 @@ class FinanceController extends Controller {
 	}
 
 	public function addCreditCardProvider(AddCardUserFormRequest $request) {
-		$provider = Provider::find($request->id);
-		return $this->newCreditCard($provider, 'provider', $request);
+		return $this->newCreditCard('provider', $request);
 	}
 
 	public function addCreditCardUser(AddCardUserFormRequest $request) {
-		$user = User::find($request->id);
-		return $this->newCreditCard($user, 'user', $request);
+		return $this->newCreditCard('user', $request);
 	}
 
 	public function addCreditCardAdminUser(AddCardUserFormRequest $request) {

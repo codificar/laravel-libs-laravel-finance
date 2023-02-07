@@ -267,5 +267,6 @@ return array(
 	'holder_error' => 'Nombre incompleto o faltante',
 	'number_error' => 'Número incompleto o faltante',
 	'data_error' => 'Datos incompletos o no proporcionados',
-	'cvc_error' => 'Código de seguridad incompleto o faltante'
+	'cvc_error' => 'Código de seguridad incompleto o faltante',
+	'error_card' => 'Error Al registrar la tarjeta, verifique los datos utilizados'
 );
