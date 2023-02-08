@@ -68,8 +68,6 @@ class AddCardUserFormRequest extends FormRequest {
      * @throws HttpResponseException
      */
     protected function failedValidation(Validator $validator) {
-        // $validator->messages->messages["cardNumber"]
-        // $validator->messages->messages["cardCvv"]
         throw new HttpResponseException(
         response()->json([
             'success' => false,
