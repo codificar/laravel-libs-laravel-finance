@@ -96,4 +96,15 @@ class Transaction extends Eloquent
 			return null;
 		}
 	}
+
+	public static function getTransactionByGatewayId($gatewayId)
+	{
+		$gatewayTransactionId = self::where('gateway_transaction_id', $gatewayId)->first();
+
+		if ($gatewayTransactionId) {
+			return $gatewayTransactionId;
+		} else {
+			return null;
+		}
+	}
 }
