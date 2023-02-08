@@ -774,7 +774,7 @@ class FinanceController extends Controller {
 			//Se deu erro, deleta a transaction do boleto
 			else {
 				$transaction->delete();
-				return response()->json($payment, 503);
+				return response()->json($payment, 400);
 			}
 
 			return response()->json([
@@ -1145,26 +1145,38 @@ class FinanceController extends Controller {
 	}
 
 	public function changePixPayment(changePixPaymentRequest $request) {
-		$providerId = $request->provider_id ? $request->provider_id : $request->id;
-		$req = Requests::find($request->request_id);
-		if($req && $req->confirmed_provider == $providerId) {
-			if($req->payment_mode == RequestCharging::PAYMENT_MODE_GATEWAY_PIX) {
-				// troca a forma de pagamento
-				$req->payment_mode = $request->new_payment_mode;
-				$req->save();
+		try {
+			$providerId = $request->provider_id ? $request->provider_id : $request->id;
+			$req = Requests::find($request->request_id);
+			if($req && $req->confirmed_provider == $providerId) {
+				if($req->payment_mode == RequestCharging::PAYMENT_MODE_GATEWAY_PIX) {
+					// troca a forma de pagamento
+					$req->payment_mode = $request->new_payment_mode;
+					$req->save();
 
-				//faz a logica da cobranca com a nova forma de pagamento
-				RequestCharging::request_complete_charge($req->id);
+					//faz a logica da cobranca com a nova forma de pagamento
+					\RequestCharging::requestCompleteCharge($req->id);
+				}
+				//dispara eveneto para o usuario
+				event(new PixUpdate($req->request_price_transaction_id, false, true));
+
+				return response()->json([
+					'success' => true,
+					'bill' => $req->getBill()
+				]);
+			} else { // this request is not of the auth provider
+				return response()->json([
+					'success' => false,
+					'bill' => null
+				]);
 			}
-			//dispara eveneto para o usuario
-			event(new PixUpdate($req->request_price_transaction_id, false, true));
 
+		} catch (\Exception $e) {
+			\Log::error($e->getMessage() . $e->getTraceAsString());
 			return response()->json([
-				'success' => true,
-				'bill' => $req->getBill()
+				'success' => false,
+				'bill' => null
 			]);
-		} else { // this request is not of the auth provider
-			abort(404);
 		}
 	}
 }
