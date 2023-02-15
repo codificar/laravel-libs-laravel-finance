@@ -108,6 +108,11 @@ class FinanceController extends Controller {
         return new GetFinancialSummaryByTypeAndDateResource(['balance' => $balance]);
 	}
 
+    /**
+     * Get the provider data and filter to make their balance and use this on account_summary view
+	 * 
+     * @return View account_summary
+     */
 	public function providerExtract(){
 		$providers = $this->index(true);
 		$providers = $providers->paginate(20);
@@ -146,7 +151,12 @@ class FinanceController extends Controller {
 					->with('currency_symbol', $currency_symbol)
 					->with('balances',$balances);
 	}
-
+ 
+	/**
+     * Get the provider data and filter to make their balance and use this on account_summary view, but this time using filters
+	 * 
+     * @return View account_summary
+     */
 	public function providerExtractFilter(){
 
 		$start_date_compensation = Input::get('start-date-compensation');
