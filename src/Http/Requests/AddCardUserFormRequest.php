@@ -39,20 +39,6 @@ class AddCardUserFormRequest extends FormRequest {
      * @return array
      */
     public function rules() {
-        $this->cardHolder = request()->card_holder;
-        $this->cardNumber = str_replace('-', '', request()->card_number);
-        $this->cardCvv = request()->card_cvv;
-        $this->cardExpMonth = request()->card_expiration_month;
-        $this->cardExpYear = request()->card_expiration_year;
-        $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
-        $this->document = request()->document;
-
-        if (request()->card_type) {
-            $this->cardType = strtoupper(request()->card_type);
-        } else {
-            $this->cardType = detectCardType($this->cardNumber);
-        }
-
         return [
             'card_holder' => 'required',
             'card_number' => 'required',
@@ -83,6 +69,33 @@ class AddCardUserFormRequest extends FormRequest {
             'errors' => $validator->errors()->all(),
             'error_code' => \ApiErrors::REQUEST_FAILED
         ]));
+    }
+
+    protected function prepareForValidation(){ 
+        $replaceDocument = array(".","/","-");
+        $this->cardHolder = request()->card_holder;
+        $this->cardNumber = str_replace('-', '', request()->card_number);
+        $this->cardCvv = request()->card_cvv;
+        $this->cardExpMonth = request()->card_expiration_month;
+        $this->cardExpYear = request()->card_expiration_year;
+        $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
+        $this->document = str_replace($replaceDocument,'',request()->document);
+
+        if (request()->card_type) {
+            $this->cardType = strtoupper(request()->card_type);
+        } else {
+            $this->cardType = detectCardType($this->cardNumber);
+        }
+
+        $this->merge([
+            'cardHolder' => $this->cardHolder,
+            'cardNumber' => $this->cardNumber,
+            'cardExpYear' => $this->cardExpYear,
+            'cardExpMonth' => $this->cardExpMonth,
+            'cardCvv' =>  $this->cardCvv,
+            'document' =>  $this->document,
+        ]);
+
     }
 
 }
