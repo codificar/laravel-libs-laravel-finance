@@ -262,5 +262,10 @@ return array(
 	'corp' => 'Institution',
 	'op_deposit_in_account' => 'Account deposit (payment write-off)',
 	'delimiter' => 'Delimiter',
-	'date_format' => 'Date format'
+	'date_format' => 'Date format',
+	'holder_error' => 'Incomplete or missing name',
+	'number_error' => 'Incomplete or missing number',
+	'data_error' => 'Data incomplete or not provided',
+	'cvc_error' => 'Incomplete or missing security code',
+	'error_card' => 'Error when registering the card, check the data used'
 );

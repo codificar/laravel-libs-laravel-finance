@@ -263,5 +263,10 @@ return array(
 	'corp' => 'Institución',
 	'op_deposit_in_account' => 'Depósito en cuenta (cancelación de pago)',
 	'delimiter' => 'Delimitador',
-	'date_format' => 'Formato da data'
+	'date_format' => 'Formato da data',
+	'holder_error' => 'Nombre incompleto o faltante',
+	'number_error' => 'Número incompleto o faltante',
+	'data_error' => 'Datos incompletos o no proporcionados',
+	'cvc_error' => 'Código de seguridad incompleto o faltante',
+	'error_card' => 'Error Al registrar la tarjeta, verifique los datos utilizados'
 );
