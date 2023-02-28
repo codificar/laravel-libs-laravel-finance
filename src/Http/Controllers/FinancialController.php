@@ -5,10 +5,8 @@ namespace Codificar\Finance\Http\Controllers;
 use Codificar\Finance\Models\LibModel;
 
 use Illuminate\Http\Request;
-use Illuminate\Pagination\Paginator;
 use App\Http\Controllers\Controller;
 use Finance;
-use Schema;
 use User;
 use Provider;
 use Ledger;
@@ -17,9 +15,7 @@ use Bank;
 use Settings;
 use AdminInstitution;
 use Codificar\Finance\Http\Requests\GetFinancialSummaryByTypeAndDateFormRequest;
-use App\Http\Requests\api\v3\ProviderProfitsRequest;
 use Codificar\Finance\Http\Resources\GetFinancialSummaryByTypeAndDateResource;
-use App\Http\Resources\api\v3\ProviderProfitsResource;
 use App\Http\Requests\FinanceFormRequest;
 use App\Http\Resources\FinanceResource;
 use App\Models\Institution;
@@ -28,8 +24,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
 use Carbon\Carbon;
-use ProviderAvail;
-use Requests;
 
 class FinancialController extends Controller
 {
@@ -987,7 +981,7 @@ class FinancialController extends Controller
 			$responseCode = 200;
 			$response = Response::json($responseArray, $responseCode);
 			return $response;
-		}catch(Exception $e){
+		}catch(\Exception $e){
 			$responseArray = array('success' => false, 'error' => $e->getMessage(), 'errorCode' => 402);
 			$responseCode = 200;
 			$response = Response::json($responseArray, $responseCode);
