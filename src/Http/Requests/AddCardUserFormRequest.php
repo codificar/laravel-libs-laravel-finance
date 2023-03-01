@@ -2,6 +2,10 @@
 
 namespace Codificar\Finance\Http\Requests;
 
+use LVR\CreditCard\CardCvc as CardCvc;
+use LVR\CreditCard\CardNumber as CardNumber;
+use LVR\CreditCard\CardExpirationYear as CardExpirationYear;
+use LVR\CreditCard\CardExpirationMonth as CardExpirationMonth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -39,19 +43,6 @@ class AddCardUserFormRequest extends FormRequest {
      * @return array
      */
     public function rules() {
-        $this->cardHolder = request()->card_holder;
-        $this->cardNumber = str_replace('-', '', request()->card_number);
-        $this->cardCvv = request()->card_cvv;
-        $this->cardExpMonth = request()->card_expiration_month;
-        $this->cardExpYear = request()->card_expiration_year;
-        $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
-
-        if (request()->card_type) {
-            $this->cardType = strtoupper(request()->card_type);
-        } else {
-            $this->cardType = detectCardType($this->cardNumber);
-        }
-
         return [
             'cardHolder' => 'required',
             'cardNumber' => ['required', new CardNumber],
@@ -102,6 +93,12 @@ class AddCardUserFormRequest extends FormRequest {
         $cardExpirationMonth = "";
         $cardExpirationYear = "";
         $userId = "";
+        
+        if (request()->card_type) {
+            $this->cardType = strtoupper(request()->card_type);
+        } else {
+            $this->cardType = detectCardType($this->cardNumber);
+        }
 
         if($this->name){
             $holder = $this->name;
