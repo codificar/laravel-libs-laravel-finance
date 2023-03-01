@@ -93,6 +93,12 @@ class AddCardUserFormRequest extends FormRequest {
         $cardExpirationMonth = "";
         $cardExpirationYear = "";
         $userId = "";
+        
+        if (request()->card_type) {
+            $this->cardType = strtoupper(request()->card_type);
+        } else {
+            $this->cardType = detectCardType($this->cardNumber);
+        }
 
         if($this->name){
             $holder = $this->name;
