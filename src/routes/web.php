@@ -45,6 +45,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/{type}/{id}/add-entry', array('as' => 'addFinancialEntry', 'uses' => 'FinancialController@addFinancialEntry'));
         Route::post('/{type}/{id}/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
         Route::post('/{type}/{id}/create-user-bank-account', array('as' => 'adminCreateUserBankAccount', 'uses' => 'FinancialController@createUserBankAccount'));
+        Route::post('/payment/add_credit_card', array('as' => 'adminAddCreditCard', 'uses' => 'FinanceController@addCreditCard'));
     });
 
     //Rotas do provider (web)
