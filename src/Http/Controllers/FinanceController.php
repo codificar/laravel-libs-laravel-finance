@@ -1061,7 +1061,7 @@ class FinanceController extends Controller {
 		}
 		return new ProviderOrUserBalanceResource([
 			'success' 	=> $success,
-			'balance' 	=> currency_format(currency_converted($balance)),
+			'balance' 	=> $balance ?? currency_format(currency_converted($balance)),
 			'error'		=> $error
 		]);
 	}
