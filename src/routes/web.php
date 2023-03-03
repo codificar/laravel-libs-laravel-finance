@@ -29,6 +29,10 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/add_credit_card', 'FinanceController@addCreditCardUser');
         Route::get('/financial/user_summary', 'FinanceController@getProviderSummaryByTypeAndDate');
     });
+    
+    Route::group(['prefix' => 'libs/finance', 'middleware' => 'checkProviderOrUser'], function () {
+        Route::post('/get_balance', 'FinanceController@getBalance')->name('libGetUserBallance');
+    });
 
     // Rotas do painel web
     Route::group(['prefix' => 'admin/libs/finance', 'middleware' => 'auth.admin'], function () {

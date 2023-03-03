@@ -34,9 +34,11 @@ use Codificar\Finance\Http\Resources\RetrievePixResource;
 
 use Carbon\Carbon;
 use Auth;
+use Codificar\Finance\Http\Requests\BalanceFormRequest;
 use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
 use Codificar\Finance\Http\Requests\changePixPaymentRequest;
+use Codificar\Finance\Http\Resources\ProviderOrUserBalanceResource;
 use Codificar\Finance\Imports\PaymentsImport;
 use Codificar\Finance\Models\Transaction;
 use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
@@ -1038,6 +1040,30 @@ class FinanceController extends Controller {
 			'success' 			=> $success,
 			'transaction' 		=> $transaction
 			]))->response()->setStatusCode(HttpResponse::HTTP_OK);
+	}
+
+	/**
+	 * Get pix data save in transaction table, by transactionId or request_id
+	 * @param 
+	 * 
+	 * @return GetBalanceResource
+	 */
+	public function getBalance(BalanceFormRequest $request)
+    {
+		$success = false;
+		$error = '';
+		try {
+			$balance = $request->holder->getBalance();
+			$success = true;
+		} catch(\Exception $e) {
+			\Log::error($e->getMessage() . $e->getTraceAsString());
+			$error = $e->getMessage();
+		}
+		return new ProviderOrUserBalanceResource([
+			'success' 	=> $success,
+			'balance' 	=> currency_format(currency_converted($balance)),
+			'error'		=> $error
+		]);
 	}
 
 	public function pixCheckout()
