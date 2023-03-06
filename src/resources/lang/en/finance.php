@@ -262,5 +262,6 @@ return array(
 	'corp' => 'Institution',
 	'op_deposit_in_account' => 'Account deposit (payment write-off)',
 	'delimiter' => 'Delimiter',
-	'date_format' => 'Date format'
+	'date_format' => 'Date format',
+	'disabled_show_balance' => 'Unavailable balance visualization'
 );

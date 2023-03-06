@@ -31,6 +31,39 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
     });
     
     Route::group(['prefix' => 'libs/finance', 'middleware' => 'checkProviderOrUser'], function () {
+        /**
+		 * @OA\Post(path="/libs/finance/get_balance",
+		 *      tags={"User", "Provider"},
+		 *      operationId="getBalance",
+		 *      description="Retorna o saldo do Provider/User",
+		 *      @OA\Parameter(name="provider_id",
+		 *          description="ID do provider",
+		 *          in="query",
+		 *          required=true,
+		 *          @OA\Schema(type="integer")
+		 *      ),
+		 *      @OA\Parameter(name="user_id",
+		 *          description="ID do passageiro",
+		 *          in="query",
+		 *          required=true,
+		 *          @OA\Schema(type="integer")
+		 *      ),
+		 *      @OA\Parameter(name="token",
+		 *          description="token de acesso a api provider/user",
+		 *          in="query",
+		 *          required=true,
+		 *          @OA\Schema(type="string")
+		 *      ),
+		 *      @OA\Response(response="200",
+		 *          description="Resource referral",
+		 *          @OA\JsonContent(ref="#/components/schemas/ProviderOrUserBalanceResource")
+		 *      ),
+		 *      @OA\Response(
+		 *          response="402",
+		 *          description="Form request validation error. Invalid input."
+		 *      ),
+		 * )
+		 */
         Route::post('/get_balance', 'FinanceController@getBalance')->name('libGetUserBallance');
     });
 

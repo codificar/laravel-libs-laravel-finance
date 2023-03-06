@@ -264,5 +264,6 @@ return array(
 	'corp' => 'Instituição',
 	'op_deposit_in_account' => 'Depósito em conta (baixa de pagamento)',
 	'delimiter' => 'Delimitador',
-	'date_format' => 'Formato da data'
+	'date_format' => 'Formato da data',
+	'disabled_show_balance' => 'Visualização de saldo indisponível'
 );

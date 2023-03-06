@@ -2,7 +2,7 @@
 
 namespace Codificar\Finance\Http\Requests;
 
-use Auth;
+use Codificar\Finance\Http\Rules\CheckEnabledSettings;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -30,8 +30,8 @@ class BalanceFormRequest extends FormRequest
     {
         
         return [
-			'token' => ['required', 'string'],
-            'id'    => ['required', 'integer']
+			'token'     => ['required', 'string'],
+            'id'        => ['required', 'integer', new CheckEnabledSettings($this->user_id, $this->provider_id)]
 		];
     }
 
