@@ -56,7 +56,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
 		 *      ),
 		 *      @OA\Response(response="200",
 		 *          description="Resource referral",
-		 *          @OA\JsonContent(ref="#/components/schemas/ProviderOrUserBalanceResource")
+		 *          @OA\JsonContent(ref="#/components/schemas/BalanceResource")
 		 *      ),
 		 *      @OA\Response(
 		 *          response="402",

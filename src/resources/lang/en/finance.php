@@ -263,5 +263,6 @@ return array(
 	'op_deposit_in_account' => 'Account deposit (payment write-off)',
 	'delimiter' => 'Delimiter',
 	'date_format' => 'Date format',
-	'disabled_show_balance' => 'Unavailable balance visualization'
+	'disabled_show_balance' => 'Unavailable balance visualization',
+	'error_get_balance' => 'Error trying to recover balance data'
 );

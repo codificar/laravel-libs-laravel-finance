@@ -1,6 +1,6 @@
 <?php
 
-namespace Codificar\Finance\tests;
+namespace Tests\Unit\libs\finance;
 
 use Provider;
 use Settings;
@@ -13,6 +13,7 @@ class GetBalanceTest extends TestCase {
 
 	/* Testes de success em visualizar o saldo */
 
+
     /**
      * Teste de configurações habilitadas do user para ver o saldo
      * 
@@ -20,9 +21,7 @@ class GetBalanceTest extends TestCase {
      */
     public function testSettingsBalanceUserEnabledSuccess()
     {
-        $settingUserBalance = Settings::findObjectByKey('show_user_balance');
-        $settingUserBalance->value = true;
-        $response = $settingUserBalance->save();
+        $response = $this->updateSettings('user', true);
         $this->assertTrue($response);
     }
 
@@ -33,10 +32,20 @@ class GetBalanceTest extends TestCase {
      */
     public function testSettingsBalanceProviderEnabledSuccess()
     {
-        $settingProviderBalance = Settings::findObjectByKey('show_provider_balance');
-        $settingProviderBalance->value = true;
-        $response = $settingProviderBalance->save();
+        $response = $this->updateSettings('provider', true);
         $this->assertTrue($response);
+    }
+
+    /**
+     * Teste de retorno na api application settings
+     * 
+     * @return void
+     */
+    public function testApiApplicationBalanceEnabled()
+    {
+        $settingsApi = $this->getSettings();
+        $this->assertTrue($settingsApi->show_user_balance);
+        $this->assertTrue($settingsApi->show_provider_balance);
     }
 
     /**
@@ -99,9 +108,7 @@ class GetBalanceTest extends TestCase {
      */
     public function testSettingsUserBalanceDisabled()
     {
-        $settingUserBalance = Settings::findObjectByKey('show_user_balance');
-        $settingUserBalance->value = false;
-        $response = $settingUserBalance->save();
+        $response = $this->updateSettings('user', false);
         $this->assertTrue($response);
     }
 
@@ -113,10 +120,21 @@ class GetBalanceTest extends TestCase {
      */
     public function testSettingsProviderBalanceDisabled()
     {
-        $settingProviderBalance = Settings::findObjectByKey('show_provider_balance');
-        $settingProviderBalance->value = false;
-        $response = $settingProviderBalance->save();
+        $response = $this->updateSettings('provider', false);
         $this->assertTrue($response);
+    }
+
+
+    /**
+     * Teste de retorno na api application settings
+     * 
+     * @return void
+     */
+    public function testApiApplicationBalanceDisabled()
+    {
+        $settingsApi = $this->getSettings();
+        $this->assertFalse($settingsApi->show_user_balance);
+        $this->assertFalse($settingsApi->show_provider_balance);
     }
 
     /**
@@ -219,5 +237,30 @@ class GetBalanceTest extends TestCase {
         
         // Passa os asserts necessários
 		$this->assertEquals($response->getStatusCode(), 404);
+    }
+
+    /**
+     * Get api application settings
+     * @param string $userType | Default: 'user'
+     * @return object
+     */
+    private function getSettings(string $userType = 'user')
+    {
+		$response = $this->call('GET', "api/v3/application/settings?user_type=$userType");
+        $apiResult = json_decode($response->getContent());
+		return $apiResult;   
+    }
+
+    /**
+     * Update settings 
+     * @param string $userType
+     * @param bool $value
+     * @return bool
+     */
+    private function updateSettings(string $userType, bool $value): bool
+    {
+        $settingBalance = Settings::findObjectByKey('show_' . $userType . '_balance');
+        $settingBalance->value = $value;
+        return $settingBalance->save();
     }
 }

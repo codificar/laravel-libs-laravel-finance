@@ -38,7 +38,7 @@ use Codificar\Finance\Http\Requests\BalanceFormRequest;
 use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
 use Codificar\Finance\Http\Requests\changePixPaymentRequest;
-use Codificar\Finance\Http\Resources\ProviderOrUserBalanceResource;
+use Codificar\Finance\Http\Resources\BalanceResource;
 use Codificar\Finance\Imports\PaymentsImport;
 use Codificar\Finance\Models\Transaction;
 use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
@@ -1044,8 +1044,7 @@ class FinanceController extends Controller {
 
 	/**
 	 * Get pix data save in transaction table, by transactionId or request_id
-	 * @param 
-	 * 
+	 * @param BalanceFormRequest $request
 	 * @return GetBalanceResource
 	 */
 	public function getBalance(BalanceFormRequest $request)
@@ -1057,9 +1056,9 @@ class FinanceController extends Controller {
 			$success = true;
 		} catch(\Exception $e) {
 			\Log::error($e->getMessage() . $e->getTraceAsString());
-			$error = $e->getMessage();
+			$error = trans('financeTrans::finance.error_get_balance');
 		}
-		return new ProviderOrUserBalanceResource([
+		return new BalanceResource([
 			'success' 	=> $success,
 			'balance' 	=> $balance ?? currency_format(currency_converted($balance)),
 			'error'		=> $error
