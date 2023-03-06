@@ -1060,7 +1060,7 @@ class FinanceController extends Controller {
 		}
 		return new BalanceResource([
 			'success' 	=> $success,
-			'balance' 	=> $balance ?? currency_format(currency_converted($balance)),
+			'balance' 	=> $balance,
 			'error'		=> $error
 		]);
 	}

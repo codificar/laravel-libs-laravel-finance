@@ -36,9 +36,10 @@ class BalanceResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'success'   => $this['success'],
-            'balance'  => $this['balance'],
-            'error'     => $this['error']
+            'success'       => $this['success'],
+            'balance'       => $this['balance'],
+            'balance_value' => $this['balance'] ?? currency_format(currency_converted($this['balance'])),
+            'error'         => $this['error']
         ];
     }
 }
