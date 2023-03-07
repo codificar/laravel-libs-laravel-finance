@@ -38,7 +38,7 @@ class BalanceResource extends JsonResource
         return [
             'success'       => $this['success'],
             'balance'       => $this['balance'],
-            'balance_value' => $this['balance'] ?? currency_format(currency_converted($this['balance'])),
+            'balance_value' => $this['balance_value'],
             'error'         => $this['error']
         ];
     }

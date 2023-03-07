@@ -1059,9 +1059,10 @@ class FinanceController extends Controller {
 			$error = trans('financeTrans::finance.error_get_balance');
 		}
 		return new BalanceResource([
-			'success' 	=> $success,
-			'balance' 	=> $balance,
-			'error'		=> $error
+			'success' 		=> $success,
+			'balance' 		=> currency_format(currency_converted($balance)),
+			'balance_value' => currency_converted($balance),
+			'error'			=> $error
 		]);
 	}
 
