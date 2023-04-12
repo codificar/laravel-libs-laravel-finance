@@ -263,6 +263,8 @@ return array(
 	'op_deposit_in_account' => 'Account deposit (payment write-off)',
 	'delimiter' => 'Delimiter',
 	'date_format' => 'Date format',
+	'disabled_show_balance' => 'Unavailable balance visualization',
+	'error_get_balance' => 'Error trying to recover balance data',
 	'holder_error' => 'Incomplete or missing name',
 	'number_error' => 'Incomplete or missing number',
 	'data_error' => 'Data incomplete or not provided',

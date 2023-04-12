@@ -264,6 +264,8 @@ return array(
 	'op_deposit_in_account' => 'Depósito en cuenta (cancelación de pago)',
 	'delimiter' => 'Delimitador',
 	'date_format' => 'Formato da data',
+	'disabled_show_balance' => 'Visualización del saldo no disponible',
+	'error_get_balance' => 'Error al intentar recuperar datos de equilibrio',
 	'holder_error' => 'Nombre incompleto o faltante',
 	'number_error' => 'Número incompleto o faltante',
 	'data_error' => 'Datos incompletos o no proporcionados',

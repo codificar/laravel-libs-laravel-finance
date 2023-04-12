@@ -265,6 +265,8 @@ return array(
 	'op_deposit_in_account' => 'Depósito em conta (baixa de pagamento)',
 	'delimiter' => 'Delimitador',
 	'date_format' => 'Formato da data',
+	'disabled_show_balance' => 'Visualização de saldo indisponível',
+	'error_get_balance' => 'Erro ao tentar recuperar dados de saldo',
 	'holder_error' => 'Nome incompleto ou não fornecido',
 	'number_error' => 'Número incompleto ou não fornecido',
 	'data_error' => 'Data incompleta ou não fornecida',

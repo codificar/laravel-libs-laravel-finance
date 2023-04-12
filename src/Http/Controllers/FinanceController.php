@@ -34,9 +34,11 @@ use Codificar\Finance\Http\Resources\RetrievePixResource;
 
 use Carbon\Carbon;
 use Auth;
+use Codificar\Finance\Http\Requests\BalanceFormRequest;
 use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
 use Codificar\Finance\Http\Requests\changePixPaymentRequest;
+use Codificar\Finance\Http\Resources\BalanceResource;
 use Codificar\Finance\Http\Resources\AddCreditCardResource;
 use Codificar\Finance\Imports\PaymentsImport;
 use Codificar\Finance\Models\Transaction;
@@ -1162,7 +1164,31 @@ class FinanceController extends Controller {
 	}
 
 	/**
-	 * Check if trasaction is from the holder
+	 * Get pix data save in transaction table, by transactionId or request_id
+	 * @param BalanceFormRequest $request
+	 * @return GetBalanceResource
+	 */
+	public function getBalance(BalanceFormRequest $request)
+    {
+		$success = false;
+		$error = '';
+		try {
+			$balance = $request->holder->getBalance();
+			$success = true;
+		} catch(\Exception $e) {
+			\Log::error($e->getMessage() . $e->getTraceAsString());
+			$error = trans('financeTrans::finance.error_get_balance');
+		}
+		return new BalanceResource([
+			'success' 		=> $success,
+			'balance' 		=> currency_format(currency_converted($balance)),
+			'balance_value' => currency_converted($balance),
+			'error'			=> $error
+		]);
+	}
+	
+	/**
+	 * Check if transaction is from the holder
 	 *
 	 * @return View
 	 */
