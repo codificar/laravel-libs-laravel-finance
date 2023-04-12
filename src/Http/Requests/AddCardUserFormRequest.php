@@ -23,6 +23,7 @@ class AddCardUserFormRequest extends FormRequest {
     public $carDate;
     public $cardType;
     public $userId;
+    public $document;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -39,19 +40,6 @@ class AddCardUserFormRequest extends FormRequest {
      * @return array
      */
     public function rules() {
-        $this->cardHolder = request()->card_holder;
-        $this->cardNumber = str_replace('-', '', request()->card_number);
-        $this->cardCvv = request()->card_cvv;
-        $this->cardExpMonth = request()->card_expiration_month;
-        $this->cardExpYear = request()->card_expiration_year;
-        $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
-
-        if (request()->card_type) {
-            $this->cardType = strtoupper(request()->card_type);
-        } else {
-            $this->cardType = detectCardType($this->cardNumber);
-        }
-
         return [
             'cardHolder' => 'required',
             'cardNumber' => ['required', new CardNumber],
@@ -62,6 +50,11 @@ class AddCardUserFormRequest extends FormRequest {
         ];
     }
 
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
     public function messages() {
         return [
             'cardHolder.required' => trans('financeTrans::finance.holder_error'),
@@ -145,12 +138,18 @@ class AddCardUserFormRequest extends FormRequest {
             $cardExpirationYear = request()->card_expiration_year;
         }
 
+        $carDate = $cardExpirationMonth . '/' . $cardExpirationYear;
+        $document = str_replace(array(".","/","-"),'',request()->document);
+        
+
         $this->cardHolder = $holder;
         $this->cardNumber = $number;
         $this->cardCvv = $ccv;
         $this->cardExpMonth =  $cardExpirationMonth;
         $this->cardExpYear =  $cardExpirationYear;
         $this->userId = $userId ;
+        $this->document = $document ;
+        
 
         $this->merge([
             'cardHolder' => $this->cardHolder,
@@ -159,7 +158,9 @@ class AddCardUserFormRequest extends FormRequest {
             'cardExpMonth' => $this->cardExpMonth,
             'cardCvv' =>  $this->cardCvv,
             'userId' =>  $this->userId,
+            'document' =>  $this->document,
         ]);
+
     }
 
 }
