@@ -853,6 +853,7 @@ class FinanceController extends Controller {
 	}
 
 	private function newCreditCard($holder, $type, $request) {
+		$document = $request->document;
 		$data = array();
 		$payment = new Payment;
 		if($type == 'provider') {
@@ -860,7 +861,12 @@ class FinanceController extends Controller {
 		} else {
 			$payment->user_id = $holder->id;
 		}
-		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv, $request->cardHolder);
+
+		if($document == ''){
+			$document = $holder->document;
+		}
+
+		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv, $request->cardHolder, null, null, $document);
 
 		if($return['success']){
             return new AddCardUserResource($payment);
