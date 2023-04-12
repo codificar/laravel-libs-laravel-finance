@@ -29,7 +29,8 @@ use Codificar\Finance\Http\Resources\GetCardsAndBalanceResource;
 use Codificar\Finance\Http\Resources\AddCreditCardBalanceResource;
 use Codificar\Finance\Http\Resources\AddBilletBalanceResource;
 use Codificar\Finance\Http\Resources\AddCardUserResource;
-use Codificar\Finance\Http\Resources\AddPixBalanceResource;
+use Codificar\Finance\Http\Resources\RetrievePixResource;
+
 
 use Carbon\Carbon;
 use Auth;
@@ -37,11 +38,15 @@ use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
 use Codificar\Finance\Http\Requests\changePixPaymentRequest;
 use Codificar\Finance\Imports\PaymentsImport;
+use Codificar\Finance\Models\Transaction;
+use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
 use Input, Validator, View, Response, Session;
-use Finance, Admin, Settings, Provider, ProviderStatus, User, PaymentFactory, EmailTemplate, Transaction, Request, Payment, AdminInstitution, Ledger, URL, RequestCharging, Requests;
+use Finance, Admin, Settings, Provider, ProviderStatus, User, EmailTemplate, Request, Payment, AdminInstitution, Ledger, URL, RequestCharging, Requests;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
 use DB;
+use Illuminate\Http\Response as HttpResponse;
+use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class FinanceController extends Controller {
 	use PartnerFilter;
@@ -226,7 +231,7 @@ class FinanceController extends Controller {
 	public function parseDate($date)
 	{
 		try {
-			$parse = DateTime::createFromFormat('d/m/Y', $date);
+			$parse = \DateTime::createFromFormat('d/m/Y', $date);
 			return $parse->format('Y-m-d');
 		} catch (\Throwable $th) {
 			return date('Y-m-d');
@@ -667,7 +672,7 @@ class FinanceController extends Controller {
 			$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
 		} else {
 			//Tenta realizar a cobranca com o cartao
-			$gateway = PaymentFactory::createGateway();
+			$gateway = LibsPaymentFactory::createGateway();
 			$return = $gateway->charge($payment, $value, trans('financeTrans::finance.single_credit'), true);
 
 			//Se conseguiu cobrar no cartao, entao adicionar um saldo para o usuario/prestador, senao, retorna erro
@@ -723,7 +728,7 @@ class FinanceController extends Controller {
 
 			$postBack = route('GatewayPostbackBillet') . "/" . $transaction->id;
 			$billetExpiration = Carbon::now()->addDays(7)->toIso8601String();
-			$gateway = PaymentFactory::createGateway();
+			$gateway = LibsPaymentFactory::createGateway();
 			$payment = $gateway->billetCharge($value, $holder, $postBack, $billetExpiration, "Adicionar saldo em conta.");
 
 			if($payment['success']){
@@ -731,8 +736,8 @@ class FinanceController extends Controller {
 				$digitable_line = isset($payment['digitable_line']) ? $payment['digitable_line'] : '';
 				$gateway_transaction_id = $payment['transaction_id'];
 
-				$paymentTax = $gateway->getGatewayTax();
-				$paymentFee = $gateway->getGatewayFee();
+				$paymentTax = floatval($gateway->getGatewayTax());
+				$paymentFee = floatval($gateway->getGatewayFee());
 
 				//Save the billet in transaction table (not in finance yet. In finance table is when billet is paid)
 				$transaction->type 				= Transaction::SINGLE_TRANSACTION;
@@ -860,7 +865,6 @@ class FinanceController extends Controller {
 		if($document == ''){
 			$document = $holder->document;
 		}
-
 
 		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv, $request->cardHolder, null, null, $document);
 
@@ -992,54 +996,54 @@ class FinanceController extends Controller {
 		]);
 	}
 
-	// Params: transaction_id or request_id
+	/**
+	 * Get pix data save in transaction table, by transactionId or request_id
+	 * @param int $transaction_id or $request_id
+	 * 
+	 * @return RetrievePixResource
+	 */
 	public function retrievePix()
     {
-		$payment_changed = false;
-		$transaction = null;
+		$paymentChanged = false;
+		$ride = null;
+		$success = true;
 		if(Input::get('transaction_id')) {
 			$transaction = Transaction::find(Input::get('transaction_id'));
 		} else if(Input::get('request_id')) {
-			$req = Requests::find(Input::get('request_id'));
-			if($req && $req->payment_mode != RequestCharging::PAYMENT_MODE_GATEWAY_PIX){
-				$payment_changed = true;
-			}
-
-			$transaction = Transaction::where('request_id', Input::get('request_id'))->first();
+			$transaction = Transaction::getTransactionByRequestId(Input::get('request_id'));
 		}
-		if($transaction) {
-			$expirated_formated = strtotime($transaction->pix_expiration_date_time);
-			$expirated_formated = date('d/m/Y H:i:s', $expirated_formated);
-			$success = true;
-			$isPaid = $transaction->status == 'paid' ? true : false;
-			if(!$isPaid) {
-				$request = Requests::find($transaction->request_id);
-				if($request && $request->is_paid) {
-					$isPaid = true;
-				}
-			}
-			if($transaction->status == 'error') {
-				$success = false;
-			}
-			return response()->json([
-				'success' 								=> $success,
-				'transaction_id'						=> $transaction->id,
-				'paid'              					=> $isPaid,
-				'payment_changed'						=> $payment_changed,
-				'value'             					=> $transaction->gross_value,
-				'formatted_value'						=> currency_format(currency_converted($transaction->gross_value)),
-				'copy_and_paste'    					=> $transaction->pix_copy_paste,
-				'qr_code_base64'    					=> $transaction->pix_base64,
-				'pix_expiration_date_time'  			=> $transaction->pix_expiration_date_time,
-				'pix_expiration_date_time_formated'  	=> $expirated_formated
-			]);
-		} else {
-			abort(404);
-			/* return response()->json([
+			
+		if(!$transaction) {
+			return (new RetrievePixResource([
 				'success' 			=> false,
 				'message'			=> 'transaction not found'
-			]); */
+			]))->response()->setStatusCode(HttpResponse::HTTP_NOT_FOUND);
 		}
+		
+		$ride = $transaction->ride;
+		$expiratedFormated = date('d/m/Y H:i:s', strtotime($transaction->pix_expiration_date_time));
+		$isPaid = $transaction->status == 'paid' ? true : false;
+		if(!$isPaid && $ride && $ride->is_paid) {
+			$isPaid = true;
+		}
+
+		if($transaction->status == 'error') {
+			$success = false;
+		}
+
+		if($ride && $ride->payment_mode != RequestCharging::PAYMENT_MODE_GATEWAY_PIX){
+			$paymentChanged = true;
+		}
+
+		$transaction->ride = $ride; 
+		$transaction->isPaid = $isPaid; 
+		$transaction->paymentChanged = $paymentChanged; 
+		$transaction->expiratedFormated = $expiratedFormated; 
+
+		return (new RetrievePixResource([
+			'success' 			=> $success,
+			'transaction' 		=> $transaction
+			]))->response()->setStatusCode(HttpResponse::HTTP_OK);
 	}
 
 	public function pixCheckout()
@@ -1093,7 +1097,7 @@ class FinanceController extends Controller {
 
 		try {
 			$postBack = route('GatewayPostbackPix') . "/" . $transaction->id;
-			$gateway = PaymentFactory::createPixGateway();
+			$gateway = LibsPaymentFactory::createPixGateway();
 			$payment = $gateway->pixCharge($value, $holder);
 
 			if($payment['success']){
