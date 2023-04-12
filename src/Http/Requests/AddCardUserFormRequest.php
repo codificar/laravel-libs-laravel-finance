@@ -20,8 +20,9 @@ class AddCardUserFormRequest extends FormRequest {
     public $cardCvv;
     public $cardExpMonth;
     public $cardExpYear;
-    public $carDate;
+    public $cardDate;
     public $cardType;
+    public $userId;
     public $document;
 
     /**
@@ -40,11 +41,13 @@ class AddCardUserFormRequest extends FormRequest {
      */
     public function rules() {
         return [
-            'card_holder' => 'required',
-            'card_number' => 'required',
-            'card_expiration_year' => 'required',
-            'card_expiration_month' => 'required',
-            'card_cvv' => 'required|digits_between:3,4',
+            'cardHolder' => 'required',
+            'cardNumber' => ['required'],
+            'cardExpYear' => ['required'],
+            'cardExpMonth' => ['required'],
+            'cardCvv' => ['required'],
+            'document' => ['required'],
+            'userId' => 'required'
         ];
     }
 
@@ -55,11 +58,11 @@ class AddCardUserFormRequest extends FormRequest {
      */
     public function messages() {
         return [
-            'card_holder' => '',
-            'card_number' => '',
-            'card_expiration_year' => '',
-            'card_expiration_month' => '',
-            'card_cvv' => '',
+            'cardHolder.required' => trans('financeTrans::finance.holder_error'),
+            'cardNumber.required' => trans('financeTrans::finance.number_error'),
+            'cardExpYear.required' => trans('financeTrans::finance.data_error'),
+            'cardExpMonth.required' => trans('financeTrans::finance.data_error'),
+            'cardCvv.required' => trans('financeTrans::finance.cvc_error'),
         ];
     }
 
@@ -71,31 +74,84 @@ class AddCardUserFormRequest extends FormRequest {
         throw new HttpResponseException(
         response()->json([
             'success' => false,
-            'errors' => $validator->errors()->all(),
+            'errors' => self::errorTrait($validator),
             'error_code' => \ApiErrors::REQUEST_FAILED
         ]));
     }
 
-    /**
-     * Prepare the data for validation.
-     *
-     * @return void
-     */
-    protected function prepareForValidation(){ 
-        $replaceDocument = array(".","/","-");
-        $this->cardHolder = request()->card_holder;
-        $this->cardNumber = str_replace('-', '', request()->card_number);
-        $this->cardCvv = request()->card_cvv;
-        $this->cardExpMonth = request()->card_expiration_month;
-        $this->cardExpYear = request()->card_expiration_year;
-        $this->carDate = $this->cardExpMonth . '/' . $this->cardExpYear;
-        $this->document = str_replace($replaceDocument,'',request()->document);
+    protected function errorTrait($validator){
+        if ($validator->messages()->messages()){
+            return array(
+                trans('financeTrans::finance.error_card')
+            );
+        }
+        return $validator->errors()->all();
+    }
 
+    protected function prepareForValidation(){
+        $holder = "";
+        $number = "";
+        $ccv = "";
+        $cardDate = "";
+        $cardExpirationMonth = "";
+        $cardExpirationYear = "";
+        $userId = "";
+        
         if (request()->card_type) {
             $this->cardType = strtoupper(request()->card_type);
         } else {
             $this->cardType = detectCardType($this->cardNumber);
         }
+
+        if($this->name){
+            $holder = $this->name;
+        }else if (request()->card_holder){
+            $holder = request()->card_holder;
+        }
+
+        if($this->user_id){
+            $userId = $this->user_id;
+        }else if (request()->user_id){
+            $userId = request()->user_id;
+        }
+
+        if($this->number){
+            $number = $this->number;
+        }else if (request()->card_number){
+            $number = str_replace('-', '', request()->card_number);
+        }
+
+        if($this->cvc){
+            $ccv = $this->cvc;
+        }else if (request()->card_cvv){
+            $ccv = request()->card_cvv;
+        }
+
+        if($this->expiry){
+            $cardDate = str_replace(' ', '',$this->expiry);
+            if(strpos($cardDate, '/') > 0){
+                list($cardExpirationMonth, $cardExpirationYear) = explode('/', $cardDate);
+                $cardExpirationMonth = intval($cardExpirationMonth);
+                $cardExpirationYear = intval($cardExpirationYear);
+            }
+        }else if (request()->card_expiration_month){
+            $cardExpirationMonth = request()->card_expiration_month;
+            $cardExpirationYear = request()->card_expiration_year;
+        }
+
+        $cardDate = $cardExpirationMonth . '/' . $cardExpirationYear;
+        $document = str_replace(array(".","/","-"),'',request()->document);
+        
+
+        $this->cardHolder = $holder;
+        $this->cardNumber = $number;
+        $this->cardCvv = $ccv;
+        $this->cardExpMonth =  $cardExpirationMonth;
+        $this->cardExpYear =  $cardExpirationYear;
+        $this->userId = $userId ;
+        $this->document = $document ;
+        $this->cardDate = $cardDate ;
+        
 
         $this->merge([
             'cardHolder' => $this->cardHolder,
@@ -103,7 +159,9 @@ class AddCardUserFormRequest extends FormRequest {
             'cardExpYear' => $this->cardExpYear,
             'cardExpMonth' => $this->cardExpMonth,
             'cardCvv' =>  $this->cardCvv,
+            'userId' =>  $this->userId,
             'document' =>  $this->document,
+            'cardDate' =>  $this->cardDate,
         ]);
 
     }
