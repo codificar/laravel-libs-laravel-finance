@@ -84,8 +84,8 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
     });
 
     //Rota de add cartão via painel
-    Route::group(['prefix' => 'admin', 'middleware' => 'auth.admin'], function () {
-        Route::post('/user/libs/finance/payment/add_credit_card', array('as' => 'userAddCreditCardPanel', 'uses' => 'FinanceController@addCreditCard'));
+    Route::group(['prefix' => '/admin/libs/finance', 'middleware' => 'auth.admin'], function () {
+        Route::post('/payment/add_credit_card', array('as' => 'adminAddCreditCardPanel', 'uses' => 'FinanceController@addCreditCardAdminUser'));
     });
 
     Route::group(['prefix' => '/corp/libs/finance' ,'middleware' => ['auth.corp_api', 'cors']], function (){
