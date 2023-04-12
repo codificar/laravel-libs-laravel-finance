@@ -48,6 +48,11 @@ class AddCardUserFormRequest extends FormRequest {
         ];
     }
 
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
     public function messages() {
         return [
             'card_holder' => '',
@@ -71,6 +76,11 @@ class AddCardUserFormRequest extends FormRequest {
         ]));
     }
 
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
     protected function prepareForValidation(){ 
         $replaceDocument = array(".","/","-");
         $this->cardHolder = request()->card_holder;
