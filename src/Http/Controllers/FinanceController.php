@@ -37,6 +37,7 @@ use Auth;
 use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
 use Codificar\Finance\Http\Requests\changePixPaymentRequest;
+use Codificar\Finance\Http\Resources\AddCreditCardResource;
 use Codificar\Finance\Imports\PaymentsImport;
 use Codificar\Finance\Models\Transaction;
 use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
@@ -919,7 +920,8 @@ class FinanceController extends Controller {
 
 	/**
 	 * Add a new credit card
-	 *
+	 * @deprecated use now addCreditCardProvider or addCreditCardUser
+	 * 
 	 * @param AddCardUserFormRequest $request
 	 * @return NewCreditCard ($enviroment['holder'], $enviroment['type'], $request)
 	 */
@@ -932,67 +934,55 @@ class FinanceController extends Controller {
 	 * Add a new credit card
 	 *
 	 * @param AddCardUserFormRequest $request
-	 * @return NewCreditCard ('provider', $request)
+	 * @return AddCreditCardResource
 	 */
-	public function addCreditCardProvider(AddCardUserFormRequest $request) {
-		return $this->newCreditCard('provider', $request);
+	public function addCreditCardProvider(AddCardUserFormRequest $request) 
+	{	
+		$response = Payment::providerCreateCardByGateway(
+			$request->userId, 
+			$request->cardNumber, 
+			$request->cardHolder, 
+			$request->cardExpMonth, 
+			$request->cardExpYear, 
+			$request->cardCvv
+		);
+		return new AddCreditCardResource($response);
 	}
 
 	/**
 	 * Add a new credit card
 	 *
 	 * @param AddCardUserFormRequest $request
-	 * @return NewCreditCard ('user', $request)
+	 * @return AddCreditCardResource
 	 */
 	public function addCreditCardUser(AddCardUserFormRequest $request) {
-		return $this->newCreditCard('user', $request);
+		$response = Payment::createCardByGateway(
+			$request->userId, 
+			$request->cardNumber, 
+			$request->cardHolder, 
+			$request->cardExpMonth, 
+			$request->cardExpYear, 
+			$request->cardCvv
+		);
+		return new AddCreditCardResource($response);
 	}
 
 	/**
 	 * Add a new credit card
 	 *
 	 * @param AddCardUserFormRequest $request
-	 * @return NewCreditCard ('user', $request)
+	 * @return AddCreditCardResource
 	 */
-	public function addCreditCardAdminUser(AddCardUserFormRequest $request) {
-		return $this->newCreditCard('user', $request);
-	}
-
-	/**
-	 * Add a new credit card
-	 *
-	 * @param String $type
-	 * @param Object $request
-	 * @return Json ($response_array, $response_code)
-	 */
-	private function newCreditCard($type, $request) {
-		$payment = new Payment;
-
-		if($type == 'provider') {
-			$return = Payment::providerCreateCardByGateway( $request->userId, $request->cardNumber, $request->cardHolder, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv,);
-		} else {
-			$return = Payment::createCardByGateway($request->userId, $request->cardNumber, $request->cardHolder, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv,);
-		}
-		$payment = $return['payment'];
-			if($return['success']){
-				
-				$message = trans('user_provider_controller.card_add');
-				$response_array = array(
-					'success' => true,
-					'message' => $message,
-					'payment' => $payment->getData(),
-					'toRemove' => URL::Route('AdminUserRemovePayment'),
-					'setDefault' => URL::Route('AdminUserDefaultPayment')
-				);
-				$response_code = 200;
-			}
-			else {
-				$errorMessages = trans($return['message']);
-				$response_array = array('success' => false, 'error' => array($errorMessages), 'error_code' => 429);
-				$response_code = 200;
-			}
-		$response = Response::json($response_array, $response_code);
-		return $response;
+	public function addCreditCardAdminUser(AddCardUserFormRequest $request) 
+	{
+		$response = Payment::createCardByGateway(
+			$request->userId, $request->cardNumber, 
+			$request->cardHolder, 
+			$request->cardExpMonth, 
+			$request->cardExpYear, 
+			$request->cardCvv
+		);
+		return new AddCreditCardResource($response);
 	}
 
 	/**

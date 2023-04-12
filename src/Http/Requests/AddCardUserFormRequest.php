@@ -20,7 +20,7 @@ class AddCardUserFormRequest extends FormRequest {
     public $cardCvv;
     public $cardExpMonth;
     public $cardExpYear;
-    public $carDate;
+    public $cardDate;
     public $cardType;
     public $userId;
     public $document;
@@ -42,10 +42,11 @@ class AddCardUserFormRequest extends FormRequest {
     public function rules() {
         return [
             'cardHolder' => 'required',
-            'cardNumber' => ['required', new CardNumber],
-            'cardExpYear' => ['required', new CardExpirationYear($this->cardExpMonth)],
-            'cardExpMonth' => ['required', new CardExpirationMonth($this->cardExpYear)],
-            'cardCvv' => ['required', new CardCvc($this->cardNumber)],
+            'cardNumber' => ['required'],
+            'cardExpYear' => ['required'],
+            'cardExpMonth' => ['required'],
+            'cardCvv' => ['required'],
+            'document' => ['required'],
             'userId' => 'required'
         ];
     }
@@ -138,7 +139,7 @@ class AddCardUserFormRequest extends FormRequest {
             $cardExpirationYear = request()->card_expiration_year;
         }
 
-        $carDate = $cardExpirationMonth . '/' . $cardExpirationYear;
+        $cardDate = $cardExpirationMonth . '/' . $cardExpirationYear;
         $document = str_replace(array(".","/","-"),'',request()->document);
         
 
@@ -149,6 +150,7 @@ class AddCardUserFormRequest extends FormRequest {
         $this->cardExpYear =  $cardExpirationYear;
         $this->userId = $userId ;
         $this->document = $document ;
+        $this->cardDate = $cardDate ;
         
 
         $this->merge([
@@ -159,6 +161,7 @@ class AddCardUserFormRequest extends FormRequest {
             'cardCvv' =>  $this->cardCvv,
             'userId' =>  $this->userId,
             'document' =>  $this->document,
+            'cardDate' =>  $this->cardDate,
         ]);
 
     }
