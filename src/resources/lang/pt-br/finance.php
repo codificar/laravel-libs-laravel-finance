@@ -266,5 +266,10 @@ return array(
 	'delimiter' => 'Delimitador',
 	'date_format' => 'Formato da data',
 	'disabled_show_balance' => 'Visualização de saldo indisponível',
-	'error_get_balance' => 'Erro ao tentar recuperar dados de saldo'
+	'error_get_balance' => 'Erro ao tentar recuperar dados de saldo',
+	'holder_error' => 'Nome incompleto ou não fornecido',
+	'number_error' => 'Número incompleto ou não fornecido',
+	'data_error' => 'Data incompleta ou não fornecida',
+	'cvc_error' => 'Código de segurança incompleto ou não fornecido',
+	'error_card' => 'Erro ao cadastrar o cartão, verifique os dados utilizados'
 );

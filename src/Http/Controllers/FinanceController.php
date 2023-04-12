@@ -39,6 +39,7 @@ use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
 use Codificar\Finance\Http\Requests\changePixPaymentRequest;
 use Codificar\Finance\Http\Resources\BalanceResource;
+use Codificar\Finance\Http\Resources\AddCreditCardResource;
 use Codificar\Finance\Imports\PaymentsImport;
 use Codificar\Finance\Models\Transaction;
 use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
@@ -80,7 +81,6 @@ class FinanceController extends Controller {
 		]);
     }
 
-
 	 /**
      * @api {get} /libs/finance/provider/financial/provider_summary
      * @apiDescription Permite buscar o extrato de contas com datas pré-definidas e filtros
@@ -115,9 +115,11 @@ class FinanceController extends Controller {
         return new GetFinancialSummaryByTypeAndDateResource(['balance' => $balance]);
 	}
 
-
-
-
+    /**
+     * Get the provider data and filter to make their balance and use this on account_summary view
+	 * 
+     * @return View account_summary
+     */
 	public function providerExtract(){
 		$providers = $this->index(true);
 		$providers = $providers->paginate(20);
@@ -156,9 +158,12 @@ class FinanceController extends Controller {
 					->with('currency_symbol', $currency_symbol)
 					->with('balances',$balances);
 	}
-
-
-
+ 
+	/**
+     * Get the provider data and filter to make their balance and use this on account_summary view, but this time using filters
+	 * 
+     * @return View account_summary
+     */
 	public function providerExtractFilter(){
 
 		$start_date_compensation = Input::get('start-date-compensation');
@@ -229,7 +234,11 @@ class FinanceController extends Controller {
 
 	}
 
-
+	/**
+     * Get a date and parse it to the necessar format
+     *
+     * @return DateTime $date
+     */
 	public function parseDate($date)
 	{
 		try {
@@ -240,7 +249,6 @@ class FinanceController extends Controller {
 		}
 
 	}
-
 
 	/**
 	 * filter Providers
@@ -345,6 +353,7 @@ class FinanceController extends Controller {
 	/**
 	 * Download csv of provider extract report
 	 *
+	 * @para
 	 * @return void
 	 */
 	public function downloadExtractReport($providers){
@@ -510,6 +519,13 @@ class FinanceController extends Controller {
 		return Response::download(storage_path('tmp/').$filename, $filename, $headers);
 	}
 
+	/**
+	 * Verify ig there is a bank key and return it
+	 *
+	 * @param Object $bank 
+	 * @param Array $key 
+	 * @return String $bank->$key || ''
+	 */
 	public function checkBankInfo($bank, $key)
 	{
 		if (!$bank || !$bank->bank)
@@ -596,8 +612,12 @@ class FinanceController extends Controller {
         return new GetCardsAndBalanceResource($data);
 	}
 
-
-
+	/**
+	 * Get payment information of the user.
+	 *
+	 * @param Request $request
+	 * @return View
+	 */
 	public function userPayment(Request $request)
     {
 		$enviroment = $this->getEnviroment();
@@ -626,6 +646,11 @@ class FinanceController extends Controller {
 
 	}
 
+	/**
+	 * Delete user card
+	 *
+	 * @return Array
+	 */
 	public function deleteUserCard() {
 		$enviroment = $this->getEnviroment();
 		$card_id = Input::get('card_id');
@@ -658,6 +683,15 @@ class FinanceController extends Controller {
 		return $response;
 	}
 
+	/**
+	 * Add balance by paying with credit card
+	 *
+	 * @param Decimal $value
+	 * @param Object $holder
+	 * @param Integer $cardId
+	 * @param String $envType
+	 * @return AddCreditCardBalanceResource ($data);
+	 */
 	private function addCreditCardBalance($value, $holder, $cardId, $envType) {
 		$ledgerId = $holder->ledger->id;
 
@@ -695,20 +729,46 @@ class FinanceController extends Controller {
         return new AddCreditCardBalanceResource($data);
 	}
 
+	/**
+	 * Add balance by paying with credit card
+	 *
+	 * @param AddCreditCardBalanceWebFormRequest  $request
+	 * @return addCreditCardBalance ($request->value, $enviroment['holder'], $request->card_id, $enviroment['type']);
+	 */
 	public function addCreditCardBalanceWeb(AddCreditCardBalanceWebFormRequest $request) {
 
 		$enviroment = $this->getEnviroment();
 		return $this->addCreditCardBalance($request->value, $enviroment['holder'], $request->card_id, $enviroment['type']);
 	}
 
+	/**
+	 * Add balance by paying with credit card
+	 *
+	 * @param AddCreditCardBalanceWebFormRequest  $request
+	 * @return addCreditCardBalance ($request->value, User::find($request->id), $request->card_id, 'user');
+	 */
 	public function addCreditCardBalanceApp(AddCreditCardBalanceFormRequest $request) {
 		return $this->addCreditCardBalance($request->value, User::find($request->id), $request->card_id, 'user');
 	}
+
+	/**
+	 * Add balance by paying with credit card
+	 *
+	 * @param AddCreditCardBalanceWebFormRequest  $request
+	 * @return addCreditCardBalance ($request->value, Provider::find($request->id), $request->card_id, 'provider');
+	 */
 	public function addCreditCardBalanceAppProvider(AddCreditCardBalanceFormRequest $request) {
 		return $this->addCreditCardBalance($request->value, Provider::find($request->id), $request->card_id, 'provider');
 	}
 
-
+	/**
+	 * Generate a new billet
+	 *
+	 * @param Decimal  $value
+	 * @param Object  $holder
+	 * @param String $envType
+	 * @return addCreditCardBalance ($request->value, Provider::find($request->id), $request->card_id, 'provider');
+	 */
 	private function newBillet($value, $holder, $envType) {
 
 		$data = array();
@@ -798,12 +858,23 @@ class FinanceController extends Controller {
 		}
 	}
 
+	/**
+	 * Add balance by paying with billet
+	 *
+	 * @param AddBilletBalanceWebFormRequest $request
+	 * @return NewBillet ($request->value, $enviroment['holder'], $enviroment['type'])
+	 */
 	public function addBilletBalanceWeb(AddBilletBalanceWebFormRequest $request) {
 		$enviroment = $this->getEnviroment();
 		return $this->newBillet($request->value, $enviroment['holder'], $enviroment['type']);
 	}
 
-
+	/**
+	 * Add balance by paying with billet
+	 *
+	 * @param AddBilletBalanceFormRequest $request
+	 * @return NewBillet ($request->value, $user, 'user')
+	 */
 	public function addBilletBalance(AddBilletBalanceFormRequest $request) {
 
 		$user = User::find($request->id);
@@ -811,6 +882,12 @@ class FinanceController extends Controller {
 		return $this->newBillet($request->value, $user, 'user');
 	}
 
+	/**
+	 * Add balance by paying with billet
+	 *
+	 * @param AddBilletBalanceFormRequest $request
+	 * @return NewBillet ($request->value, $provider, 'provider')
+	 */
 	public function addBilletBalanceProvider(AddBilletBalanceFormRequest $request) {
 
 		$provider = Provider::find($request->id);
@@ -818,6 +895,11 @@ class FinanceController extends Controller {
 		return $this->newBillet($request->value, $provider, 'provider');
 	}
 
+	/**
+	 * Get payment options defined by admin
+	 *
+	 * @return Array $data
+	 */
 	private function getAddBalanceSettings() {
 		$data = array();
 
@@ -838,39 +920,78 @@ class FinanceController extends Controller {
 		return $data;
 	}
 
+	/**
+	 * Add a new credit card
+	 * @deprecated use now addCreditCardProvider or addCreditCardUser
+	 * 
+	 * @param AddCardUserFormRequest $request
+	 * @return NewCreditCard ($enviroment['holder'], $enviroment['type'], $request)
+	 */
 	public function addCreditCard(AddCardUserFormRequest $request) {
 		$enviroment = $this->getEnviroment();
 		return $this->newCreditCard($enviroment['holder'], $enviroment['type'], $request);
 	}
 
-
-	public function addCreditCardProvider(AddCardUserFormRequest $request) {
-		$provider = Provider::find($request->id);
-		return $this->newCreditCard($provider, 'provider', $request);
+	/**
+	 * Add a new credit card
+	 *
+	 * @param AddCardUserFormRequest $request
+	 * @return AddCreditCardResource
+	 */
+	public function addCreditCardProvider(AddCardUserFormRequest $request) 
+	{	
+		$response = Payment::providerCreateCardByGateway(
+			$request->userId, 
+			$request->cardNumber, 
+			$request->cardHolder, 
+			$request->cardExpMonth, 
+			$request->cardExpYear, 
+			$request->cardCvv
+		);
+		return new AddCreditCardResource($response);
 	}
 
+	/**
+	 * Add a new credit card
+	 *
+	 * @param AddCardUserFormRequest $request
+	 * @return AddCreditCardResource
+	 */
 	public function addCreditCardUser(AddCardUserFormRequest $request) {
-		$user = User::find($request->id);
-		return $this->newCreditCard($user, 'user', $request);
+		$response = Payment::createCardByGateway(
+			$request->userId, 
+			$request->cardNumber, 
+			$request->cardHolder, 
+			$request->cardExpMonth, 
+			$request->cardExpYear, 
+			$request->cardCvv
+		);
+		return new AddCreditCardResource($response);
 	}
 
-	private function newCreditCard($holder, $type, $request) {
-		$data = array();
-		$payment = new Payment;
-		if($type == 'provider') {
-			$payment->provider_id = $holder->id;
-		} else {
-			$payment->user_id = $holder->id;
-		}
-		$return = $payment->createCard($request->cardNumber, $request->cardExpMonth, $request->cardExpYear, $request->cardCvv, $request->cardHolder);
-
-		if($return['success']){
-            return new AddCardUserResource($payment);
-		} else {
-			return response()->json(['message' => $return['message'],'success'=> false, 'type' => $return['type'], 'card' => $payment], 406);
-		}
+	/**
+	 * Add a new credit card
+	 *
+	 * @param AddCardUserFormRequest $request
+	 * @return AddCreditCardResource
+	 */
+	public function addCreditCardAdminUser(AddCardUserFormRequest $request) 
+	{
+		$response = Payment::createCardByGateway(
+			$request->userId, $request->cardNumber, 
+			$request->cardHolder, 
+			$request->cardExpMonth, 
+			$request->cardExpYear, 
+			$request->cardCvv
+		);
+		return new AddCreditCardResource($response);
 	}
 
+	/**
+	 * Get the typo of user
+	 *
+	 * @return Array ('type' => $type,'id' => $id,'holder' => $holder);
+	 */
 	private function getEnviroment() {
 		$type = Request::segment(1);
 		switch($type){
@@ -1065,7 +1186,12 @@ class FinanceController extends Controller {
 			'error'			=> $error
 		]);
 	}
-
+	
+	/**
+	 * Check if transaction is from the holder
+	 *
+	 * @return View
+	 */
 	public function pixCheckout()
     {
 		$transaction_id = Input::get('id');
@@ -1085,23 +1211,48 @@ class FinanceController extends Controller {
 		}
 	}
 
-
+	/**
+	 * Add balance by paying with pix
+	 *
+	 * @param AddPixBalanceFormRequest $request
+	 * @return NewPix ($request->value, $enviroment['holder'], $enviroment['type'])
+	 */
 	public function addPixBalanceWeb(AddPixBalanceFormRequest $request) {
 		$enviroment = $this->getEnviroment();
 		return $this->newPix($request->value, $enviroment['holder'], $enviroment['type']);
 	}
 
 
+	/**
+	 * Add balance by paying with pix
+	 *
+	 * @param AddPixBalanceFormRequest $request
+	 * @return NewPix ($request->value, $user, 'user')
+	 */
 	public function addPixBalance(AddPixBalanceFormRequest $request) {
 		$user = User::find($request->id);
 		return $this->newPix($request->value, $user, 'user');
 	}
 
+	/**
+	 * Add balance by paying with pix
+	 *
+	 * @param AddPixBalanceFormRequest $request
+	 * @return NewPix ($request->value, $provider, 'provider')
+	 */
 	public function addPixBalanceProvider(AddPixBalanceFormRequest $request) {
 		$provider = Provider::find($request->id);
 		return $this->newPix($request->value, $provider, 'provider');
 	}
 
+	/**
+	 * Create transaction to put her ID in PostBack.If you make an error, delete this transaction, senation, updates them with gateway data
+	 *
+	 * @param Decimal $value
+	 * @param Object $holder		
+	 * @param String $envType
+	 * @return NewPix ($request->value, $provider, 'provider')
+	 */
 	private function newPix($value, $holder, $envType) {
 
 		//cria a transaction, para colocar o id dela no postback. Se der erro, deleta essa transaction, senao, atualiza elas com os dados do gateway
@@ -1147,6 +1298,20 @@ class FinanceController extends Controller {
 		}
 	}
 
+	/**
+	 * Change the pix keys
+	 *
+	 * @return json	(array(
+	 * 		'money' 			=> (bool)Settings::getPaymentMoney(),
+	 *		'money_code' 		=> RequestCharging::PAYMENT_MODE_MONEY,
+	 *
+	 *		'direct_pix' 		=> (bool)Settings::getPaymentDirectPix(),
+	 *		'direct_pix_code' 	=> RequestCharging::PAYMENT_MODE_DIRECT_PIX,
+	 *
+	 *		'machine' 			=> (bool)Settings::getPaymentMachine(),
+	 *		'machine_code' 		=> RequestCharging::PAYMENT_MODE_MACHINE
+	 *	));
+	 */
 	public function changePixPaymentTypes() {
 		return response()->json(array(
 			'money' 			=> (bool)Settings::getPaymentMoney(),
@@ -1160,6 +1325,15 @@ class FinanceController extends Controller {
 		));
 	}
 
+	/**
+	 * Change the pix payment form during the request
+	 *
+	 * @param changePixPaymentRequest $request
+	 * @return json	(array(
+	 * 		'success' => true,
+	 *		'bill' => $req->getBill()
+	 *	));
+	 */
 	public function changePixPayment(changePixPaymentRequest $request) {
 		try {
 			$providerId = $request->provider_id ? $request->provider_id : $request->id;

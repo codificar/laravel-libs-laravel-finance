@@ -264,5 +264,10 @@ return array(
 	'delimiter' => 'Delimiter',
 	'date_format' => 'Date format',
 	'disabled_show_balance' => 'Unavailable balance visualization',
-	'error_get_balance' => 'Error trying to recover balance data'
+	'error_get_balance' => 'Error trying to recover balance data',
+	'holder_error' => 'Incomplete or missing name',
+	'number_error' => 'Incomplete or missing number',
+	'data_error' => 'Data incomplete or not provided',
+	'cvc_error' => 'Incomplete or missing security code',
+	'error_card' => 'Error when registering the card, check the data used'
 );
