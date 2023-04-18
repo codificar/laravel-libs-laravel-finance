@@ -946,7 +946,10 @@ class FinanceController extends Controller {
 			$request->cardHolder, 
 			$request->cardExpMonth, 
 			$request->cardExpYear, 
-			$request->cardCvv
+			$request->cardCvv,
+			null,
+			null,
+			$request->document ?? null
 		);
 		return new AddCreditCardResource($response);
 	}
@@ -964,7 +967,10 @@ class FinanceController extends Controller {
 			$request->cardHolder, 
 			$request->cardExpMonth, 
 			$request->cardExpYear, 
-			$request->cardCvv
+			$request->cardCvv,
+			null,
+			null,
+			$request->document ?? null
 		);
 		return new AddCreditCardResource($response);
 	}
@@ -982,7 +988,10 @@ class FinanceController extends Controller {
 			$request->cardHolder, 
 			$request->cardExpMonth, 
 			$request->cardExpYear, 
-			$request->cardCvv
+			$request->cardCvv,
+			null,
+			null,
+			$request->document ?? null
 		);
 		return new AddCreditCardResource($response);
 	}
