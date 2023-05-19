@@ -271,6 +271,28 @@
 						
 						<th>
 							<label for="usr" class="flexrow">
+								{{ trans('financeTrans::finance.positive_balance') }}
+								<a href="#" 
+									class="question-field" 
+									data-toggle="tooltip" 
+									title="{{trans('financeTrans::finance.positive_balance_msg')}}">
+									<span class="mdi mdi-comment-question-outline"></span>
+								</a>
+							</label>
+						</th>
+						<th>
+							<label for="usr" class="flexrow">
+								{{ trans('financeTrans::finance.negative_balance') }}
+								<a href="#" 
+									class="question-field" 
+									data-toggle="tooltip" 
+									title="{{trans('financeTrans::finance.negative_balance_msg')}}">
+									<span class="mdi mdi-comment-question-outline"></span>
+								</a>
+							</label>
+						</th>
+						<th>
+							<label for="usr" class="flexrow">
 								{{ trans('financeTrans::finance.future_balance') }}
 								<a href="#" class="question-field" data-toggle="tooltip" title="{{trans('financeTrans::finance.future_balance_msg')}}"><span class="mdi mdi-comment-question-outline"></span></a>
 							</label>
@@ -372,6 +394,20 @@
 								$total_future = $entries['total_balance'] - $entries['current_balance'];
 								$tipoClass = ($total_future >= 0) ? 'text-success': "text-danger";
 								echo "<span class='$tipoClass'>$currency_symbol ".number_format($total_future, 2, ',', ' ')."</span>"
+							?>
+						</td>
+						
+						<td style="white-space:nowrap;">
+							<?php
+								$value = $balances[$key]['current_positive_balance'] ?? 0;
+								echo "<span class='text-success'> $currency_symbol ".number_format($value, 2, ',', ' ')."</span>"
+							?>
+						</td>
+
+						<td style="white-space:nowrap;">
+							<?php
+								$value = $balances[$key]['current_negative_balance'] ?? 0;	
+								echo "<span class='text-danger'> $currency_symbol ".number_format($value, 2, ',', ' ')."</span>"
 							?>
 						</td>
 

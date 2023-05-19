@@ -37,6 +37,24 @@ class LibModel extends Eloquent
 	public static function sumAllValueByLedgerId($ledgerId){
 		return (double)number_format(self::where('ledger_id', $ledgerId)->sum('value'), 2, '.', '');
     }
+
+
+	public static function sumPositiveValueByLedgerId($ledgerId){
+		return (double)number_format(
+			self::where('ledger_id', $ledgerId)
+				->where('value', '>=',  0)
+				->sum('value')
+			, 2, '.', '');
+	}
+
+	public static function sumNegativeValueByLedgerId($ledgerId){
+		return (double)number_format(
+			self::where('ledger_id', $ledgerId)
+				->where('value', '<', 0)
+				->sum('value')
+			, 2, '.', '');
+	}
+
     public static function sumValueByLedgerIdByPeriod($ledgerId, $startDate, $endDate){
 		$startDateNew = Carbon::parse($startDate);
 		$endDateNew = Carbon::parse($endDate);
@@ -251,6 +269,8 @@ class LibModel extends Eloquent
 		if($ledger = DB::table('ledger')->find($ledgerId)){
 			$previousBalance = self::getBalanceBeforeDate($ledgerId, $startDate);
 			$currentBalance = self::sumValueByLedgerId($ledgerId);
+			$currentPositiveBalance = self::sumPositiveValueByLedgerId($ledgerId);
+			$currentNegativeBalance = self::sumNegativeValueByLedgerId($ledgerId);
 			$totalBalance = self::sumAllValueByLedgerId($ledgerId);
 			$periodBalance = self::sumValueByLedgerIdByPeriod($ledgerId, $startDate, $endDate);
 			$totalBalanceByPeriod = $previousBalance + $periodBalance;
@@ -296,6 +316,8 @@ class LibModel extends Eloquent
 				'current_balance' 			  => $currentBalance,
 				'current_balance_formatted'	  => currency_format(currency_converted($currentBalance)),
 				'total_balance'				  => $totalBalance,
+				'current_positive_balance' 	  => $currentPositiveBalance, 
+				'current_negative_balance' 	  => $currentNegativeBalance,
 				'period_balance'			  => $periodBalance,
 				'period_balance_formatted'	  => currency_format(currency_converted($periodBalance)),
 				'total_balance_by_period'	  => $totalBalanceByPeriod,
