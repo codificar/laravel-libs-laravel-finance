@@ -438,7 +438,7 @@
 							?>
 						</td>
 
-						<td>
+						<td data-test="finance-status-{{$key}}">
 							<div class="btn-group">
 								<?php $btnClass = '';?> 
 
@@ -448,6 +448,9 @@
 								@elseif ($provider->status_name && strcmp($provider->status_name, "SUSPENSO") == 0 )
 									<span class='btn btn-warning peq'>{{ trans('providerController.Suspended') }}</span>
 									<?php $btnClass = 'btn-warning';?>
+								@else
+									<span class='btn btn-info peq'>{{ trans('providerController.Under_review') }}</span>
+									<?php $btnClass = 'btn-info';?>
 								@endif
 
 								<button type="button" class="btn <?= $btnClass ?> dropdown-toggle" data-toggle="dropdown">
