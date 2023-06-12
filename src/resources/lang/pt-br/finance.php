@@ -101,6 +101,7 @@ return array(
 	'search'						=> 'Pesquisar',
 	'period_balance' 				=> 'Saldo do período',
 	'single_credit' 				=> 'Crédito avulso adicionado pelo cartão',
+	'credit_by_debit' 				=> 'Crédito avulso pelo cartão para quitar débito.',
 
 	'this_month' 					=> 'Este mês',
 	'last_month' 					=> 'Mês passado',
@@ -277,5 +278,7 @@ return array(
 	'number_error' => 'Número incompleto ou não fornecido',
 	'data_error' => 'Data incompleta ou não fornecida',
 	'cvc_error' => 'Código de segurança incompleto ou não fornecido',
-	'error_card' => 'Erro ao cadastrar o cartão, verifique os dados utilizados'
+	'error_card' => 'Erro ao cadastrar o cartão, verifique os dados utilizados',
+	'card_not_found' => 'Cartão não encontrado ou não pertence ao usuário',
+	'card_refused' => 'O cartão foi recusado.',
 );

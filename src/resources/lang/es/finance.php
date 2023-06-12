@@ -101,6 +101,7 @@ return array(
 	'search'						=> 'Buscar',
 	'period_balance' 				=> 'Balance del período',
 	'single_credit' 				=> 'Crédito de préstamo agregado con tarjeta',
+	'credit_by_debit' 				=> 'Crédito único por la tarjeta para pagar la deuda.',
 
 	'this_month' 					=> 'Este mes',
 	'last_month' 					=> 'Mes pasado',

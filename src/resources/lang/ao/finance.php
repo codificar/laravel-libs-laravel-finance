@@ -101,6 +101,7 @@ return array(
 	'search'						=> 'Pesquisar',
 	'period_balance' 				=> 'Saldo do período',
 	'single_credit' 				=> 'Crédito avulso adicionado pelo cartão',
+	'credit_by_debit' 				=> 'Crédito avulso pelo cartão para quitar débito.',
 
 	'this_month' 					=> 'Este mês',
 	'last_month' 					=> 'Mês passado',

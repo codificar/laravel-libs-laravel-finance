@@ -2,8 +2,8 @@
 
 namespace Codificar\Finance\Models;
 
-use Illuminate\Database\Eloquent\Relations\Model;
-use Illuminate\Http\Request;
+
+use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
 use Illuminate\Pagination\Paginator;
 use Carbon\Carbon;
 use Eloquent;
@@ -244,6 +244,20 @@ class LibModel extends Eloquent
 
 		return $payment;
 	}
+
+		/**
+     * find by userId
+     * @return Payment 
+ 	 **/
+	  public static function findDefaultOrFirstByUserId($userId, $cardId = null) {
+		if($cardId) {
+			$userCard = Payment::where('user_id', $userId)->where('id', $cardId)->first();
+			if($userCard) 
+				return $userCard ;
+		}
+		return Payment::where('user_id', $userId)->orderBy('is_default', 'desc')->first();
+	}
+
 	
     public static function getBalanceBeforeDate($ledgerId, $startDate){
 
@@ -705,6 +719,48 @@ class LibModel extends Eloquent
 	
 		if ($chrAcronym) $chrAcronym = $chrAcronym . ' ';
 		return $chrAcronym . number_format(floatval($fltNumber), $intPrecision, $chrDecimal, $chrThousand);
+	}
+
+
+
+	/**
+	 * Add user balance by paying with credit card
+	 *
+	 * @param Decimal $value
+	 * @param User $holder
+	 * @param Integer|null $cardId -
+	 * @return array  $data;
+	 */
+	public static function addCreditCardUserBalance(float $value, \User $user, int $cardId = null) {
+		$ledgerId = $user->ledger->id;
+		$payment = LibModel::findDefaultOrFirstByUserId($user->id, $cardId);
+
+		$data = array();
+		//Se nao encontrou o card, então da erro
+		if(!$payment) {
+			$data['success']	= false;
+			$data['error']		= trans('financeTrans::finance.card_not_found');
+			$data['current_balance'] = currency_format(self::sumValueByLedgerId($ledgerId));
+		} else {
+			//Tenta realizar a cobrança com o cartão
+			$gateway = LibsPaymentFactory::createGateway();
+			$return = $gateway->charge($payment, $value, trans('financeTrans::finance.credit_by_debit'), true);
+
+			//Se conseguiu cobrar no cartão, então adicionar um saldo para o usuário/prestador, senão, retorna erro
+			if($return['success'] && $return['captured'] == 'true') {
+				$financeEntry = Finance::createCustomEntry($ledgerId, 'SEPARATE_CREDIT', trans('financeTrans::finance.credit_by_debit'), $value, null, null);
+				if($financeEntry) {
+					$data['success']	= true;
+					$data['error']		= null;
+					$data['current_balance'] = currency_format(self::sumValueByLedgerId($ledgerId));
+				}
+			} else {
+				$data['success']	= false;
+				$data['error']		= trans('financeTrans::finance.card_refused');
+				$data['current_balance'] = currency_format(self::sumValueByLedgerId($ledgerId));
+			}
+		}
+		return $data;
 	}
 	
 }

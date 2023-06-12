@@ -101,6 +101,7 @@ return array(
 	'search'						=> 'Search',
 	'period_balance' 				=> 'Period balance',
 	'single_credit' 				=> 'Loan credit added by card',
+	'credit_by_debit' 				=> 'Single credit by the card to pay out debt.',
 
 	'this_month' 					=> 'This month',
 	'last_month' 					=> 'Last month',
