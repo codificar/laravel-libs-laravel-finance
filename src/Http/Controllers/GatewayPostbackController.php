@@ -26,7 +26,7 @@ class GatewayPostbackController extends Controller
         }
 
         //Verifica se essa transação é um pix
-        $transaction = Transaction::getTransactionByGatewayId($ride['id']);
+        $transaction = Transaction::getTransactionByGatewayId($transactionId);
         if ($transaction && $transaction->ledger_id && $transaction->pix_copy_paste) {
             return $this->postbackPix($transaction->id, $ride);
         }
