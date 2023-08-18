@@ -23,6 +23,18 @@ class Transaction extends Eloquent
  	const REFUNDED 			= 'refunded';
  	const REFUSED 			= 'refused';
  	const ERROR 			= 'error';
+	
+	//transaction status code 
+	const CODE_CREATED 			= 1;
+	const CODE_WAITING_PAYMENT 	= 2;
+	const CODE_CANCELED 		= 3;
+	const CODE_IN_ANALISYS 		= 4;
+	const CODE_PRE_AUTHORIZED 	= 5;
+ 	const CODE_PARTIAL_CAPTURED = 6;
+ 	const CODE_DECLINED 		= 7;
+ 	const CODE_CAPTURED 		= 8;
+ 	const CODE_CHARGEBACK 		= 9;
+ 	const CODE_IN_DISPUTE 		= 10;
 
 	const MapStatus 		= array(
 		'processing'		=> self::PROCESSING ,
@@ -67,6 +79,15 @@ class Transaction extends Eloquent
 	}
 
 	/**
+	 * get Ledger by Provider Id
+	 * @return Signature | null
+	 **/
+	public function finance()
+	{
+		return $this->hasOne('Finance', 'transaction_id', 'id');
+	}
+
+	/**
 	 * get latest ride by Id
 	 * @return Requests | null
 	 **/
@@ -84,6 +105,26 @@ class Transaction extends Eloquent
     {
         $this->status = 'paid';
         $this->save();
+    }
+    
+	/**
+     * verify status to paid
+	 * 
+	 * @return bool
+     */
+    public function isPaid(): bool
+    {
+		return $this->status == self::PAID;
+    }
+    
+	/**
+     * verify if webhook status is captured
+	 * @param int $status
+	 * @return bool
+     */
+    public static function isWebhookCaptured(int $status): bool
+    {
+		return $status == self::CODE_CAPTURED;
     }
 
 	public static function getTransactionByRequestId($requestId)

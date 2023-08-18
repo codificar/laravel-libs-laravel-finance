@@ -762,5 +762,41 @@ class LibModel extends Eloquent
 		}
 		return $data;
 	}
+
+	/**
+	 * Create a Custom Credit Debit 
+	 * @param int $ledgerId
+	 * @param string $reason
+	 * @param string $description
+	 * @param float $value
+	 * @param string|null $date
+	 * @param int|null $insertedBy
+	 * @param int|null $transactionId
+	 * 
+	 * @return Finance
+	 */
+	public static function createCustomEntry($ledgerId, $reason, $description, $value, $date, $insertedBy, $transactionId = nulll){
+		try{
+			$finance = new Finance();
+			$finance->ledger_id = $ledgerId;
+			$finance->value = $value;
+			$finance->reason = $reason;
+			$finance->description = $description;
+			$finance->inserted_by = $insertedBy;
+			$finance->transaction_id = $transactionId;
+			$compensationDate = $date;
+			if($compensationDate){
+                $finance->compensation_date = Carbon::createFromFormat('d/m/Y', $compensationDate);
+            }
+            else {
+                $finance->compensation_date = date('Y-m-d H:i:s');
+            }
+			$finance->save();
+			return $finance;
+		}catch(\Exception $e){
+			\Log::error($e->getMessage() . $e->getTraceAsString());
+			throw $e;
+		}
+	}
 	
 }
