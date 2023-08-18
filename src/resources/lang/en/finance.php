@@ -10,7 +10,7 @@ return array(
 	'simple_indication' 					=> 'Referral credit',
 	'compensation_indication' 				=> 'Month indication compensation',
 	'webhook_pix_ride_credit' 				=> 'Pix Webhook Credit regarding the race:',
-	'webhook_pix_balance_credit' 			=> 'Pix webhook Credit for balance.',
+	'webhook_pix_balance_credit' 			=> 'Pix webhook Credit for balance: ',
 	'ride_debit' 							=> 'Debt referring to the race:',
 	'ride_debit_machine' 					=> 'Debt referring to the race with a dummy:',
 	'ride_credit_machine' 					=> 'Credit for the race with the dummy:',

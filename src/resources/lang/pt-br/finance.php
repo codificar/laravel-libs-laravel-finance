@@ -10,7 +10,7 @@ return array(
 	'simple_indication' 					=> 'Crédito de indicação',
 	'compensation_indication' 				=> 'Compensação de indicação do mês',
 	'webhook_pix_ride_credit' 				=> 'Crédito via Pix Webhook referente à corrida: ',
-	'webhook_pix_balance_credit' 			=> 'Crédito via Pix Webhook referente à saldo.',
+	'webhook_pix_balance_credit' 			=> 'Crédito via Pix Webhook referente à saldo: ',
 	'ride_debit' 							=> 'Débito referente à corrida:',
 	'ride_debit_machine' 					=> 'Débito referente à corrida com maquineta:',
 	'ride_credit_machine' 					=> 'Credito referente à corrida com maquineta:',

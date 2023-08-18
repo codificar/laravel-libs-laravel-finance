@@ -123,7 +123,7 @@ class GatewayPostbackController extends Controller
                         else {
 
                             if(!$transaction->finance) {
-                                $description = trans('financeTrans::finance.webhook_pix_balance_credit');
+                                $description = trans('financeTrans::finance.webhook_pix_balance_credit') . $webhookRequest['id'];
                                 LibModel::createCustomEntry($transaction->ledger_id, Finance::SEPARATE_CREDIT, $description, $transaction->gross_value, null, null, $transaction->id);
                             }
                         }
