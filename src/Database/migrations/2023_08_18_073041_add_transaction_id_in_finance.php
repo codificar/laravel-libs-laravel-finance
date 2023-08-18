@@ -31,7 +31,7 @@ class AddTransactionIdInFinance extends Migration
     public function down()
     {
         Schema::table('finance',function(Blueprint $table){
-			$table->dropForeign('transaction_id');
+			$table->dropConstrainedForeignId('transaction_id');
             $table->dropUnique(['transaction_id']);
 		});
     }
