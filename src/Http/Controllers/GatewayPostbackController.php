@@ -7,26 +7,40 @@ use App\Http\Controllers\Controller;
 use Log, Response;
 use Finance, Settings;
 use Codificar\Finance\Events\PixUpdate;
+use Codificar\Finance\Models\LibModel;
 use Codificar\Finance\Models\Transaction;
 use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
+use RequestCharging;
 
 class GatewayPostbackController extends Controller
 {
     /**
      * Recebe uma notificacao quando o status da transacao boleto muda
      */
-    public function postbackBillet($transactionId, Request $ride)
+    public function postbackBillet($transactionId, Request $request)
     {   
-        if($ride && $ride->method() == 'GET') {
+        if($request && $request->method() == 'GET') {
             return Response::json(["success" => true], 200);
         }
 
-        if($ride->id){
-           $transactionId = $ride->id;
+        if($request->id){
+           $transactionId = $request->id;
+        }
+
+        //Verifica se essa transação é um pix
+        $transaction = Transaction::getTransactionByGatewayId($transactionId);
+        if ($transaction && $transaction->ledger_id && $transaction->pix_copy_paste) {
+            return $this->postbackPix($transaction->id, $request);
+        }
+
+        //Verifica se essa transação é um pix
+        $transaction = Transaction::getTransactionByGatewayId($transactionId);
+        if ($transaction && $transaction->ledger_id && $transaction->pix_copy_paste) {
+            return $this->postbackPix($transaction->id, $ride);
         }
         
         $gateway = LibsPaymentFactory::createGateway();
-        $billetVerify = $gateway->billetVerify($ride, $transactionId);
+        $billetVerify = $gateway->billetVerify($request, $transactionId);
         if($transactionId && is_numeric($transactionId)) {
             $transaction = Transaction::find($transactionId);
         } else {
@@ -56,67 +70,74 @@ class GatewayPostbackController extends Controller
     /**
      * Recebe uma notificacao quando o status da transacao pix e alterada
      */
-    public function postbackPix($transactionId, Request $ride)
+    public function postbackPix($transactionId, Request $request)
     {
-        if($ride && $ride->method() == 'GET') {
+        if($request && $request->method() == 'GET') {
             return Response::json(["success" => true], 200);
         }
 
         $gatewayPix = Settings::getDefaultPaymentPix();
 
         if($gatewayPix == 'ipag') {
-            $this->postbackPixIpag($ride);
+            $this->postbackPixIpag($request);
         } else if($gatewayPix == 'juno'){
-            $this->postbackPixJuno($transactionId, $ride);
+            $this->postbackPixJuno($transactionId, $request);
         }
     }
 
     /**
-     * Recebe uma notificacao quando o status da transacao pix do IPag e alterada
+     * Recebe uma notificação quando o status da transação pix do IPag e alterada
      */
-    private function postbackPixIpag(Request $ride)
+    private function postbackPixIpag(Request $request)
     {
-        $ride = $ride->all();
+        try {
+            $webhookRequest = $request->all();
 
-        if( isset($ride['id']) && !empty($ride['id'])) {
-            $transaction = Transaction::getTransactionByGatewayId($ride['id']);
-            $isSuccesss = $ride['attributes']['status']['code'] == '8';
-            
-            if ($transaction && $transaction->ledger_id && $transaction->pix_copy_paste && $isSuccesss) {
-                //Se a transaction ja esta com status pago, nao faz sentido adicionar um saldo para o usuario novamente
-                if($transaction->status != "paid") {
-                    // Agora podemos dar baixa no pix
+            if( isset($webhookRequest['id']) && !empty($webhookRequest['id'])) {
+                $transaction = Transaction::getTransactionByGatewayId($webhookRequest['id']);
+                $isCaptured = Transaction::isWebhookCaptured($webhookRequest['attributes']['status']['code']);
+                
+                if ($isCaptured && $transaction && $transaction->ledger_id && $transaction->pix_copy_paste ) {
+                    //Se a transaction ja esta com status pago, nao faz sentido adicionar um saldo para o usuário novamente
+                    if(!$transaction->isPaid()) {
+                        // Agora podemos dar baixa no pix
+                        // se a transação e referente a uma request
+                        if($transaction->request_id) {
+                            $ride = $transaction->ride;
+                            $ride->setIsPaid();
 
-                    // se a transacao e referente a uma request
-                    if($transaction->request_id) {
-                        $ride = $transaction->ride;
-                        $ride->setIsPaid();
-
-                        //gera saldo para o motorista
-                        if ($ride->confirmedProvider && $ride->confirmedProvider->Ledger) {
-                            Finance::createRideCredit($ride->confirmedProvider->Ledger->id, $transaction->provider_value * -1, $ride->id);
+                            //gera saldo para o motorista
+                            if ($ride->confirmedProvider && $ride->confirmedProvider->Ledger) {
+                                $reason = trans('financeTrans::finance.webhook_pix_ride_credit') . $ride->id;
+                                Finance::createRideCredit($ride->confirmedProvider->Ledger->id, $transaction->provider_value * -1, $ride->id, $reason);
+                            }
+                        }  
+                        // Atualiza os dados de transação via Pix
+                        else if($transaction->signature_id) {
+                            $signature = $transaction->signature;
+                            if($signature) {
+                                $signature->updatePostBackPix();
+                            }
                         }
-                    }  
-                    // Atualiza os dados de transação via Pix
-                    else if($transaction->signature_id) {
-                        $signature = $transaction->signature;
-                        if($signature) {
-                            $signature->updatePostBackPix();
-                        }
-                    }
-                    // se a transacao e pre-pago (ou seja, nao e referente a uma request) entao adiciona saldo 
-                    else {
-                        Finance::createCustomEntry($transaction->ledger_id, Finance::SEPARATE_CREDIT, "Pagamento Pix", $transaction->gross_value, null, null);
-                    }
-                    $transaction->setStatusPaid();
+                        // se a transação é pre-pago (ou seja, nao e referente a uma request nem a uma assinatura) então adiciona saldo 
+                        else {
 
-                    // disparar evento pix
-                    event(new PixUpdate($transaction->id, true, false));
+                            if(!$transaction->finance) {
+                                $description = trans('financeTrans::finance.webhook_pix_balance_credit') . $webhookRequest['id'];
+                                LibModel::createCustomEntry($transaction->ledger_id, Finance::SEPARATE_CREDIT, $description, $transaction->gross_value, null, null, $transaction->id);
+                            }
+                        }
+                        $transaction->setStatusPaid();
+
+                        // disparar evento pix
+                        event(new PixUpdate($transaction->id, true, false));
+                    }
                 }
+            } else {
+                Log::error('Pix IPag: Nao foi possível identificar a transação: ' . json_encode($webhookRequest));
             }
-        } else {
-            Log::error($ride);
-            Log::error('Pix IPag: Nao foi possivel identificar a transacao');
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage() . $e->getTraceAsString());
         }
     }
     /**

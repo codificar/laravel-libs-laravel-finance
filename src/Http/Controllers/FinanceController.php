@@ -34,6 +34,7 @@ use Codificar\Finance\Http\Resources\RetrievePixResource;
 
 use Carbon\Carbon;
 use Auth;
+use Codificar\Finance\Http\Requests\AddCardProviderFormRequest;
 use Codificar\Finance\Http\Requests\BalanceFormRequest;
 use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
@@ -935,18 +936,21 @@ class FinanceController extends Controller {
 	/**
 	 * Add a new credit card
 	 *
-	 * @param AddCardUserFormRequest $request
+	 * @param AddCardProviderFormRequest $request
 	 * @return AddCreditCardResource
 	 */
-	public function addCreditCardProvider(AddCardUserFormRequest $request) 
+	public function addCreditCardProvider(AddCardProviderFormRequest $request) 
 	{	
 		$response = Payment::providerCreateCardByGateway(
-			$request->userId, 
+			$request->providerId, 
 			$request->cardNumber, 
 			$request->cardHolder, 
 			$request->cardExpMonth, 
 			$request->cardExpYear, 
-			$request->cardCvv
+			$request->cardCvv,
+			null,
+			null,
+			$request->document ?? null
 		);
 		return new AddCreditCardResource($response);
 	}
@@ -964,7 +968,10 @@ class FinanceController extends Controller {
 			$request->cardHolder, 
 			$request->cardExpMonth, 
 			$request->cardExpYear, 
-			$request->cardCvv
+			$request->cardCvv,
+			null,
+			null,
+			$request->document ?? null
 		);
 		return new AddCreditCardResource($response);
 	}
@@ -982,7 +989,10 @@ class FinanceController extends Controller {
 			$request->cardHolder, 
 			$request->cardExpMonth, 
 			$request->cardExpYear, 
-			$request->cardCvv
+			$request->cardCvv,
+			null,
+			null,
+			$request->document ?? null
 		);
 		return new AddCreditCardResource($response);
 	}

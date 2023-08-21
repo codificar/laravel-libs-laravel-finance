@@ -7,13 +7,13 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
- * Class AddCardUserFormRequest
+ * Class AddCardProviderFormRequest
  *
  * @package MotoboyApp
  *
  * @author  André Gustavo <andre.gustavo@codificar.com.br>
  */
-class AddCardUserFormRequest extends FormRequest {
+class AddCardProviderFormRequest extends FormRequest {
 
     public $cardHolder;
     public $cardNumber;
@@ -22,7 +22,7 @@ class AddCardUserFormRequest extends FormRequest {
     public $cardExpYear;
     public $cardDate;
     public $cardType;
-    public $userId;
+    public $providerId;
     public $document;
 
     /**
@@ -47,7 +47,7 @@ class AddCardUserFormRequest extends FormRequest {
             'cardExpMonth' => ['required'],
             'cardCvv' => ['required'],
             'document' => [''],
-            'userId' => 'required'
+            'providerId' => 'required'
         ];
     }
 
@@ -95,7 +95,7 @@ class AddCardUserFormRequest extends FormRequest {
         $cardDate = "";
         $cardExpirationMonth = "";
         $cardExpirationYear = "";
-        $userId = "";
+        $providerId = "";
         
         if (request()->card_type) {
             $this->cardType = strtoupper(request()->card_type);
@@ -109,10 +109,10 @@ class AddCardUserFormRequest extends FormRequest {
             $holder = request()->card_holder;
         }
 
-        if($this->user_id){
-            $userId = $this->user_id;
-        }else if (request()->user_id){
-            $userId = request()->user_id;
+        if($this->provider_id){
+            $providerId = $this->provider_id;
+        }else if (request()->provider_id){
+            $providerId = request()->provider_id;
         }
 
         if($this->number){
@@ -148,7 +148,7 @@ class AddCardUserFormRequest extends FormRequest {
         $this->cardCvv = $ccv;
         $this->cardExpMonth =  $cardExpirationMonth;
         $this->cardExpYear =  $cardExpirationYear;
-        $this->userId = $userId ;
+        $this->providerId = $providerId;
         $this->document = $document ;
         $this->cardDate = $cardDate ;
         
@@ -159,7 +159,7 @@ class AddCardUserFormRequest extends FormRequest {
             'cardExpYear' => $this->cardExpYear,
             'cardExpMonth' => $this->cardExpMonth,
             'cardCvv' =>  $this->cardCvv,
-            'userId' =>  $this->userId,
+            'providerId' =>  $this->providerId,
             'document' =>  $this->document,
             'cardDate' =>  $this->cardDate,
         ]);

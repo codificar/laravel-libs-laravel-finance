@@ -2,8 +2,8 @@
 
 namespace Codificar\Finance\Models;
 
-use Illuminate\Database\Eloquent\Relations\Model;
-use Illuminate\Http\Request;
+
+use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
 use Illuminate\Pagination\Paginator;
 use Carbon\Carbon;
 use Eloquent;
@@ -37,6 +37,24 @@ class LibModel extends Eloquent
 	public static function sumAllValueByLedgerId($ledgerId){
 		return (double)number_format(self::where('ledger_id', $ledgerId)->sum('value'), 2, '.', '');
     }
+
+
+	public static function sumPositiveValueByLedgerId($ledgerId){
+		return (double)number_format(
+			self::where('ledger_id', $ledgerId)
+				->where('value', '>=',  0)
+				->sum('value')
+			, 2, '.', '');
+	}
+
+	public static function sumNegativeValueByLedgerId($ledgerId){
+		return (double)number_format(
+			self::where('ledger_id', $ledgerId)
+				->where('value', '<', 0)
+				->sum('value')
+			, 2, '.', '');
+	}
+
     public static function sumValueByLedgerIdByPeriod($ledgerId, $startDate, $endDate){
 		$startDateNew = Carbon::parse($startDate);
 		$endDateNew = Carbon::parse($endDate);
@@ -226,6 +244,20 @@ class LibModel extends Eloquent
 
 		return $payment;
 	}
+
+		/**
+     * find by userId
+     * @return Payment 
+ 	 **/
+	  public static function findDefaultOrFirstByUserId($userId, $cardId = null) {
+		if($cardId) {
+			$userCard = Payment::where('user_id', $userId)->where('id', $cardId)->first();
+			if($userCard) 
+				return $userCard ;
+		}
+		return Payment::where('user_id', $userId)->orderBy('is_default', 'desc')->first();
+	}
+
 	
     public static function getBalanceBeforeDate($ledgerId, $startDate){
 
@@ -251,6 +283,8 @@ class LibModel extends Eloquent
 		if($ledger = DB::table('ledger')->find($ledgerId)){
 			$previousBalance = self::getBalanceBeforeDate($ledgerId, $startDate);
 			$currentBalance = self::sumValueByLedgerId($ledgerId);
+			$currentPositiveBalance = self::sumPositiveValueByLedgerId($ledgerId);
+			$currentNegativeBalance = self::sumNegativeValueByLedgerId($ledgerId);
 			$totalBalance = self::sumAllValueByLedgerId($ledgerId);
 			$periodBalance = self::sumValueByLedgerIdByPeriod($ledgerId, $startDate, $endDate);
 			$totalBalanceByPeriod = $previousBalance + $periodBalance;
@@ -296,6 +330,8 @@ class LibModel extends Eloquent
 				'current_balance' 			  => $currentBalance,
 				'current_balance_formatted'	  => currency_format(currency_converted($currentBalance)),
 				'total_balance'				  => $totalBalance,
+				'current_positive_balance' 	  => $currentPositiveBalance, 
+				'current_negative_balance' 	  => $currentNegativeBalance,
 				'period_balance'			  => $periodBalance,
 				'period_balance_formatted'	  => currency_format(currency_converted($periodBalance)),
 				'total_balance_by_period'	  => $totalBalanceByPeriod,
@@ -683,6 +719,84 @@ class LibModel extends Eloquent
 	
 		if ($chrAcronym) $chrAcronym = $chrAcronym . ' ';
 		return $chrAcronym . number_format(floatval($fltNumber), $intPrecision, $chrDecimal, $chrThousand);
+	}
+
+
+
+	/**
+	 * Add user balance by paying with credit card
+	 *
+	 * @param Decimal $value
+	 * @param User $holder
+	 * @param Integer|null $cardId -
+	 * @return array  $data;
+	 */
+	public static function addCreditCardUserBalance(float $value, \User $user, int $cardId = null) {
+		$ledgerId = $user->ledger->id;
+		$payment = LibModel::findDefaultOrFirstByUserId($user->id, $cardId);
+
+		$data = array();
+		//Se nao encontrou o card, então da erro
+		if(!$payment) {
+			$data['success']	= false;
+			$data['error']		= trans('financeTrans::finance.card_not_found');
+			$data['current_balance'] = currency_format(self::sumValueByLedgerId($ledgerId));
+		} else {
+			//Tenta realizar a cobrança com o cartão
+			$gateway = LibsPaymentFactory::createGateway();
+			$return = $gateway->charge($payment, $value, trans('financeTrans::finance.credit_by_debit'), true);
+
+			//Se conseguiu cobrar no cartão, então adicionar um saldo para o usuário/prestador, senão, retorna erro
+			if($return['success'] && $return['captured'] == 'true') {
+				$financeEntry = Finance::createCustomEntry($ledgerId, 'SEPARATE_CREDIT', trans('financeTrans::finance.credit_by_debit'), $value, null, null);
+				if($financeEntry) {
+					$data['success']	= true;
+					$data['error']		= null;
+					$data['current_balance'] = currency_format(self::sumValueByLedgerId($ledgerId));
+				}
+			} else {
+				$data['success']	= false;
+				$data['error']		= trans('financeTrans::finance.card_refused');
+				$data['current_balance'] = currency_format(self::sumValueByLedgerId($ledgerId));
+			}
+		}
+		return $data;
+	}
+
+	/**
+	 * Create a Custom Credit Debit 
+	 * @param int $ledgerId
+	 * @param string $reason
+	 * @param string $description
+	 * @param float $value
+	 * @param string|null $date
+	 * @param int|null $insertedBy
+	 * @param int|null $transactionId
+	 * 
+	 * @return Finance
+	 */
+	public static function createCustomEntry($ledgerId, $reason, $description, $value, $date, $insertedBy, $transactionId = nulll){
+		try{
+			$finance = new Finance();
+			$finance->ledger_id = $ledgerId;
+			$finance->value = $value;
+			$finance->reason = $reason;
+			$finance->description = $description;
+			$finance->inserted_by = $insertedBy;
+			$finance->transaction_id = $transactionId;
+			$compensationDate = $date;
+			if($compensationDate){
+                $finance->compensation_date = Carbon::createFromFormat('d/m/Y', $compensationDate);
+            }
+            else {
+                $finance->compensation_date = date('Y-m-d H:i:s');
+            }
+			$finance->save();
+			return $finance;
+		}catch(\Exception $e){
+			\Log::error($e->getMessage() . $e->getTraceAsString());
+			throw $e;
+		}
 	}
 	
 }

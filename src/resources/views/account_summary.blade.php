@@ -271,6 +271,28 @@
 						
 						<th>
 							<label for="usr" class="flexrow">
+								{{ trans('financeTrans::finance.positive_balance') }}
+								<a href="#" 
+									class="question-field" 
+									data-toggle="tooltip" 
+									title="{{trans('financeTrans::finance.positive_balance_msg')}}">
+									<span class="mdi mdi-comment-question-outline"></span>
+								</a>
+							</label>
+						</th>
+						<th>
+							<label for="usr" class="flexrow">
+								{{ trans('financeTrans::finance.negative_balance') }}
+								<a href="#" 
+									class="question-field" 
+									data-toggle="tooltip" 
+									title="{{trans('financeTrans::finance.negative_balance_msg')}}">
+									<span class="mdi mdi-comment-question-outline"></span>
+								</a>
+							</label>
+						</th>
+						<th>
+							<label for="usr" class="flexrow">
 								{{ trans('financeTrans::finance.future_balance') }}
 								<a href="#" class="question-field" data-toggle="tooltip" title="{{trans('financeTrans::finance.future_balance_msg')}}"><span class="mdi mdi-comment-question-outline"></span></a>
 							</label>
@@ -374,6 +396,20 @@
 								echo "<span class='$tipoClass'>$currency_symbol ".number_format($total_future, 2, ',', ' ')."</span>"
 							?>
 						</td>
+						
+						<td style="white-space:nowrap;">
+							<?php
+								$value = $balances[$key]['current_positive_balance'] ?? 0;
+								echo "<span class='text-success'> $currency_symbol ".number_format($value, 2, ',', ' ')."</span>"
+							?>
+						</td>
+
+						<td style="white-space:nowrap;">
+							<?php
+								$value = $balances[$key]['current_negative_balance'] ?? 0;	
+								echo "<span class='text-danger'> $currency_symbol ".number_format($value, 2, ',', ' ')."</span>"
+							?>
+						</td>
 
 						<td style="white-space:nowrap;">
 							<?php
@@ -402,7 +438,7 @@
 							?>
 						</td>
 
-						<td>
+						<td data-test="finance-status-{{$key}}">
 							<div class="btn-group">
 								<?php $btnClass = '';?> 
 
@@ -412,6 +448,9 @@
 								@elseif ($provider->status_name && strcmp($provider->status_name, "SUSPENSO") == 0 )
 									<span class='btn btn-warning peq'>{{ trans('providerController.Suspended') }}</span>
 									<?php $btnClass = 'btn-warning';?>
+								@else
+									<span class='btn btn-info peq'>{{ trans('providerController.Under_review') }}</span>
+									<?php $btnClass = 'btn-info';?>
 								@endif
 
 								<button type="button" class="btn <?= $btnClass ?> dropdown-toggle" data-toggle="dropdown">
