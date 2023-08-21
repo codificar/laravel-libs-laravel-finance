@@ -31,7 +31,7 @@ class Signature extends Model
 	{
 		$plan = $this->plan;
 		// Define a data de expiração da assinatura
-	   	$period = $plan->period + \Settings::getDaysForSubscriptionRecurrency();
+	   	$period = $plan->period;
 	   	$nextExpiration = Carbon::now()->addDays($period);
 	   	$this->created_at = Carbon::now();
 	   	$this->next_expiration = $nextExpiration;
