@@ -58,6 +58,8 @@ return array(
 	'op_delivery_package'			=> 'Delivery Package',
 	'op_invoice_payment'			=> 'Invoice Payment',
 	'op_withdraw' 					=> 'Withdraw',
+	'op_withdraw_requested' 		=> 'Requested withdraw',
+	'op_withdraw_reject' 			=> 'Rejected withdraw',
 	'op_cleaning_fee_debit'			=> 'Debit per cleaning fee',
 	'op_cleaning_fee_credit'		=> 'Cleaning fee credit',
 	'separate_credit' 				=> 'Loan Loans',

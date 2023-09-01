@@ -56,6 +56,8 @@ return array(
 	'op_separate_credit' 			=> 'Crédito Avulso',
 	'op_separate_debit' 			=> 'Débito Avulso',
 	'op_withdraw' 					=> 'Saque',
+	'op_withdraw_requested' 		=> 'Saque solicitado',
+	'op_withdraw_reject' 			=> 'Saque rejeitado',
 	'op_cleaning_fee_debit'			=> 'Débito por taxa de limpeza',
 	'op_cleaning_fee_credit'		=> 'Crédito por taxa de limpeza',
 	'op_delivery_package'			=> 'Pacote de entrega',
