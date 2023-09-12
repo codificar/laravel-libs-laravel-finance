@@ -764,20 +764,29 @@ class LibModel extends Eloquent
 	}
 
 	/**
-	 * Create a Custom Credit Debit 
-	 * @param int $ledgerId
-	 * @param string $reason
-	 * @param string $description
-	 * @param float $value
-	 * @param string|null $date
-	 * @param int|null $insertedBy
-	 * @param int|null $transactionId
-	 * 
-	 * @return Finance
-	 */
-	public static function createCustomEntry($ledgerId, $reason, $description, $value, $date, $insertedBy, $transactionId = nulll){
+	* Create a Custom Credit Debit 
+	* @param int $ledgerId
+	* @param string $reason
+	* @param string $description
+	* @param float $value
+	* @param string|null $date default: null | format: 'd/m/Y'
+	* @param int|null $insertedBy default: null
+	* @param int|null $transactionId default: null
+	* 
+	* @return Finance
+	*/
+	public static function createCustomEntry(
+		int $ledgerId, 
+		string $reason, 
+		string $description, 
+		float $value, 
+		string|null $date = null, 
+		int|null $insertedBy = null, 
+		int|null $transactionId = null
+	): \Finance 
+	{
 		try{
-			$finance = new Finance();
+			$finance = new \Finance();
 			$finance->ledger_id = $ledgerId;
 			$finance->value = $value;
 			$finance->reason = $reason;
