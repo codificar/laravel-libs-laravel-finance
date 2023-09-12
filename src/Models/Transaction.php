@@ -13,6 +13,7 @@ class Transaction extends Eloquent
 	const SIGNATURE_VALUE = 'signature_value';
 	const SUBSCRIPTION_TRANSACTION = 'subscription_transaction';
 	const SINGLE_TRANSACTION = 'request_single_transaction';
+	const BALANCE_ADD_TRANSACTION = 'balance_add_transaction';
 
 	//transaction status
 	const PROCESSING 		= 'processing';
@@ -145,6 +146,46 @@ class Transaction extends Eloquent
 		if ($gatewayTransactionId) {
 			return $gatewayTransactionId;
 		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Create a new transaction in db to register when add new ballance
+	 * 
+	 * @param string $status
+	 * @param float $value
+	 * @param int $gatewayTransactionId
+	 * @param string $paymentGatewayError - default: null
+	 * 
+	 * @return Transaction|null
+	 */
+	public static function createTransactionAddBalance(
+		string $status, 
+		float $value, 
+		int $gatewayTransactionId, 
+		string $paymentGatewayError = null
+	): Transaction|null
+	{
+		try {
+			$transaction = new Transaction();
+	
+			$transaction->type = self::BALANCE_ADD_TRANSACTION;
+			$transaction->status = $status;
+			$transaction->gross_value = $value;
+			$transaction->net_value = 0;
+			$transaction->provider_value = 0;
+			$transaction->gateway_tax_value = 0;
+			$transaction->gateway_transaction_id = $gatewayTransactionId;
+			$transaction->payment_gateway_error = $paymentGatewayError;
+			$transaction->request_id = null ;
+	
+			$transaction->save();
+	
+			return $transaction;
+
+		} catch(\Exception $e) {
+			\Log::error($e->getMessage() . $e->getTraceAsString());
 			return null;
 		}
 	}
