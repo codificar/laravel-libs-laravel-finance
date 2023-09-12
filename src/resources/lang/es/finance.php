@@ -56,6 +56,8 @@ return array(
 	'op_separate_credit' 			=> 'Préstamos Préstamos',
 	'op_separate_debit' 			=> 'Débito Débito',
 	'op_withdraw' 					=> 'Retirar',
+	'op_withdraw_requested' 		=> 'Solicitado',
+	'op_withdraw_reject' 			=> 'Rechazado',
 	'op_cleaning_fee_debit'			=> 'Débito por tarifa de limpieza',
 	'op_cleaning_fee_credit'		=> 'Crédito de tarifa de limpieza',
 	'op_delivery_package'			=> 'Paquete de entrega',

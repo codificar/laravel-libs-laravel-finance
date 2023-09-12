@@ -685,14 +685,15 @@ class FinanceController extends Controller {
 	}
 
 	/**
-	 * Add balance by paying with credit card
-	 *
-	 * @param Decimal $value
-	 * @param Object $holder
-	 * @param Integer $cardId
-	 * @param String $envType
-	 * @return AddCreditCardBalanceResource ($data);
-	 */
+	* Add balance by paying with credit card
+	*
+	* @param float $value
+	* @param Object $holder
+	* @param Integer $cardId
+	* @param String $envType
+	* 
+	* @return AddCreditCardBalanceResource ($data);
+	*/
 	private function addCreditCardBalance($value, $holder, $cardId, $envType) {
 		$ledgerId = $holder->ledger->id;
 
@@ -702,28 +703,45 @@ class FinanceController extends Controller {
 			$payment = LibModel::getCreditCardUser($holder->id, $cardId);
 
 		$data = array();
-		//Se nao encontrou o card, entao da erro
+		//Se nao encontrou o card, então da erro
 		if(!$payment) {
 			$data['success']	= false;
 			$data['error']		= 'Cartão não encontrado ou não pertence ao usuário';
 			$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
 		} else {
-			//Tenta realizar a cobranca com o cartao
+			//Tenta realizar a cobrança com o cartão
 			$gateway = LibsPaymentFactory::createGateway();
 			$return = $gateway->charge($payment, $value, trans('financeTrans::finance.single_credit'), true);
 
-			//Se conseguiu cobrar no cartao, entao adicionar um saldo para o usuario/prestador, senao, retorna erro
-			if($return['success'] && $return['captured'] == 'true') {
-				$financeEntry = Finance::createCustomEntry($holder->ledger->id, 'SEPARATE_CREDIT', trans('financeTrans::finance.single_credit'), $value, null, null);
-				if($financeEntry) {
-					$data['success']	= true;
-					$data['error']		= null;
-					$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
+			$data = array(
+				'success' => false,
+				'error' => 'O cartão foi recusado.',
+				'current_balance' => currency_format(LibModel::sumValueByLedgerId($ledgerId))
+			);
+
+			//Se conseguiu cobrar no cartão, então adicionar um saldo para o usuário/prestador, senão, retorna erro
+			if($return['success'] && $return['captured'] && $return['transaction_id']) {
+				$transaction = Transaction::createTransactionAddBalance(
+					$return['status'],
+					$value,
+					$return['transaction_id']
+				);
+				if($transaction) {
+					$financeEntry = LibModel::createCustomEntry(
+						$holder->ledger->id, 
+						'SEPARATE_CREDIT', 
+						trans('financeTrans::finance.single_credit') . " - gateway ID: " . $transaction->gateway_transaction_id, 
+						$value, 
+						null, 
+						null,
+						$transaction->id
+					);
+					if($financeEntry) {
+						$data['success']	= true;
+						$data['error']		= null;
+						$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
+					}
 				}
-			} else {
-				$data['success']	= false;
-				$data['error']		= 'O cartão foi recusado.';
-				$data['current_balance'] = currency_format(LibModel::sumValueByLedgerId($ledgerId));
 			}
 		}
 
