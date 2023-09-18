@@ -32,6 +32,11 @@ class FinanceServiceProvider extends ServiceProvider {
             __DIR__.'/Database/seeders' => database_path('seeders')
         ], 'public_vuejs_libs');
 
+        // Publish the tests files 
+        $this->publishes([
+            __DIR__ . '/../src/tests/' => base_path('tests/Unit/libs/finance'),
+        ], 'publishes_tests');
+
     }
 
     public function register()
