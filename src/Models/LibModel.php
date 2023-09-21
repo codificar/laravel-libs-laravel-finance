@@ -18,7 +18,53 @@ use DB;
 
 class LibModel extends Eloquent
 {
-	const DEPOSIT_IN_ACCOUNT = 'DEPOSIT_IN_ACCOUNT';
+	const DEPOSIT_IN_ACCOUNT 		= 'DEPOSIT_IN_ACCOUNT';
+	const SIMPLE_INDICATION 		= 'SIMPLE_INDICATION';
+	const COMPENSATION_INDICATION 	= 'COMPENSATION_INDICATION';
+	const SEPARATE_CREDIT 			= 'SEPARATE_CREDIT';
+	const SEPARATE_DEBIT 			= 'SEPARATE_DEBIT';
+	const WITHDRAW 					= 'WITHDRAW';
+	const WITHDRAW_REJECT 			= 'WITHDRAW_REJECT';
+	const WITHDRAW_REQUESTED 		= 'WITHDRAW_REQUESTED';
+	const RIDE_DEBIT 				= 'RIDE_DEBIT';
+	const RIDE_DEBIT_SPLIT 			= 'RIDE_DEBIT_SPLIT';
+	const RIDE_DEBIT_PENDING_PIX 	= 'RIDE_DEBIT_PENDING_PIX';
+	const RIDE_CREDIT_PENDING_PIX 	= 'RIDE_CREDIT_PENDING_PIX';
+	const RIDE_CREDIT 				= 'RIDE_CREDIT';
+	const RIDE_CREDIT_SPLIT 		= 'RIDE_CREDIT_SPLIT';
+	const MACHINE_RIDE_DEBIT		= 'MACHINE_RIDE_DEBIT';
+	const MACHINE_RIDE_CREDIT		= 'MACHINE_RIDE_CREDIT';
+	const RIDE_CANCELLATION_DEBIT 	= 'RIDE_CANCELLATION_DEBIT';
+	const RIDE_CANCELLATION_CREDIT 	= 'RIDE_CANCELLATION_CREDIT';
+	const RIDE_PAYMENT 				= 'RIDE_PAYMENT';
+	const CARTO_RIDE_PAYMENT		= 'CARTO_RIDE_PAYMENT';
+	const RIDE_PAYMENT_FAIL_DEBIT 	= 'RIDE_PAYMENT_FAIL_DEBIT';
+	const RIDE_LEDGER 				= 'RIDE_LEDGER';
+	const AUTO_WITHDRAW				= 'AUTO_WITHDRAW';
+	const CLEANING_FEE_DEBIT 		= 'CLEANING_FEE_DEBIT';
+	const CLEANING_FEE_CREDIT 		= 'CLEANING_FEE_CREDIT';	
+	const SIGNATURE_DEBIT			= 'SIGNATURE_DEBIT';
+	const SIGNATURE_CREDIT			= 'SIGNATURE_CREDIT';
+	const TYPE_USER 		= 'user';
+	const TYPE_PROVIDER 	= 'provider';
+	const TYPE_CORP 		= 'corp';
+	const TYPE_ADMIN 		= 'admin';
+	const TYPES = [ 
+		self::SEPARATE_CREDIT, 
+		self::SEPARATE_DEBIT,
+		self::RIDE_DEBIT,
+		self::RIDE_CREDIT,
+		self::RIDE_LEDGER,
+		self::SIMPLE_INDICATION,
+		self::COMPENSATION_INDICATION,
+		self::RIDE_CANCELLATION_DEBIT,
+		self::RIDE_CANCELLATION_CREDIT,
+		self::RIDE_PAYMENT,
+		self::WITHDRAW,
+		self::WITHDRAW_REJECT,
+		self::CLEANING_FEE_DEBIT,
+		self::CLEANING_FEE_CREDIT
+	];
 
     protected $table = 'finance';
 
@@ -764,6 +810,53 @@ class LibModel extends Eloquent
 	}
 
 	/**
+	 * Create Ride Credit
+	 * @param int $ledgerId
+	 * @param float $value
+	 * @param int $rideId
+	 * @param string $reason
+	 * @param bool $finishByAdmin
+	 * 
+	 * @return void
+	 */
+	public static function createRideCredit(
+		$ledgerId, 
+		$value, 
+		$rideId, 
+		$reason = \Finance::RIDE_CREDIT, 
+		$finishByAdmin = false,
+		int|null $transactionId = null
+	){
+		try{
+			$paymentMode = null;
+			$ride = \Requests::find($rideId);
+			if($ride && isset($ride->payment_mode)) {
+				$paymentMode = $ride->payment_mode;
+			}
+			
+			if(!$reason) {
+				$reason = self::getStringReason($paymentMode);
+			}
+
+			$trans = self::getStringPaymentMethod($paymentMode, $finishByAdmin);
+			
+			$finance = new \Finance();
+			$finance->ledger_id = $ledgerId;
+			$finance->referral_id = null;
+			$finance->value = $value * -1;
+			$finance->reason = $reason;
+			$finance->description = sprintf($trans, $rideId);
+			$finance->request_id = $rideId;
+			$finance->transaction_id = $transactionId;
+			$finance->compensation_date = date('Y-m-d H:i:s');
+			$finance->save();
+		}catch(\Exception $e){
+			throw $e;
+		}
+	}
+
+
+	/**
 	* Create a Custom Credit Debit 
 	* @param int $ledgerId
 	* @param string $reason
@@ -806,6 +899,114 @@ class LibModel extends Eloquent
 			\Log::error($e->getMessage() . $e->getTraceAsString());
 			throw $e;
 		}
+	}
+
+	/**
+    * get string translated reason by payment Mode
+    * @param int $paymentMode  
+    * @return string
+    */
+    public static function getStringReason(int $paymentMode)
+    {
+		switch ($paymentMode) {
+			case \RequestCharging::PAYMENT_MODE_MACHINE:
+				return self::MACHINE_RIDE_CREDIT;
+				break;
+			default:
+				return self::RIDE_CREDIT;
+				break;
+		}
+    }
+
+
+    /**
+    * get string translated by $rideId and $isAdmin
+    * @param int $paymentMode  
+    * @param bool $isAdmin - default: false
+    * @return string  
+    */
+    public static function getStringPaymentMethod(int $paymentMode, $isAdmin = false, $isDebit = false)
+    {
+		if($isDebit) {
+			$arrayStringsPaymentMethod = self::getArrayPaymentModesDebit($isAdmin);
+		} else {
+			$arrayStringsPaymentMethod = self::getArrayPaymentModesCredit($isAdmin);
+		}
+
+        return $paymentMode && isset($arrayStringsPaymentMethod[$paymentMode])
+			? $arrayStringsPaymentMethod[$paymentMode] 
+			: trans('finance.ride_credit');
+    }
+
+
+	/**
+	 * get array Translate payment modes
+	 * @param bool $isAdmin
+	 * @return array
+	 */
+	public static function getArrayPaymentModesCredit($isAdmin = false)
+	{
+		return !$isAdmin 
+		? [
+			\RequestCharging::PAYMENT_MODE_CARD => trans('finance.ride_card_payment'),
+			\RequestCharging::PAYMENT_MODE_MONEY => trans('finance.ride_credit'),
+			\RequestCharging::PAYMENT_MODE_CARTO => trans('finance.ride_carto_payment'),
+			\RequestCharging::PAYMENT_MODE_MACHINE => trans('finance.ride_credit_machine'),
+			\RequestCharging::PAYMENT_MODE_CRYPT => trans('finance.ride_crypt_payment'),
+			\RequestCharging::PAYMENT_MODE_ASSOCIATION => trans('finance.ride_association_payment'),
+			\RequestCharging::PAYMENT_MODE_CARD_DEBIT => trans('finance.ride_debitCard_payment'),
+			\RequestCharging::PAYMENT_MODE_BALANCE => trans('finance.ride_credit_balance'),
+			\RequestCharging::PAYMENT_MODE_BILLING => trans('finance.ride_credit_billing'),
+			\RequestCharging::PAYMENT_MODE_GATEWAY_PIX => trans('finance.ride_credit_gateway_pix'),
+			\RequestCharging::PAYMENT_MODE_DIRECT_PIX => trans('finance.ride_credit_direct_pix'),
+		] : [
+			\RequestCharging::PAYMENT_MODE_CARD => trans('finance.admin_ride_card_payment'),
+			\RequestCharging::PAYMENT_MODE_MONEY => trans('finance.admin_ride_credit'),
+			\RequestCharging::PAYMENT_MODE_CARTO => trans('finance.admin_ride_carto_payment'),
+			\RequestCharging::PAYMENT_MODE_MACHINE => trans('finance.admin_ride_credit_machine'),
+			\RequestCharging::PAYMENT_MODE_CRYPT => trans('finance.admin_ride_crypt_payment'),
+			\RequestCharging::PAYMENT_MODE_ASSOCIATION => trans('finance.admin_ride_association_payment'),
+			\RequestCharging::PAYMENT_MODE_CARD_DEBIT => trans('finance.admin_ride_debitCard_payment'),
+			\RequestCharging::PAYMENT_MODE_BALANCE => trans('finance.admin_ride_credit_balance'),
+			\RequestCharging::PAYMENT_MODE_BILLING => trans('finance.admin_ride_credit_billing'),
+			\RequestCharging::PAYMENT_MODE_GATEWAY_PIX => trans('finance.admin_ride_credit_gateway_pix'),
+			\RequestCharging::PAYMENT_MODE_DIRECT_PIX => trans('finance.admin_ride_credit_direct_pix'),
+		];
+	}
+
+	/**
+	 * get array Translate payment modes
+	 * @param bool $isAdmin
+	 * @return array
+	 */
+	public static function getArrayPaymentModesDebit($isAdmin = false)
+	{
+		return !$isAdmin 
+		? [
+			\RequestCharging::PAYMENT_MODE_CARD => trans('finance.debit_ride_card_payment'),
+			\RequestCharging::PAYMENT_MODE_MONEY => trans('finance.debit_ride_credit'),
+			\RequestCharging::PAYMENT_MODE_CARTO => trans('finance.debit_ride_carto_payment'),
+			\RequestCharging::PAYMENT_MODE_MACHINE => trans('finance.debit_ride_debit_machine'),
+			\RequestCharging::PAYMENT_MODE_CRYPT => trans('finance.debit_ride_crypt_payment'),
+			\RequestCharging::PAYMENT_MODE_ASSOCIATION => trans('finance.debit_ride_association_payment'),
+			\RequestCharging::PAYMENT_MODE_CARD_DEBIT => trans('finance.debit_ride_debitCard_payment'),
+			\RequestCharging::PAYMENT_MODE_BALANCE => trans('finance.debit_ride_credit_balance'),
+			\RequestCharging::PAYMENT_MODE_BILLING => trans('finance.debit_ride_credit_billing'),
+			\RequestCharging::PAYMENT_MODE_GATEWAY_PIX => trans('finance.debit_ride_credit_gateway_pix'),
+			\RequestCharging::PAYMENT_MODE_DIRECT_PIX => trans('finance.debit_ride_credit_direct_pix'),
+		] : [
+			\RequestCharging::PAYMENT_MODE_CARD => trans('finance.admin_debit_ride_card_payment'),
+			\RequestCharging::PAYMENT_MODE_MONEY => trans('finance.admin_debit_ride_credit'),
+			\RequestCharging::PAYMENT_MODE_CARTO => trans('finance.admin_debit_ride_carto_payment'),
+			\RequestCharging::PAYMENT_MODE_MACHINE => trans('finance.admin_debit_ride_debit_machine'),
+			\RequestCharging::PAYMENT_MODE_CRYPT => trans('finance.admin_debit_ride_crypt_payment'),
+			\RequestCharging::PAYMENT_MODE_ASSOCIATION => trans('finance.admin_debit_ride_association_payment'),
+			\RequestCharging::PAYMENT_MODE_CARD_DEBIT => trans('finance.admin_debit_ride_debitCard_payment'),
+			\RequestCharging::PAYMENT_MODE_BALANCE => trans('finance.admin_debit_ride_credit_balance'),
+			\RequestCharging::PAYMENT_MODE_BILLING => trans('finance.admin_debit_ride_credit_billing'),
+			\RequestCharging::PAYMENT_MODE_GATEWAY_PIX => trans('finance.admin_debit_ride_credit_gateway_pix'),
+			\RequestCharging::PAYMENT_MODE_DIRECT_PIX => trans('finance.admin_debit_ride_credit_direct_pix'),
+		];
 	}
 	
 }
