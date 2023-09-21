@@ -32,12 +32,6 @@ class GatewayPostbackController extends Controller
         if ($transaction && $transaction->ledger_id && $transaction->pix_copy_paste) {
             return $this->postbackPix($transaction->id, $request);
         }
-
-        //Verifica se essa transação é um pix
-        $transaction = Transaction::getTransactionByGatewayId($transactionId);
-        if ($transaction && $transaction->ledger_id && $transaction->pix_copy_paste) {
-            return $this->postbackPix($transaction->id, $ride);
-        }
         
         $gateway = LibsPaymentFactory::createGateway();
         $billetVerify = $gateway->billetVerify($request, $transactionId);
@@ -101,7 +95,7 @@ class GatewayPostbackController extends Controller
                     //Se a transaction ja esta com status pago, nao faz sentido adicionar um saldo para o usuário novamente
                     if(!$transaction->isPaid()) {
                         // Agora podemos dar baixa no pix
-                        // se a transação e referente a uma request
+                        // se a transação e referente a uma corrida
                         if($transaction->request_id) {
                             $ride = $transaction->ride;
                             $ride->setIsPaid();
@@ -109,7 +103,14 @@ class GatewayPostbackController extends Controller
                             //gera saldo para o motorista
                             if ($ride->confirmedProvider && $ride->confirmedProvider->Ledger) {
                                 $reason = trans('financeTrans::finance.webhook_pix_ride_credit') . $ride->id;
-                                Finance::createRideCredit($ride->confirmedProvider->Ledger->id, $transaction->provider_value * -1, $ride->id, $reason);
+                                LibModel::createRideCredit(
+                                    $ride->confirmedProvider->Ledger->id, 
+                                    $transaction->provider_value * -1, 
+                                    $ride->id, 
+                                    $reason, 
+                                    false, 
+                                    $transaction->id
+                                );
                             }
                         }  
                         // Atualiza os dados de transação via Pix
@@ -124,7 +125,15 @@ class GatewayPostbackController extends Controller
 
                             if(!$transaction->finance) {
                                 $description = trans('financeTrans::finance.webhook_pix_balance_credit') . $webhookRequest['id'];
-                                LibModel::createCustomEntry($transaction->ledger_id, Finance::SEPARATE_CREDIT, $description, $transaction->gross_value, null, null, $transaction->id);
+                                LibModel::createCustomEntry(
+                                    $transaction->ledger_id, 
+                                    Finance::SEPARATE_CREDIT, 
+                                    $description, 
+                                    $transaction->gross_value, 
+                                    null, 
+                                    null, 
+                                    $transaction->id
+                                );
                             }
                         }
                         $transaction->setStatusPaid();
