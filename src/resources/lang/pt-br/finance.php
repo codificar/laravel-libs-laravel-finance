@@ -285,4 +285,7 @@ return array(
 	'error_card' => 'Erro ao cadastrar o cartão, verifique os dados utilizados',
 	'card_not_found' => 'Cartão não encontrado ou não pertence ao usuário',
 	'card_refused' => 'O cartão foi recusado.',
+	'user_deleted' => 'Usuário Excluído?',
+	'yes' => 'Sim',
+	'no' => 'Não',
 );

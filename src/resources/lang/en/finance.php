@@ -280,5 +280,8 @@ return array(
 	'number_error' => 'Incomplete or missing number',
 	'data_error' => 'Data incomplete or not provided',
 	'cvc_error' => 'Incomplete or missing security code',
-	'error_card' => 'Error when registering the card, check the data used'
+	'error_card' => 'Error when registering the card, check the data used',
+	'user_deleted' => 'Deleted user?',
+	'yes' => 'Yes',
+	'no' => 'No',
 );

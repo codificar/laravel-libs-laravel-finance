@@ -147,6 +147,7 @@
               <th>{{ trans("finance.future_balance") }}</th>
               <th>{{ trans("finance.current_balance") }}</th>
               <th>{{ trans("finance.hit_value") }}</th>
+              <th>{{ trans("finance.user_deleted") }}</th>
               <th>{{ trans("finance.actions") }}</th>
             </tr>
             <tr v-for="(item, index) in consolidated_data.data" :key="index">
@@ -184,13 +185,21 @@
                 </span>
               </td>
               <td>
+                <span v-if="item.is_deleted" class="label label-danger label-rouded">
+                  {{ trans('finance.yes') }}
+                </span>
+                <span v-else class="label label-success label-rouded">
+                  {{ trans('finance.no') }}
+                </span>
+              </td>
+              <td>
                 <div class="dropdown">
-                    <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+                    <button class="btn btn-info dropdown-toggle" :disabled="item.is_deleted" type="button" id="dropdownMenu1" data-toggle="dropdown">
                         {{ trans('finance.action_grid') }}
                         <span class="caret"></span>
                     </button>
 
-                    <div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
+                    <div v-if="!item.is_deleted" class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
                       <!-- account_extract -->
                       <a class="dropdown-item" tabindex="-1" :href="item.extract_url">{{ trans('finance.account_statement') }}</a>
 

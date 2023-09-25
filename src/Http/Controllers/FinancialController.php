@@ -157,7 +157,6 @@ class FinancialController extends Controller
 			case Finance::TYPE_USER:
 				$id = \Auth::guard("clients")->user()->id;
 				$holder = User::find($id);
-				$holder->full_name = $holder->getFullName();
 				$page = 'finance::user_panel.userFinancial_summary';
 				$notfound = 'user_panel.userLogin';
 				$loginType = 'user';
@@ -166,7 +165,6 @@ class FinancialController extends Controller
 			case Finance::TYPE_PROVIDER:
 				$id = \Auth::guard("providers")->user()->id;
 				$holder = Provider::find($id);
-				$holder->full_name = $holder->getFullName();
 				$page = 'finance::provider_panel.financial_summary';
 				$notfound = 'provider_panel.login';
 				$loginType = 'provider';
@@ -177,7 +175,6 @@ class FinancialController extends Controller
 				$admin = \Admin::find($admin_id);
 				$institution = $admin->adminInstitution->institution;
 				$holder = AdminInstitution::getUserByAdminId($admin_id);
-				$holder->full_name = $institution->name;
 				$id = $holder->id;
 				$page = 'finance::corp.financial_summary';
 				$notfound = 'corp.login';
@@ -187,6 +184,8 @@ class FinancialController extends Controller
 		}
 		$label = Input::has('label-range') ? Input::get('label-range') : trans('finance.monthNames.'.date('n').'', array('y' => date('Y')));
 		if($holder && $holder->ledger){
+
+			$holder->full_name = $holder->getFullName();
 			if (Input::get('start_date') != ''){
 				$startDate = Carbon::createFromFormat('d/m/Y', Input::get('start_date'))->format('Y-m-d 00:00:00');
 			} else {
@@ -269,24 +268,21 @@ class FinancialController extends Controller
 			switch($type){
 				case Finance::TYPE_USER:
 					$holder = User::find($id);
-					$holder->full_name = $holder->getFullName();
 					$holderType = Finance::TYPE_USER;
 				break;
 				case Finance::TYPE_PROVIDER:
 					$holder = Provider::find($id);
-					$holder->full_name = $holder->getFullName();
 					$holderType = Finance::TYPE_PROVIDER;
 			}
+
 		} else if($path[0] == Finance::TYPE_USER) {
 			$id = \Auth::guard("clients")->user()->id;
 			$holder = User::find($id);
-			$holder->full_name = $holder->getFullName();
 			$loginType = 'user';
 			$holderType = Finance::TYPE_USER;
 		} else if($path[0] == Finance::TYPE_PROVIDER){
 			$id = \Auth::guard("providers")->user()->id;
 			$holder = Provider::find($id);
-			$holder->full_name = $holder->getFullName();
 			$loginType = 'provider';
 			$holderType = Finance::TYPE_PROVIDER;
 		}
@@ -298,6 +294,8 @@ class FinancialController extends Controller
 		}
 
 		if($holder && $holder->ledger){
+
+			$holder->full_name = $holder->getFullName();
 			$startDate = Input::get('start_date');
 			$endDate = Input::get('end_date');
 
@@ -367,7 +365,9 @@ class FinancialController extends Controller
 					]);
 			}
 		}else{
-			return View::make('notfound')->with('title', trans('adminController.page_not_found'))->with('page', trans('adminController.page_not_found'));
+			return View::make('notfound')
+				->with('title', trans('adminController.page_not_found'))
+				->with('page', trans('adminController.page_not_found'));
 		}
 	}
 

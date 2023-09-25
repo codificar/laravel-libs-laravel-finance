@@ -282,5 +282,8 @@ return array(
 	'number_error' => 'Número incompleto ou não fornecido',
 	'data_error' => 'Data incompleta ou não fornecida',
 	'cvc_error' => 'Código de segurança incompleto ou não fornecido',
-	'error_card' => 'Erro ao cadastrar o cartão, verifique os dados utilizados'
+	'error_card' => 'Erro ao cadastrar o cartão, verifique os dados utilizados',
+	'user_deleted' => 'Usuário Excluído?',
+	'yes' => 'Sim',
+	'no' => 'Não',
 );

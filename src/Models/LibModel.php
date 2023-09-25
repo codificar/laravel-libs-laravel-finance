@@ -642,9 +642,7 @@ class LibModel extends Eloquent
 				'provider.last_name as provider_lastname',
 				'institution.id as is_corp'
 			)
-			->whereNull('ledger.admin_id')
-			->whereNull('user.deleted_at')
-			->whereNull('provider.deleted_at')
+			->where('ledger.admin_id', null)
 			->leftJoin('user', 'user.id', '=', 'ledger.user_id')
 			->leftJoin('provider', 'provider.id', '=', 'ledger.provider_id')
 			->leftJoin('institution', 'institution.default_user_id', '=', 'ledger.user_id');
@@ -732,6 +730,13 @@ class LibModel extends Eloquent
 			$balances['payment_value_text'] = $balances['payment_value'] >= 0 ? self::currency_format($balances['payment_value']) : trans('financeTrans::finance.client_in_debit');
 
 			$item->balances = $balances;
+			if($item->user_id) {
+				$item->is_deleted = self::isUserDeleted($item->user_id);
+				
+			} elseif($item->provider_id) {
+				$item->is_deleted = self::isProviderDeleted($item->provider_id);
+			}
+			//$item->is_deleted = 
 			$item->user_type = $item->is_corp != null ? 'corp' : ($item->user_id != null ? 'user' : 'provider');
 			$item->user_name = $item->provider_id != null ? 
 				$item->provider_firstname . ' ' . $item->provider_lastname :
@@ -740,6 +745,43 @@ class LibModel extends Eloquent
 		}
 
 		return $leders;
+	}
+
+
+	/**
+	 * Verify if user is deleted
+	 * @param int $userId
+	 * 
+	 * @return bool
+	 * 
+	 */
+	public static function isUserDeleted(int $userId): bool
+	{
+		$user = \User::where('id', $userId)
+			->withTrashed()
+			->first();
+		if ($user->deleted_at) {
+			return true;
+		} 
+		return false;
+	}
+
+	/**
+	 * Verify if provider is deleted
+	 * @param int $providerId
+	 * 
+	 * @return bool
+	 * 
+	 */
+	public static function isProviderDeleted(int $providerId): bool
+	{
+		$provider = \Provider::where('id', $providerId)
+			->withTrashed()
+			->first();
+		if ($provider->deleted_at) {
+			return true;
+		} 
+		return false;
 	}
 
 	public static function currency_format($fltNumber, $chrAcronym = null, $intPrecision = 2, $chrDecimal = ',', $chrThousand = '.', $currency_formatting = true)

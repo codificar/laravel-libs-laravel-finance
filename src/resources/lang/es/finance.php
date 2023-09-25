@@ -283,5 +283,8 @@ return [
     'cvc_error' => 'Código de seguridad incompleto o no proporcionado',
     'error_card' => 'Error al registrar la tarjeta, verifique los datos utilizados',
     'card_not_found' => 'Tarjeta no encontrada o no pertenece al usuario',
-    'card_refused' => 'La tarjeta fue rechazada'
+    'card_refused' => 'La tarjeta fue rechazada',
+	'user_deleted' => '¿Usuario eliminado?',
+	'yes' => 'Sí',
+	'no' => 'No',
 ];
