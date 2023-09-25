@@ -642,7 +642,9 @@ class LibModel extends Eloquent
 				'provider.last_name as provider_lastname',
 				'institution.id as is_corp'
 			)
-			->where('ledger.admin_id', null)
+			->whereNull('ledger.admin_id')
+			->whereNull('user.deleted_at')
+			->whereNull('provider.deleted_at')
 			->leftJoin('user', 'user.id', '=', 'ledger.user_id')
 			->leftJoin('provider', 'provider.id', '=', 'ledger.provider_id')
 			->leftJoin('institution', 'institution.default_user_id', '=', 'ledger.user_id');
