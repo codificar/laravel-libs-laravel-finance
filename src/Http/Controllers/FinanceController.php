@@ -43,6 +43,7 @@ use Codificar\Finance\Http\Resources\BalanceResource;
 use Codificar\Finance\Http\Resources\AddCreditCardResource;
 use Codificar\Finance\Imports\PaymentsImport;
 use Codificar\Finance\Models\Transaction;
+use Codificar\PaymentGateways\Libs\PagarmeApi;
 use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
 use Input, Validator, View, Response, Session;
 use Finance, Admin, Settings, Provider, ProviderStatus, User, EmailTemplate, Request, Payment, AdminInstitution, Ledger, URL, RequestCharging, Requests;
@@ -1157,7 +1158,15 @@ class FinanceController extends Controller {
 		} else if(Input::get('request_id')) {
 			$transaction = Transaction::getTransactionByRequestId(Input::get('request_id'));
 		}
-			
+
+		if ($transaction) {
+			$retrieveTransactionStatus = PagarmeApi::retrieve($transaction)->data->status;
+			if($transaction->status !== 'paid'){
+				$transaction->status = $retrieveTransactionStatus;
+				$transaction->save();
+			}
+		}
+		
 		if(!$transaction) {
 			return (new RetrievePixResource([
 				'success' 			=> false,
