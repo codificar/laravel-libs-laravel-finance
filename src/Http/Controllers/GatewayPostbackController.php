@@ -70,13 +70,28 @@ class GatewayPostbackController extends Controller
             return Response::json(["success" => true], 200);
         }
 
+
         $gatewayPix = Settings::getDefaultPaymentPix();
 
         if($gatewayPix == 'ipag') {
             $this->postbackPixIpag($request);
         } else if($gatewayPix == 'juno'){
             $this->postbackPixJuno($transactionId, $request);
+        } else if($gatewayPix == 'pagarme') {
+            $this->postbackPixPagarme($request);
         }
+    }
+
+
+    private function postbackPixPagarme(Request $request)
+    {
+        $request->data['charges'][0]['id'];
+        if ($request->data['status'] == 'paid') {
+            $transaction = Transaction::where('gateway_transaction_id', $request->data['charges'][0]['id'])->first();
+            $transaction->status = $request->data['status'];
+            $transaction->save();
+        }
+        event(new PixUpdate($transaction->id, true, false));
     }
 
     /**
