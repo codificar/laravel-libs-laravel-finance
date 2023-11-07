@@ -66,19 +66,20 @@ class GatewayPostbackController extends Controller
      */
     public function postbackPix($transactionId, Request $request)
     {
+
         if($request && $request->method() == 'GET') {
             return Response::json(["success" => true], 200);
         }
 
 
         $gatewayPix = Settings::getDefaultPaymentPix();
-
         if($gatewayPix == 'ipag') {
             $this->postbackPixIpag($request);
         } else if($gatewayPix == 'juno'){
             $this->postbackPixJuno($transactionId, $request);
         } else if($gatewayPix == 'pagarme') {
             $this->postbackPixPagarme($request);
+<<<<<<< Updated upstream
         }
     }
 
@@ -90,8 +91,24 @@ class GatewayPostbackController extends Controller
             $transaction = Transaction::where('gateway_transaction_id', $request->data['charges'][0]['id'])->first();
             $transaction->status = $request->data['status'];
             $transaction->save();
+=======
+>>>>>>> Stashed changes
         }
         event(new PixUpdate($transaction->id, true, false));
+    }
+
+
+    private function postbackPixPagarme(Request $request)
+    {
+        if ($request->data['charges'][0]['payment_method'] == 'pix') {
+            if ($request->data['status'] == 'paid') {
+                $transaction = Transaction::where('gateway_transaction_id', $request->data['charges'][0]['id'])->first();
+                $transaction->status = $request->data['status'];
+                $transaction->save();
+            }
+            event(new PixUpdate($transaction->id, true, false));
+        }
+
     }
 
     /**
