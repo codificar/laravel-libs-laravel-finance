@@ -1,7 +1,6 @@
 <?php
 namespace Codificar\Finance\Models;
 
-use App\Http\Requests\Request;
 use Eloquent;
 use Requests;
 

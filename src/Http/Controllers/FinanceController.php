@@ -1158,16 +1158,7 @@ class FinanceController extends Controller {
 		} else if(Input::get('request_id')) {
 			$transaction = Transaction::getTransactionByRequestId(Input::get('request_id'));
 		}
-		// remover
 
-		// if ($transaction) {
-		// 	$retrieveTransactionStatus = PagarmeApi::retrieve($transaction)->data->status;
-		// 	if($transaction->status !== 'paid'){
-		// 		$transaction->status = $retrieveTransactionStatus;
-		// 		$transaction->save();
-		// 	}
-		// }
-		
 		if(!$transaction) {
 			return (new RetrievePixResource([
 				'success' 			=> false,
