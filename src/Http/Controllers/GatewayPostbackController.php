@@ -72,6 +72,9 @@ class GatewayPostbackController extends Controller
 
 
         $gatewayPix = Settings::getDefaultPaymentPix();
+        if (!$gatewayPix) {
+            $gatewayPix = Settings::getDefaultPayment();
+        }
 
         if($gatewayPix == 'ipag') {
             $this->postbackPixIpag($request);
