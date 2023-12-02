@@ -2,6 +2,7 @@
 namespace Codificar\Finance\Models;
 
 use Eloquent;
+use Requests;
 
 class Transaction extends Eloquent
 {
@@ -131,6 +132,11 @@ class Transaction extends Eloquent
 	public static function getTransactionByRequestId($requestId)
 	{
 		$request = self::where('request_id', $requestId)->first();
+		//se nao encontra a request busca pela scheduleID
+		if (!$request) {
+			$request = Requests::where('scheduled_id', $requestId)->first();
+			$request = self::where('request_id', $request->id)->first();
+		}
 
 		if ($request) {
 			return $request;
