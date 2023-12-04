@@ -211,7 +211,7 @@ class FinancialController extends Controller
 				$types = Finance::TYPES; //Prepares Finance types array to be used on vue component
 				$banks  = Bank::orderBy('code', 'asc')->get(); //List of banks
 				$account_types = LedgerBankAccount::getAccountTypes(); //List of AccountTypes
-				$currency = Settings::findByKey('generic_keywords_currency');
+
 				// Pega o símbolo da moeda
 				$currency_symbol = LibModel::getCurrencySymbol() . " ";
 
@@ -238,7 +238,6 @@ class FinancialController extends Controller
 						'account_types' 	=> $account_types,
 						'withdrawsettings' 	=> $withDrawSettings,
 						'currency_symbol' 	=> $currency_symbol,
-						'currency' 			=> $currency,
 						'holder_type' 		=> $holderType
 					]);
 			}

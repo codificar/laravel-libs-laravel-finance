@@ -30,7 +30,6 @@
             :with-draw-settings="withDrawSettings"
             :available-balance="balanceData.total_balance"
             :currency-symbol="currencySymbol"
-            :currency="currency"
         ></modalrequestwithdraw>
         <!-- Modal request with draw: Solicitar saque -->
         
@@ -397,7 +396,6 @@ export default {
         "accountTypes",
         "withDrawSettings",
         "currencySymbol",
-        "currency",
         "holderType",
         'balanceData'
     ],
@@ -585,25 +583,9 @@ export default {
             this.dateFormat = "DD/MM/YYYY";
         },
         formatCurrency(value) {
-            if (value != undefined && value != "") {
-                let locale = "pt-br";
-                let formatterOptions = {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                    style: "decimal",
-                };
-
-                if (this.currency == "PYG") {
-                    formatterOptions.minimumFractionDigits = 0;
-                    formatterOptions.maximumFractionDigits = 0;
-                    formatterOptions.useGrouping = false;
-                    formatterOptions.style = "decimal";
-                    locale = "es-py";
-                }
-
-                const formatter = new Intl.NumberFormat(locale, formatterOptions);
-                const formattedValue = formatter.format(parseInt(value));
-                return this.currencySymbol + " " + formattedValue;
+            if (value != undefined || value != "") {
+                let val = (value / 1).toFixed(2).replace('.', ',')
+                return this.currencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
             } else {
                 return "";
             }

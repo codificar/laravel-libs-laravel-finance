@@ -26,7 +26,6 @@
 		:account-types="{{ json_encode($account_types) }}"
 		:with-draw-settings="{{ json_encode($withdrawsettings) }}"
 		currency-symbol="{{ $currency_symbol }}"
-		currency="{{ $currency }}"
 		holder-type="{{ $holder_type }}"
 	></financial-account-statement>	
 </div>

@@ -3216,7 +3216,6 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
 //
 //
 //
-//
 
 
 
@@ -3224,7 +3223,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ["Enviroment", "holder", "loginType", "FinanceTypes", "bankAccounts", "banks", "accountTypes", "withDrawSettings", "currencySymbol", "currency", "holderType", 'balanceData'],
+  props: ["Enviroment", "holder", "loginType", "FinanceTypes", "bankAccounts", "banks", "accountTypes", "withDrawSettings", "currencySymbol", "holderType", 'balanceData'],
   components: {
     modalentry: _modal_entry_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
     modalrequestwithdraw: _modal_request_withdraw_vue__WEBPACK_IMPORTED_MODULE_4__["default"],
@@ -3390,25 +3389,9 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
       this.dateFormat = "DD/MM/YYYY";
     },
     formatCurrency: function formatCurrency(value) {
-      if (value != undefined && value != "") {
-        var locale = "pt-br";
-        var formatterOptions = {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-          style: "decimal"
-        };
-
-        if (this.currency == "PYG") {
-          formatterOptions.minimumFractionDigits = 0;
-          formatterOptions.maximumFractionDigits = 0;
-          formatterOptions.useGrouping = false;
-          formatterOptions.style = "decimal";
-          locale = "es-py";
-        }
-
-        var formatter = new Intl.NumberFormat(locale, formatterOptions);
-        var formattedValue = formatter.format(parseInt(value));
-        return this.currencySymbol + " " + formattedValue;
+      if (value != undefined || value != "") {
+        var val = (value / 1).toFixed(2).replace('.', ',');
+        return this.currencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
       } else {
         return "";
       }
@@ -3593,7 +3576,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ["Ledger", "BankAccounts", "BankList", "BankAccountId", "AvailableBalance", "WithDrawSettings", "CurrencySymbol", "Currency"],
+  props: ["Ledger", "BankAccounts", "BankList", "BankAccountId", "AvailableBalance", "WithDrawSettings", "CurrencySymbol"],
   data: function data() {
     return {
       ledger: "",
@@ -3604,8 +3587,7 @@ __webpack_require__.r(__webpack_exports__);
       bank_accounts: [],
       bank_account: "",
       bank_account_id: "",
-      currency_symbol: "",
-      currency: ""
+      currency_symbol: ""
     };
   },
   methods: {
@@ -3628,24 +3610,8 @@ __webpack_require__.r(__webpack_exports__);
     },
     formatCurrency: function formatCurrency(value) {
       if (value != undefined || value != "") {
-        var locale = "pt-br";
-        var formatterOptions = {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-          style: "decimal"
-        };
-
-        if (this.currency == "PYG") {
-          formatterOptions.minimumFractionDigits = 0;
-          formatterOptions.maximumFractionDigits = 0;
-          formatterOptions.useGrouping = false;
-          formatterOptions.style = "decimal";
-          locale = "es-py";
-        }
-
-        var formatter = new Intl.NumberFormat(locale, formatterOptions);
-        var formattedValue = formatter.format(parseInt(value));
-        return this.currencySymbol + " " + formattedValue;
+        var val = (value / 1).toFixed(2).replace('.', ',');
+        return this.currency_symbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
       } else {
         return "";
       }
@@ -3667,7 +3633,6 @@ __webpack_require__.r(__webpack_exports__);
     this.banks = this.BankList;
     this.bank_Account_id = this.BankAccountId;
     this.currency_symbol = this.CurrencySymbol;
-    this.currency = this.Currency;
   }
 });
 
@@ -66580,7 +66545,6 @@ var render = function () {
           "with-draw-settings": _vm.withDrawSettings,
           "available-balance": _vm.balanceData.total_balance,
           "currency-symbol": _vm.currencySymbol,
-          currency: _vm.currency,
         },
         on: {
           newBankAccount: _vm.showModalNewBankAccount,

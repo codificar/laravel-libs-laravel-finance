@@ -7,8 +7,7 @@ export default {
     "BankAccountId",
     "AvailableBalance",
     "WithDrawSettings",
-    "CurrencySymbol",
-    "Currency"
+    "CurrencySymbol"
   ],
   data() {
     return {
@@ -20,8 +19,7 @@ export default {
       bank_accounts: [],
       bank_account: "",
       bank_account_id: "",
-      currency_symbol: "",
-      currency: ""
+      currency_symbol: ""
     };
   },
   methods: {
@@ -57,28 +55,12 @@ export default {
     },
     formatCurrency(value) {
       if (value != undefined || value != "") {
-        let locale = "pt-br";
-        let formatterOptions = {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-          style: "decimal",
-        };
-
-        if (this.currency == "PYG") {
-          formatterOptions.minimumFractionDigits = 0;
-          formatterOptions.maximumFractionDigits = 0;
-          formatterOptions.useGrouping = false;
-          formatterOptions.style = "decimal";
-          locale = "es-py";
-        }
-
-        const formatter = new Intl.NumberFormat(locale, formatterOptions);
-        const formattedValue = formatter.format(parseInt(value));
-        return this.currencySymbol + " " + formattedValue;
+        let val = (value / 1).toFixed(2).replace('.', ',')
+        return this.currency_symbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
       } else {
         return "";
       }
-    }    
+    },
   },
   // Watches for changes on props or data
   watch: {
@@ -96,7 +78,6 @@ export default {
     this.banks = this.BankList;
     this.bank_Account_id = this.BankAccountId;
     this.currency_symbol = this.CurrencySymbol;
-    this.currency = this.Currency;
   }
 };
 </script>
