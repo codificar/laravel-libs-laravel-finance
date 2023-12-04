@@ -7,7 +7,8 @@ export default {
     "BankAccountId",
     "AvailableBalance",
     "WithDrawSettings",
-    "CurrencySymbol"
+    "CurrencySymbol",
+    "Currency"
   ],
   data() {
     return {
@@ -19,7 +20,8 @@ export default {
       bank_accounts: [],
       bank_account: "",
       bank_account_id: "",
-      currency_symbol: ""
+      currency_symbol: "",
+      currency: ""
     };
   },
   methods: {
@@ -54,9 +56,25 @@ export default {
       this.$emit("newBankAccount");
     },
     formatCurrency(value) {
-      if (value != undefined || value != "") {                
-        let val = (value/1).toFixed(2).replace('.', ',')
-        return this.currency_symbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+      if (value != undefined || value != "") {
+        let locale = "pt-br";
+        let formatterOptions = {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+          style: "decimal",
+        };
+
+        if (this.currency == "PYG") {
+          formatterOptions.minimumFractionDigits = 0;
+          formatterOptions.maximumFractionDigits = 0;
+          formatterOptions.useGrouping = false;
+          formatterOptions.style = "decimal";
+          locale = "es-py";
+        }
+
+        const formatter = new Intl.NumberFormat(locale, formatterOptions);
+        const formattedValue = formatter.format(parseInt(value));
+        return this.currencySymbol + " " + formattedValue;
       } else {
         return "";
       }
@@ -78,6 +96,7 @@ export default {
     this.banks = this.BankList;
     this.bank_Account_id = this.BankAccountId;
     this.currency_symbol = this.CurrencySymbol;
+    this.currency = this.Currency;
   }
 };
 </script>
