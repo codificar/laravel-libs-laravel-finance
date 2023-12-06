@@ -43,6 +43,7 @@ use Codificar\Finance\Http\Resources\BalanceResource;
 use Codificar\Finance\Http\Resources\AddCreditCardResource;
 use Codificar\Finance\Imports\PaymentsImport;
 use Codificar\Finance\Models\Transaction;
+use Codificar\PaymentGateways\Libs\PagarmeApi;
 use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
 use Input, Validator, View, Response, Session;
 use Finance, Admin, Settings, Provider, ProviderStatus, User, EmailTemplate, Request, Payment, AdminInstitution, Ledger, URL, RequestCharging, Requests;
@@ -1157,7 +1158,7 @@ class FinanceController extends Controller {
 		} else if(Input::get('request_id')) {
 			$transaction = Transaction::getTransactionByRequestId(Input::get('request_id'));
 		}
-			
+
 		if(!$transaction) {
 			return (new RetrievePixResource([
 				'success' 			=> false,
@@ -1349,7 +1350,10 @@ class FinanceController extends Controller {
 			'direct_pix_code' 	=> RequestCharging::PAYMENT_MODE_DIRECT_PIX,
 
 			'machine' 			=> (bool)Settings::getPaymentMachine(),
-			'machine_code' 		=> RequestCharging::PAYMENT_MODE_MACHINE
+			'machine_code' 		=> RequestCharging::PAYMENT_MODE_MACHINE,
+
+			'card' 				=> (bool)Settings::getPaymentCard(),
+			'card_code' 		=> RequestCharging::PAYMENT_MODE_CARD
 		));
 	}
 
@@ -1375,6 +1379,10 @@ class FinanceController extends Controller {
 					//faz a logica da cobranca com a nova forma de pagamento
 					\RequestCharging::requestCompleteCharge($req->id);
 				}
+				if ($request->new_payment_mode == RequestCharging::PAYMENT_MODE_CARD) {
+					$response = RequestCharging::chargeNoCapture($req->user_id, $req->total, $req->provider_commission, $req->confirmed_provider, 0);
+				}
+
 				//dispara eveneto para o usuario
 				event(new PixUpdate($req->request_price_transaction_id, false, true));
 
