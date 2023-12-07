@@ -3223,7 +3223,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ["Enviroment", "holder", "loginType", "FinanceTypes", "bankAccounts", "banks", "accountTypes", "withDrawSettings", "currencySymbol", "holderType", 'balanceData'],
+  props: ["Enviroment", "holder", "loginType", "FinanceTypes", "bankAccounts", "banks", "accountTypes", "withDrawSettings", "currencySymbol", "holderType", 'balanceData', 'currency'],
   components: {
     modalentry: _modal_entry_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
     modalrequestwithdraw: _modal_request_withdraw_vue__WEBPACK_IMPORTED_MODULE_4__["default"],
@@ -3390,8 +3390,18 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
     },
     formatCurrency: function formatCurrency(value) {
       if (value != undefined || value != "") {
-        var val = (value / 1).toFixed(2).replace('.', ',');
-        return this.currencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        var formattedValue = "";
+
+        if (this.currency == "PYG") {
+          var val = (value / 1).toFixed().replace('.', ',');
+          formattedValue = this.currencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "");
+        } else {
+          var _val = (value / 1).toFixed(2).replace('.', ',');
+
+          formattedValue = this.currencySymbol + " " + _val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        return formattedValue;
       } else {
         return "";
       }
@@ -3693,7 +3703,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ["Enviroment", "user_balance", "user_cards", "save_payment_route", "request_payment_route", "add_new_billet_route", "add_new_pix_route", "pix_screen_route", "financial_report_route", "delete_user_card", "PrepaidSettings", "CurrencySymbol", "IframeAddCard"],
+  props: ["Enviroment", "user_balance", "user_cards", "save_payment_route", "request_payment_route", "add_new_billet_route", "add_new_pix_route", "pix_screen_route", "financial_report_route", "delete_user_card", "PrepaidSettings", "CurrencySymbol", "IframeAddCard", "Currency"],
 
   /**
    *
@@ -3830,7 +3840,7 @@ __webpack_require__.r(__webpack_exports__);
 
       if (this.value == 0 || this.value < minValue) {
         this.$swal({
-          title: this.trans("finance.value_cant_be_lower") + " " + minValue.toFixed(2),
+          title: this.trans("finance.value_cant_be_lower") + " " + this.formatCurrency(minValue),
           type: "error"
         });
         return;
@@ -3839,7 +3849,7 @@ __webpack_require__.r(__webpack_exports__);
       var totalPix = 0;
       var textMsg = "";
       totalPix = parseFloat(this.value);
-      textMsg = this.trans("finance.confirm_create_pix") + ": " + this.CurrencySymbol + totalPix.toFixed(2);
+      textMsg = this.trans("finance.confirm_create_pix") + ": " + this.formatCurrency(totalPix);
       this.$swal({
         title: this.trans("finance.confirm_payment"),
         text: textMsg,
@@ -3877,7 +3887,7 @@ __webpack_require__.r(__webpack_exports__);
 
       if (this.value == 0 || this.value < minValue) {
         this.$swal({
-          title: this.trans("finance.value_cant_be_lower") + " " + minValue.toFixed(2),
+          title: this.trans("finance.value_cant_be_lower") + " " + this.formatCurrency(minValue),
           type: "error"
         });
         return;
@@ -3888,10 +3898,10 @@ __webpack_require__.r(__webpack_exports__);
 
       if (this.prepaid_settings.prepaid_tax_billet && parseFloat(this.prepaid_settings.prepaid_tax_billet) > 0) {
         totalBillet = parseFloat(this.value) + parseFloat(this.prepaid_settings.prepaid_tax_billet);
-        textMsg = this.trans("finance.tax_value") + ": " + this.CurrencySymbol + this.prepaid_settings.prepaid_tax_billet + ". " + this.trans("finance.total") + ": " + this.CurrencySymbol + totalBillet.toFixed(2);
+        textMsg = this.trans("finance.tax_value") + ": " + this.CurrencySymbol + this.prepaid_settings.prepaid_tax_billet + ". " + this.trans("finance.total") + ": " + this.formatCurrency(totalBillet);
       } else {
         totalBillet = parseFloat(this.value);
-        textMsg = this.trans("finance.confirm_create_billet_msg") + ": " + this.CurrencySymbol + totalBillet.toFixed(2);
+        textMsg = this.trans("finance.confirm_create_billet_msg") + ": " + this.formatCurrency(totalBillet);
       }
 
       this.$swal({
@@ -3996,10 +4006,23 @@ __webpack_require__.r(__webpack_exports__);
         });
       });
     },
-    formatNumber: function formatNumber(num) {
-      var numF = parseFloat(num).toFixed(2);
-      numF = numF.toString().replace('.', ',');
-      return this.CurrencySymbol + numF;
+    formatCurrency: function formatCurrency(value) {
+      if (value != undefined || value != "") {
+        var formattedValue = "";
+
+        if (this.Currency == "PYG") {
+          var val = (value / 1).toFixed().replace('.', ',');
+          formattedValue = this.CurrencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "");
+        } else {
+          var _val = (value / 1).toFixed(2).replace('.', ',');
+
+          formattedValue = this.CurrencySymbol + " " + _val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        return formattedValue;
+      } else {
+        return "";
+      }
     },
     alertDeleteCard: function alertDeleteCard(card_id, last_four) {
       var _this7 = this;
@@ -68990,7 +69013,7 @@ var render = function () {
                         _vm._s(
                           _vm.trans("finance.value_to_pay") +
                             ": " +
-                            _vm.formatNumber(_vm.value)
+                            _vm.formatCurrency(_vm.value)
                         ) +
                         "\n            "
                     ),
