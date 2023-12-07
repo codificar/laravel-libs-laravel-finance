@@ -383,7 +383,7 @@
 							<td style="text-align:center;" >
 								<?php
 									$tipoClass = ($balances[$key]['period_balance'] >= 0) ? 'text-success': "text-danger";
-									echo"<span class='$tipoClass'>$currency_symbol ".number_format($balances[$key]['period_balance'], 2, ',', ' ')."</span>";
+									echo"<span class='$tipoClass'>". currency_format($balances[$key]['period_balance']) . "</span>";
 								?>
 							</td>
 						@endif
@@ -393,21 +393,21 @@
 								$entries = $balances[$key];	
 								$total_future = $entries['total_balance'] - $entries['current_balance'];
 								$tipoClass = ($total_future >= 0) ? 'text-success': "text-danger";
-								echo "<span class='$tipoClass'>$currency_symbol ".number_format($total_future, 2, ',', ' ')."</span>"
+								echo "<span class='$tipoClass'>" . currency_format($total_future) . "</span>"
 							?>
 						</td>
 						
 						<td style="white-space:nowrap;">
 							<?php
 								$value = $balances[$key]['current_positive_balance'] ?? 0;
-								echo "<span class='text-success'> $currency_symbol ".number_format($value, 2, ',', ' ')."</span>"
+								echo "<span class='text-success'>" . currency_format($value) . "</span>"
 							?>
 						</td>
 
 						<td style="white-space:nowrap;">
 							<?php
 								$value = $balances[$key]['current_negative_balance'] ?? 0;	
-								echo "<span class='text-danger'> $currency_symbol ".number_format($value, 2, ',', ' ')."</span>"
+								echo "<span class='text-danger'> " . currency_format($value) . "</span>"
 							?>
 						</td>
 
@@ -415,7 +415,7 @@
 							<?php
 								$entries = $balances[$key];	
 								$tipoClass = ($entries['total_balance'] >= 0) ? 'text-success': "text-danger";
-								echo "<span class='$tipoClass'>$currency_symbol ".number_format($entries['total_balance'], 2, ',', ' ')."</span>"
+								echo "<span class='$tipoClass'>" . currency_format($entries['total_balance']) . "</span>"
 							?>
 						</td>
 
@@ -423,7 +423,7 @@
 							<?php
 								$entries = $balances[$key];	
 								$tipoClass = ($entries['current_balance'] >= 0) ? 'text-success': "text-danger";
-								echo "<span class='$tipoClass'>$currency_symbol ".number_format($entries['current_balance'], 2, ',', ' ')."</span>"
+								echo "<span class='$tipoClass'>" . currency_format($entries['current_balance']) . "</span>"
 							?>
 						</td>
 
@@ -431,7 +431,7 @@
 							<?php
 								$entries = $balances[$key];
 								if ($entries['current_balance'] >= 0)	{
-									echo "<span class='$tipoClass'>$currency_symbol ".number_format($entries['current_balance'], 2, ',', ' ')."</span>";
+									echo "<span class='$tipoClass'>" . currency_format($entries['current_balance']) . "</span>";
 								} else {
 									echo trans('financeTrans::finance.provider_in_debit');
 								}

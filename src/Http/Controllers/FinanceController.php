@@ -628,6 +628,7 @@ class FinanceController extends Controller {
         $user_balance = $enviroment['holder']->getBalance();
 
 		$currency_symbol = LibModel::getCurrencySymbol() . " ";
+		$currency = Settings::findByKey('generic_keywords_currency');
 
 		$iframe_add_card = null;
 		//if gateway is juno, the add card is iframe
@@ -642,7 +643,8 @@ class FinanceController extends Controller {
 						->with('user_cards', $user_cards)
 						->with('prepaid_settings', $this->getAddBalanceSettings())
 						->with('currency_symbol', $currency_symbol)
-						->with('iframe_add_card', $iframe_add_card);
+						->with('iframe_add_card', $iframe_add_card)
+						->with('currency', $currency);
 
 
 
