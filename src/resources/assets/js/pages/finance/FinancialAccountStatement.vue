@@ -397,7 +397,8 @@ export default {
         "withDrawSettings",
         "currencySymbol",
         "holderType",
-        'balanceData'
+        'balanceData',
+        'currency'
     ],
     components: {
         modalentry: ModalEntry,
@@ -584,8 +585,15 @@ export default {
         },
         formatCurrency(value) {
             if (value != undefined || value != "") {
-                let val = (value / 1).toFixed(2).replace('.', ',')
-                return this.currencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                let formattedValue = ""
+                if (this.currency == "PYG") {
+                    let val = (value / 1).toFixed().replace('.', ',')
+                    formattedValue = this.currencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "")
+                } else {
+                    let val = (value / 1).toFixed(2).replace('.', ',')
+                    formattedValue = this.currencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                }
+                return formattedValue
             } else {
                 return "";
             }

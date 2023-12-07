@@ -214,7 +214,8 @@ class FinancialController extends Controller
 
 				// Pega o símbolo da moeda
 				$currency_symbol = LibModel::getCurrencySymbol() . " ";
-
+				$currency = Settings::findByKey('generic_keywords_currency');
+				
 				$withDrawSettings = array(
 					'with_draw_enabled' 	=> Settings::getWithDrawEnabled(),
 					'with_draw_max_limit' 	=> Settings::getWithDrawMaxLimit(),
@@ -238,7 +239,8 @@ class FinancialController extends Controller
 						'account_types' 	=> $account_types,
 						'withdrawsettings' 	=> $withDrawSettings,
 						'currency_symbol' 	=> $currency_symbol,
-						'holder_type' 		=> $holderType
+						'holder_type' 		=> $holderType,
+						'currency'   		=> $currency
 					]);
 			}
 		}else { //if($holder && $holder->ledger)
@@ -330,7 +332,8 @@ class FinancialController extends Controller
 
 			// Pega o símbolo da moeda
 			$currency_symbol = LibModel::getCurrencySymbol() . " ";
-			
+			$currency = Settings::findByKey('generic_keywords_currency');
+
 			// With draw settings
 			$withDrawSettings = array(
 				'with_draw_enabled' 	=> Settings::getWithDrawEnabled(),
@@ -361,7 +364,8 @@ class FinancialController extends Controller
 						'account_types' => $account_types,
 						'withdrawsettings' => $withDrawSettings,
 						'currency_symbol' => $currency_symbol,
-						'holder_type' => $holderType
+						'holder_type' => $holderType,
+						'currency' => $currency
 					]);
 			}
 		}else{
