@@ -54,6 +54,7 @@ return array(
 	'op_ride_payment_fail_debit'	=> 'Débito por falha no pagamento',
 	'op_ride_cancellation_credit'	=> 'Crédito por cancelamento de corrida',
 	'op_separate_credit' 			=> 'Crédito Avulso',
+	'op_pix_payment' 			    => 'Pagamento via pix',
 	'op_separate_debit' 			=> 'Débito Avulso',
 	'op_withdraw' 					=> 'Saque',
 	'op_withdraw_requested' 		=> 'Saque solicitado',

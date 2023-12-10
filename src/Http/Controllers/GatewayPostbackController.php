@@ -70,12 +70,38 @@ class GatewayPostbackController extends Controller
             return Response::json(["success" => true], 200);
         }
 
+
         $gatewayPix = Settings::getDefaultPaymentPix();
+        if (!$gatewayPix) {
+            $gatewayPix = Settings::getDefaultPayment();
+        }
 
         if($gatewayPix == 'ipag') {
             $this->postbackPixIpag($request);
         } else if($gatewayPix == 'juno'){
             $this->postbackPixJuno($transactionId, $request);
+        } else if($gatewayPix == 'pagarme') {
+            $this->postbackPixPagarme($request);
+        }
+    }
+
+
+    /**
+     * Caso o webhook capturado seja pagarme, verifica se o metodo de pagamento foi pix. 
+     * Caso tenha sido, verifica se o status de pagamento está como pago e atualiza na tabela transaction com o estado da cobrança.
+     * @param Request
+     */
+    private function postbackPixPagarme(Request $request)
+    {
+
+        if ($request->data['charges'][0]['payment_method'] == 'pix') {
+            if ($request->data['status'] == 'paid') {
+                $transaction = Transaction::where('gateway_transaction_id', $request->data['charges'][0]['id'])->first();
+                $transaction->status = $request->data['status'];
+                $transaction->split_status = $request->data['status'];
+                $transaction->save();
+            }
+            event(new PixUpdate($transaction->id, true, false));
         }
     }
 
