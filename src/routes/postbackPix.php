@@ -5,4 +5,5 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
     Route::get('/libs/finance/postback/pix/{transactionid}', 'GatewayPostbackController@postbackPix');
     
     Route::post('/libs/finance/postback/pix', 'GatewayPostbackController@postbackPix')->name('GatewayPostbackPix');
+    Route::post('/libs/finance/postbackpixpagarme', 'GatewayPostbackController@getPostBackPixPagarme')->name('getGatewayPostbackPixPagarme');
 });
