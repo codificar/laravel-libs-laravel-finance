@@ -51,6 +51,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
 use DB;
 use Illuminate\Http\Response as HttpResponse;
+use ScheduledRequests;
 use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class FinanceController extends Controller {
@@ -1370,7 +1371,30 @@ class FinanceController extends Controller {
 		try {
 			$providerId = $request->provider_id ? $request->provider_id : $request->id;
 			$req = Requests::find($request->request_id);
-			if($req && $req->confirmed_provider == $providerId) {
+			if (!$req) {
+				$req = Requests::where('scheduled_id', $request->request_id)->first();
+			}
+			if (Settings::changePaymentByUser() == 1) {
+				if ($request->new_payment_mode == RequestCharging::PAYMENT_MODE_CARD) {
+					$req->payment_mode = $request->new_payment_mode;
+					$req->save();
+
+
+					//dispara eveneto para o usuario
+					event(new PixUpdate($req->request_price_transaction_id, false, true));
+
+					$response = RequestCharging::chargeNoCapture($req->user_id, $req->total, $req->provider_commission, $req->confirmed_provider, $request->new_payment_mode);
+					if ($response->status == 'paid') {
+						$req->is_paid = 1;
+						$req->save();
+						return response()->json([
+							'success' => true,
+							'bill' => $req->getBill()
+						]);
+					}
+				}
+			}
+			if($req && $req->confirmed_provider == $providerId && Settings::changePaymentByUser() == 0) {
 				if($req->payment_mode == RequestCharging::PAYMENT_MODE_GATEWAY_PIX) {
 					// troca a forma de pagamento
 					$req->payment_mode = $request->new_payment_mode;
@@ -1379,10 +1403,6 @@ class FinanceController extends Controller {
 					//faz a logica da cobranca com a nova forma de pagamento
 					\RequestCharging::requestCompleteCharge($req->id);
 				}
-				if ($request->new_payment_mode == RequestCharging::PAYMENT_MODE_CARD) {
-					$response = RequestCharging::chargeNoCapture($req->user_id, $req->total, $req->provider_commission, $req->confirmed_provider, 0);
-				}
-
 				//dispara eveneto para o usuario
 				event(new PixUpdate($req->request_price_transaction_id, false, true));
 
