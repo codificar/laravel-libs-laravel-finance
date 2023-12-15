@@ -28,6 +28,8 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/retrieve_pix', 'FinanceController@retrievePix');
         Route::post('/add_credit_card', 'FinanceController@addCreditCardUser');
         Route::get('/financial/user_summary', 'FinanceController@getProviderSummaryByTypeAndDate');
+        Route::get('/change_pix_payment_types', 'FinanceController@changePixPaymentTypes');
+        Route::post('/change_pix_payment', 'FinanceController@changePixPayment');
     });
     
     Route::group(['prefix' => 'libs/finance', 'middleware' => 'checkProviderOrUser'], function () {
