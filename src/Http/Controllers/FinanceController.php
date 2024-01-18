@@ -1392,6 +1392,22 @@ class FinanceController extends Controller {
 							'bill' => $req->getBill()
 						]);
 					}
+				} else {
+					if($req->payment_mode == RequestCharging::PAYMENT_MODE_GATEWAY_PIX) {
+						// troca a forma de pagamento
+						$req->payment_mode = $request->new_payment_mode;
+						$req->save();
+	
+						//faz a logica da cobranca com a nova forma de pagamento
+						\RequestCharging::requestCompleteCharge($req->id);
+					}
+					//dispara eveneto para o usuario
+					event(new PixUpdate($req->request_price_transaction_id, false, true));
+	
+					return response()->json([
+						'success' => true,
+						'bill' => $req->getBill()
+					]);
 				}
 			}
 			if($req && $req->confirmed_provider == $providerId && Settings::changePaymentByUser() == 0) {
