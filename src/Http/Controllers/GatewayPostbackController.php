@@ -61,6 +61,11 @@ class GatewayPostbackController extends Controller
         return Response::json(["success" => true], 200);
     }
 
+    public function getPostBackPixPagarme(Request $request){
+        self::postbackPix(null, $request);
+    }
+
+
     /**
      * Recebe uma notificacao quando o status da transacao pix e alterada
      */
