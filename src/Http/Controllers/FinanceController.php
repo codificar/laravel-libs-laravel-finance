@@ -1156,6 +1156,20 @@ class FinanceController extends Controller {
 		$paymentChanged = false;
 		$ride = null;
 		$success = true;
+
+		$type = Input::get('type');
+
+		if ($type == "user") {
+			$scheduledId = Input::get('request_id');
+			$schedule = ScheduledRequests::find($scheduledId);
+			$request = Requests::where('scheduled_id', $scheduledId)->first();
+		} else{
+			$requestId =  Input::get('request_id');
+			$request = Requests::where('id', $requestId)->first();
+			$scheduledId = $request->scheduled_id;
+			$schedule = ScheduledRequests::find($scheduledId);
+		}	
+		
 		if(Input::get('transaction_id')) {
 			$transaction = Transaction::find(Input::get('transaction_id'));
 		} else if(Input::get('request_id')) {
@@ -1186,6 +1200,14 @@ class FinanceController extends Controller {
 
 		$transaction->ride = $ride; 
 		$transaction->isPaid = $isPaid; 
+		
+		if ($transaction->status == 'paid') {
+			$schedule->is_paid = 1;
+			$schedule->save();
+			$request->is_paid = 1;
+			$request->save();
+		}
+
 		$transaction->paymentChanged = $paymentChanged; 
 		$transaction->expiratedFormated = $expiratedFormated; 
 
