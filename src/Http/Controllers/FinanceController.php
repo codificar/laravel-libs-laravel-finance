@@ -1158,8 +1158,11 @@ class FinanceController extends Controller {
 		$success = true;
 
 		$type = Input::get('type');
+		
+		$debit = Finance::find(Input::get('debit_id'));
+		
 
-		if ($type == "user") {
+		if (isset($type) && $type == "user") {
 			$scheduledId = Input::get('request_id');
 			$schedule = ScheduledRequests::find($scheduledId);
 			$request = Requests::where('scheduled_id', $scheduledId)->first();
@@ -1206,6 +1209,13 @@ class FinanceController extends Controller {
 			$schedule->save();
 			$request->is_paid = 1;
 			$request->save();
+
+			if (isset($debit)) {
+				$debit->transaction_id = $transaction->id;
+				$debit->is_paid = 1;
+				$debit->value = 0;
+				$debit->save();
+			}
 		}
 
 		$transaction->paymentChanged = $paymentChanged; 
