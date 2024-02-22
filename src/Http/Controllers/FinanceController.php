@@ -1162,16 +1162,16 @@ class FinanceController extends Controller {
 		$debit = Finance::find(Input::get('debit_id'));
 		
 
-		if (isset($type) && $type == "user") {
-			$scheduledId = Input::get('request_id');
-			$schedule = ScheduledRequests::find($scheduledId);
-			$request = Requests::where('scheduled_id', $scheduledId)->first();
-		} else{
+		// if (isset($type) && $type == "user") {
+		// 	$scheduledId = Input::get('request_id');
+		// 	$schedule = ScheduledRequests::find($scheduledId);
+		// 	$request = Requests::where('scheduled_id', $scheduledId)->first();
+		// // } else{
 			$requestId =  Input::get('request_id');
 			$request = Requests::where('id', $requestId)->first();
 			$scheduledId = $request->scheduled_id;
 			$schedule = ScheduledRequests::find($scheduledId);
-		}	
+		// }	
 		
 		if(Input::get('transaction_id')) {
 			$transaction = Transaction::find(Input::get('transaction_id'));
