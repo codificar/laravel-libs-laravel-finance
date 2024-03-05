@@ -1160,19 +1160,6 @@ class FinanceController extends Controller {
 		$type = Input::get('type');
 		
 		$debit = Finance::find(Input::get('debit_id'));
-		
-
-		// if (isset($type) && $type == "user") {
-			// $scheduledId = Input::get('request_id');
-			// $schedule = ScheduledRequests::find($scheduledId);
-			// $request = Requests::where('scheduled_id', $scheduledId)->first();
-		// } else{
-			$requestId =  Input::get('request_id');
-			$request = Requests::where('id', $requestId)->first();
-			$scheduledId = $request->scheduled_id;
-			$schedule = ScheduledRequests::find($scheduledId);
-		// }	
-		
 		if(Input::get('transaction_id')) {
 			$transaction = Transaction::find(Input::get('transaction_id'));
 		} else if(Input::get('request_id')) {
@@ -1205,11 +1192,16 @@ class FinanceController extends Controller {
 		$transaction->isPaid = $isPaid; 
 		
 		if ($transaction->status == 'paid') {
-			$schedule->is_paid = 1;
-			$schedule->save();
-			$request->is_paid = 1;
-			$request->save();
+			$request = Requests::find($transaction->request_id) ?? Requests::where('scheduled_id', $transaction->scheduled_id)->first();
+			
+			if (isset($request)) {
+				$schedule = ScheduledRequests::find($request->scheduled_id);
 
+				$schedule->is_paid = 1;
+				$schedule->save();
+				$request->is_paid = 1;
+				$request->save();
+			}
 			if (isset($debit)) {
 				$debit->transaction_id = $transaction->id;
 				$debit->is_paid = 1;
