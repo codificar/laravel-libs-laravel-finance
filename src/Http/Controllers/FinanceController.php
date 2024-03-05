@@ -1163,10 +1163,10 @@ class FinanceController extends Controller {
 		
 
 		// if (isset($type) && $type == "user") {
-		// 	$scheduledId = Input::get('request_id');
-		// 	$schedule = ScheduledRequests::find($scheduledId);
-		// 	$request = Requests::where('scheduled_id', $scheduledId)->first();
-		// // } else{
+			// $scheduledId = Input::get('request_id');
+			// $schedule = ScheduledRequests::find($scheduledId);
+			// $request = Requests::where('scheduled_id', $scheduledId)->first();
+		// } else{
 			$requestId =  Input::get('request_id');
 			$request = Requests::where('id', $requestId)->first();
 			$scheduledId = $request->scheduled_id;
@@ -1426,6 +1426,10 @@ class FinanceController extends Controller {
 							'bill' => $req->getBill()
 						]);
 					}
+					return response()->json([
+						'success' => false,
+						'bill' => null
+					]);
 				} else {
 					if($req->payment_mode == RequestCharging::PAYMENT_MODE_GATEWAY_PIX) {
 						// troca a forma de pagamento
