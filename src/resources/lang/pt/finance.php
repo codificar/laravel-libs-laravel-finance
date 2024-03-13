@@ -32,6 +32,7 @@ return array(
 	'transaction' 							=> 'Transação',
 	'reason' 								=> 'Motivo',
 	'finance_value' 						=> 'Valor',
+	'finance_actions'						=> 'Ações',
 	'ride_value' 							=> 'Valor utilizado em corridas',
 	'delete_message_1' 						=> 'Este usuário está devendo',
 	'delete_message_2' 						=> 'reais, deseja cobrar a divida?',

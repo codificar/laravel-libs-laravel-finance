@@ -213,6 +213,7 @@
                                         <th>{{ trans("finance.transaction_type") }} <i class="fa fa-exchange"></i></th>
                                         <th class="hide-small">{{ trans("finance.reason") }} <i class="fa fa-pencil-square"></i></th>
                                         <th>{{ trans("finance.finance_value") }} <i class="fa fa-money"></i></th>
+                                        <th v-if="should_display_actions_button">{{ trans("finance.finance_actions") }} <i class="fa fa-cog"></i></th>
                                     </tr>
 
                                     <tr v-for="entry in balance.current_compensations" v-bind:key="entry.id" total="0">
@@ -236,6 +237,16 @@
                                             <p class="text-danger">
                                                 {{ formatCurrency(entry.value) }}
                                             </p>
+                                        </td>
+                                        <td v-if="should_display_actions_button && entry.request_id && entry.is_paid == 0">
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Ações
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="actionDropdown">
+                                                    <a class="dropdown-item" href="#" @click="markAsPaid(entry)">Informar que foi pago</a>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                     <tr style="font-weight:bold;text-align:end;">
@@ -398,7 +409,8 @@ export default {
         "currencySymbol",
         "holderType",
         'balanceData',
-        'currency'
+        'currency',
+        'should_display_actions_button'
     ],
     components: {
         modalentry: ModalEntry,
@@ -441,7 +453,7 @@ export default {
             let initialDate = moment(this.startDate).format("DD/MM/YYYY");
             let finalDate = moment(this.endDate).format("DD/MM/YYYY");
 
-            this.cardTitle = this.trans("finance.vue_title_statement");
+            this.cardTitle = this.trans("finance.vue_title_statement") + "aquiiii";
             this.cardTitle += initialDate;
             this.cardTitle += " " + this.trans("finance.to") + " ";
             this.cardTitle += finalDate;
@@ -604,6 +616,36 @@ export default {
             }, 0);
 
             return total;
+        },
+
+        markAsPaid(entry) {
+            const route = `/admin/libs/finance/set_debit_as_paid/${entry.id}`;
+
+            const data = {
+                is_paid: 1,
+            };
+
+            axios.post(route, data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (response.data.success) {
+                    alert('Sucesso: ' + response.data.message);
+                    window.location.reload();
+                } else {
+                    alert('Erro: ' + response.data.message);
+                }
+
+                console.log('Requisição bem-sucedida', response.data);
+            })
+            .catch(error => {
+                alert('Erro na requisição. Verifique o console para mais detalhes.');
+                window.location.reload();
+
+                console.error('Erro na requisição:', error.message);
+            });
         }
     },
     created() {

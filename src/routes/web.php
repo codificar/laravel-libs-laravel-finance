@@ -85,6 +85,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/{type}/{id}/add-entry', array('as' => 'addFinancialEntry', 'uses' => 'FinancialController@addFinancialEntry'));
         Route::post('/{type}/{id}/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
         Route::post('/{type}/{id}/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'FinancialController@createUserBankAccount'));
+        Route::post('/set_debit_as_paid/{id}', 'FinanceController@setDebitAsPaid')->name('setDebitAsPaid');
     });
 
     //Rotas do provider (web)

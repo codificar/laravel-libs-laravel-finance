@@ -1471,4 +1471,43 @@ class FinanceController extends Controller {
 			]);
 		}
 	}
+
+	public function setDebitAsPaid($debit_id) {
+		$debit = Finance::find($debit_id);
+	
+		if (!$debit) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Débito não encontrado.',
+			]);
+		}
+	
+		// Verifica se o débito já está marcado como pago
+		if ($debit->is_paid == 1) {
+			return response()->json([
+				'success' => false,
+				'message' => 'O débito já está marcado como pago.',
+			]);
+		}
+	
+		$debit->is_paid = 1;
+		$debit->value = 0;
+	
+		try {
+			if ($debit->save()) {
+				$message = "Débito marcado como pago.";
+				return response()->json([
+					'success' => true,
+					'message' => $message,
+				]);
+			}
+		} catch (\Exception $e) {
+			\Log::error($e->getMessage() . $e->getTraceAsString());
+			return response()->json([
+				'success' => false,
+				'message' => 'Erro ao marcar o débito como pago.',
+			]);
+		}
+	}
+	
 }
