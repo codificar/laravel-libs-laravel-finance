@@ -31,6 +31,7 @@ return array(
 	'finance_time' 							=> 'Hora',
 	'transaction' 							=> 'Transação',
 	'reason' 								=> 'Motivo',
+	'finance_actions'						=> 'Ações',
 	'finance_value' 						=> 'Valor',
 	'ride_value' 							=> 'Valor utilizado em corridas',
 	'delete_message_1' 						=> 'Este usuário está devendo',
