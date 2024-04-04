@@ -333,6 +333,7 @@ class FinancialController extends Controller
 			// Pega o símbolo da moeda
 			$currency_symbol = LibModel::getCurrencySymbol() . " ";
 			$currency = Settings::findByKey('generic_keywords_currency');
+			$should_display_actions_button = Settings::findByKey('charge_before_users_select_provider_in_scheduling_flow') ? true : false;
 
 			// With draw settings
 			$withDrawSettings = array(
@@ -365,7 +366,8 @@ class FinancialController extends Controller
 						'withdrawsettings' => $withDrawSettings,
 						'currency_symbol' => $currency_symbol,
 						'holder_type' => $holderType,
-						'currency' => $currency
+						'currency' => $currency,
+						'should_display_actions_button' => $should_display_actions_button
 					]);
 			}
 		}else{
