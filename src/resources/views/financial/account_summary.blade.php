@@ -26,6 +26,8 @@
 		:with-draw-settings="{{ json_encode($withdrawsettings) }}"
 		currency-symbol="{{ $currency_symbol }}"
 		holder-type="{{ $holder_type }}"
+		currency="{{ $currency }}"
+		should_display_actions_button="{{ $should_display_actions_button }}"
 	></financial-account-statement>
 </div>
 @stop

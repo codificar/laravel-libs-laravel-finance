@@ -54,13 +54,13 @@ export default {
       this.$emit("newBankAccount");
     },
     formatCurrency(value) {
-      if (value != undefined || value != "") {                
-        let val = (value/1).toFixed(2).replace('.', ',')
+      if (value != undefined || value != "") {
+        let val = (value / 1).toFixed(2).replace('.', ',')
         return this.currency_symbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
       } else {
         return "";
       }
-    }    
+    },
   },
   // Watches for changes on props or data
   watch: {

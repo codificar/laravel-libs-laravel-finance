@@ -194,6 +194,7 @@ return array(
 	'card_added'					=> 'Cartão Adicionado',
 	'card_removed'					=> 'Cartão Removido',
 	'confirm_payment'				=> 'Confirmar Pagamento',
+	'op_pix_payment' 			    => 'Pagamento via pix',
 	'choose_card'					=> 'Escolha um cartão',
 	'payment_creditcard_success'	=> 'Pagamento Realizado com Sucesso!',
 	'value_cant_be_lower'			=> 'Valor não pode ser menor que',

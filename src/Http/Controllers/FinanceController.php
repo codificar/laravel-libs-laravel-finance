@@ -43,6 +43,7 @@ use Codificar\Finance\Http\Resources\BalanceResource;
 use Codificar\Finance\Http\Resources\AddCreditCardResource;
 use Codificar\Finance\Imports\PaymentsImport;
 use Codificar\Finance\Models\Transaction;
+use Codificar\PaymentGateways\Libs\PagarmeApi;
 use Codificar\PaymentGateways\Libs\PaymentFactory as LibsPaymentFactory;
 use Input, Validator, View, Response, Session;
 use Finance, Admin, Settings, Provider, ProviderStatus, User, EmailTemplate, Request, Payment, AdminInstitution, Ledger, URL, RequestCharging, Requests;
@@ -50,6 +51,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
 use DB;
 use Illuminate\Http\Response as HttpResponse;
+use ScheduledRequests;
 use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class FinanceController extends Controller {
@@ -627,6 +629,7 @@ class FinanceController extends Controller {
         $user_balance = $enviroment['holder']->getBalance();
 
 		$currency_symbol = LibModel::getCurrencySymbol() . " ";
+		$currency = Settings::findByKey('generic_keywords_currency');
 
 		$iframe_add_card = null;
 		//if gateway is juno, the add card is iframe
@@ -641,7 +644,8 @@ class FinanceController extends Controller {
 						->with('user_cards', $user_cards)
 						->with('prepaid_settings', $this->getAddBalanceSettings())
 						->with('currency_symbol', $currency_symbol)
-						->with('iframe_add_card', $iframe_add_card);
+						->with('iframe_add_card', $iframe_add_card)
+						->with('currency', $currency);
 
 
 
@@ -1152,12 +1156,16 @@ class FinanceController extends Controller {
 		$paymentChanged = false;
 		$ride = null;
 		$success = true;
+
+		$type = Input::get('type');
+		
+		$debit = Finance::find(Input::get('debit_id'));
 		if(Input::get('transaction_id')) {
 			$transaction = Transaction::find(Input::get('transaction_id'));
 		} else if(Input::get('request_id')) {
 			$transaction = Transaction::getTransactionByRequestId(Input::get('request_id'));
 		}
-			
+
 		if(!$transaction) {
 			return (new RetrievePixResource([
 				'success' 			=> false,
@@ -1182,6 +1190,26 @@ class FinanceController extends Controller {
 
 		$transaction->ride = $ride; 
 		$transaction->isPaid = $isPaid; 
+		
+		if ($transaction->status == 'paid') {
+			$request = Requests::find($transaction->request_id) ?? Requests::where('scheduled_id', $transaction->scheduled_id)->first();
+			
+			if (isset($request)) {
+				$schedule = ScheduledRequests::find($request->scheduled_id);
+
+				$schedule->is_paid = 1;
+				$schedule->save();
+				$request->is_paid = 1;
+				$request->save();
+			}
+			if (isset($debit)) {
+				$debit->transaction_id = $transaction->id;
+				$debit->is_paid = 1;
+				$debit->value = 0;
+				$debit->save();
+			}
+		}
+
 		$transaction->paymentChanged = $paymentChanged; 
 		$transaction->expiratedFormated = $expiratedFormated; 
 
@@ -1349,7 +1377,10 @@ class FinanceController extends Controller {
 			'direct_pix_code' 	=> RequestCharging::PAYMENT_MODE_DIRECT_PIX,
 
 			'machine' 			=> (bool)Settings::getPaymentMachine(),
-			'machine_code' 		=> RequestCharging::PAYMENT_MODE_MACHINE
+			'machine_code' 		=> RequestCharging::PAYMENT_MODE_MACHINE,
+
+			'card' 				=> (bool)Settings::getPaymentCard(),
+			'card_code' 		=> RequestCharging::PAYMENT_MODE_CARD
 		));
 	}
 
@@ -1366,7 +1397,50 @@ class FinanceController extends Controller {
 		try {
 			$providerId = $request->provider_id ? $request->provider_id : $request->id;
 			$req = Requests::find($request->request_id);
-			if($req && $req->confirmed_provider == $providerId) {
+			if (!$req) {
+				$req = Requests::where('scheduled_id', $request->request_id)->first();
+			}
+			if (Settings::changePaymentByUser() == 1) {
+				if ($request->new_payment_mode == RequestCharging::PAYMENT_MODE_CARD) {
+					$req->payment_mode = $request->new_payment_mode;
+					$req->save();
+
+
+					//dispara eveneto para o usuario
+					event(new PixUpdate($req->request_price_transaction_id, false, true));
+
+					$response = RequestCharging::chargeNoCapture($req->user_id, $req->total, $req->provider_commission, $req->confirmed_provider, $request->new_payment_mode);
+					if ($response->status == 'paid') {
+						$req->is_paid = 1;
+						$req->save();
+						return response()->json([
+							'success' => true,
+							'bill' => $req->getBill()
+						]);
+					}
+					return response()->json([
+						'success' => false,
+						'bill' => null
+					]);
+				} else {
+					if($req->payment_mode == RequestCharging::PAYMENT_MODE_GATEWAY_PIX) {
+						// troca a forma de pagamento
+						$req->payment_mode = $request->new_payment_mode;
+						$req->save();
+	
+						//faz a logica da cobranca com a nova forma de pagamento
+						\RequestCharging::requestCompleteCharge($req->id);
+					}
+					//dispara eveneto para o usuario
+					event(new PixUpdate($req->request_price_transaction_id, false, true));
+	
+					return response()->json([
+						'success' => true,
+						'bill' => $req->getBill()
+					]);
+				}
+			}
+			if($req && $req->confirmed_provider == $providerId && Settings::changePaymentByUser() == 0) {
 				if($req->payment_mode == RequestCharging::PAYMENT_MODE_GATEWAY_PIX) {
 					// troca a forma de pagamento
 					$req->payment_mode = $request->new_payment_mode;
@@ -1397,4 +1471,43 @@ class FinanceController extends Controller {
 			]);
 		}
 	}
+
+	public function setDebitAsPaid($debit_id) {
+		$debit = Finance::find($debit_id);
+	
+		if (!$debit) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Débito não encontrado.',
+			]);
+		}
+	
+		// Verifica se o débito já está marcado como pago
+		if ($debit->is_paid == 1) {
+			return response()->json([
+				'success' => false,
+				'message' => 'O débito já está marcado como pago.',
+			]);
+		}
+	
+		$debit->is_paid = 1;
+		$debit->value = 0;
+	
+		try {
+			if ($debit->save()) {
+				$message = "Débito marcado como pago.";
+				return response()->json([
+					'success' => true,
+					'message' => $message,
+				]);
+			}
+		} catch (\Exception $e) {
+			\Log::error($e->getMessage() . $e->getTraceAsString());
+			return response()->json([
+				'success' => false,
+				'message' => 'Erro ao marcar o débito como pago.',
+			]);
+		}
+	}
+	
 }

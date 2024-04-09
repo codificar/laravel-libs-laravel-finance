@@ -14,7 +14,8 @@ export default {
     "delete_user_card",
     "PrepaidSettings",
     "CurrencySymbol",
-    "IframeAddCard"
+    "IframeAddCard",
+    "Currency"
   ],
   /**
    *
@@ -170,7 +171,7 @@ export default {
       var minValue = 1.50; //pix min value is R$ 1.50 in juno
       if (this.value == 0 || this.value < minValue) {
         this.$swal({
-          title: this.trans("finance.value_cant_be_lower") + " " + minValue.toFixed(2),
+          title: this.trans("finance.value_cant_be_lower") + " " + this.formatCurrency(minValue),
           type: "error",
         });
         return;
@@ -178,7 +179,7 @@ export default {
       var totalPix = 0;
       var textMsg = "";
       totalPix = parseFloat(this.value);
-      textMsg = this.trans("finance.confirm_create_pix") + ": " + this.CurrencySymbol + totalPix.toFixed(2);
+      textMsg = this.trans("finance.confirm_create_pix") + ": " + this.formatCurrency(totalPix);
 
       this.$swal({
         title: this.trans("finance.confirm_payment"),
@@ -215,7 +216,7 @@ export default {
       var minValue = this.prepaid_settings.prepaid_min_billet_value ? parseFloat(this.prepaid_settings.prepaid_min_billet_value) : 0;
       if (this.value == 0 || this.value < minValue) {
         this.$swal({
-          title: this.trans("finance.value_cant_be_lower") + " " + minValue.toFixed(2),
+          title: this.trans("finance.value_cant_be_lower") + " " + this.formatCurrency(minValue),
           type: "error",
         });
         return;
@@ -224,10 +225,10 @@ export default {
       var textMsg = "";
       if(this.prepaid_settings.prepaid_tax_billet && parseFloat(this.prepaid_settings.prepaid_tax_billet) > 0) {
         totalBillet = parseFloat(this.value) + parseFloat(this.prepaid_settings.prepaid_tax_billet);
-        textMsg = this.trans("finance.tax_value") + ": " + this.CurrencySymbol + this.prepaid_settings.prepaid_tax_billet + ". " + this.trans("finance.total") + ": " + this.CurrencySymbol + totalBillet.toFixed(2);
+        textMsg = this.trans("finance.tax_value") + ": " + this.CurrencySymbol + this.prepaid_settings.prepaid_tax_billet + ". " + this.trans("finance.total") + ": " + this.formatCurrency(totalBillet);
       } else {
         totalBillet = parseFloat(this.value);
-        textMsg = this.trans("finance.confirm_create_billet_msg") + ": " + this.CurrencySymbol + totalBillet.toFixed(2);
+        textMsg = this.trans("finance.confirm_create_billet_msg") + ": " + this.formatCurrency(totalBillet);
 
       }
 
@@ -335,10 +336,20 @@ export default {
           });
       });
     },
-    formatNumber(num) {
-      let numF = parseFloat(num).toFixed(2);
-      numF = numF.toString().replace('.',',');
-      return this.CurrencySymbol + numF;
+    formatCurrency(value) {
+      if (value != undefined || value != "") {
+        let formattedValue = ""
+        if (this.Currency == "PYG") {
+          let val = (value / 1).toFixed().replace('.', ',')
+          formattedValue = this.CurrencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "")
+        } else {
+          let val = (value / 1).toFixed(2).replace('.', ',')
+          formattedValue = this.CurrencySymbol + " " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        }
+        return formattedValue
+      } else {
+        return "";
+      }
     },
     alertDeleteCard(card_id, last_four) {
       this.$swal({
@@ -428,7 +439,7 @@ export default {
           <div class="row">
             <div class="col-sm-12">
               <h2 style="text-align: center;" class="card-title text-black">
-                {{trans("finance.value_to_pay") + ": " + formatNumber(value) }}
+                {{trans("finance.value_to_pay") + ": " + formatCurrency(value) }}
               </h2>
             </div>
             <div class="col-sm-10">

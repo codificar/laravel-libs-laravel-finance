@@ -28,6 +28,8 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/retrieve_pix', 'FinanceController@retrievePix');
         Route::post('/add_credit_card', 'FinanceController@addCreditCardUser');
         Route::get('/financial/user_summary', 'FinanceController@getProviderSummaryByTypeAndDate');
+        Route::get('/change_pix_payment_types', 'FinanceController@changePixPaymentTypes');
+        Route::post('/change_pix_payment', 'FinanceController@changePixPayment');
     });
     
     Route::group(['prefix' => 'libs/finance', 'middleware' => 'checkProviderOrUser'], function () {
@@ -83,6 +85,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/{type}/{id}/add-entry', array('as' => 'addFinancialEntry', 'uses' => 'FinancialController@addFinancialEntry'));
         Route::post('/{type}/{id}/withdraw-request', array('as' => 'addWithDrawRequest', 'uses' => 'FinancialController@addWithDrawRequest'));
         Route::post('/{type}/{id}/create-user-bank-account', array('as' => 'createUserBankAccount', 'uses' => 'FinancialController@createUserBankAccount'));
+        Route::post('/set_debit_as_paid/{id}', 'FinanceController@setDebitAsPaid')->name('setDebitAsPaid');
     });
 
     //Rotas do provider (web)
