@@ -1035,8 +1035,8 @@ class FinanceController extends Controller {
 				$type = 'corp';
 			break;
 			case Finance::TYPE_PROVIDER:
-				$id = \Auth::guard("providers")->user()->id;
-				$holder = Provider::find($id);
+				$id = \Auth::guard("providers")->user()->id ?? null;
+				$holder = Provider::find($id ?? Request::toArray()['id']);
 				$type = 'provider';
 			break;
 		}
