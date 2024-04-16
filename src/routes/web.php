@@ -19,6 +19,12 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::post('/change_pix_payment', 'FinanceController@changePixPayment');
     });
 
+
+
+    Route::group(['prefix' => 'provider/libs/finance', 'middleware' => 'auth.provider_api:api'], function (){
+        Route::post('/payment/delete_user_card', array('as' => 'providerDeleteUserCard', 'uses' => 'FinanceController@deleteUserCard'));
+    });
+
     // Rotas do app user
     Route::group(['prefix' => 'libs/finance/user', 'middleware' => 'auth.user_api:api'], function () {
         Route::get('/get_cards_and_balance', 'FinanceController@getCardsAndBalance');
