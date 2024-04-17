@@ -607,8 +607,10 @@ class FinanceController extends Controller {
 		$data['referral_balance']			= currency_format(LibModel::getSumTotalIndication($ledgerId));
 		$data['cumulated_balance_monthly']	= currency_format(LibModel::getSumMonthlyIndication($ledgerId));
 
-		//juno gateway is webview to add card
-		$data['add_card_is_webview']		= Settings::findByKey('default_payment') == 'juno' ? true : false;
+		//juno and bancard gateways are webview to add card
+		$paymentMethod = Settings::findByKey('default_payment');
+		$data['payment_gateway'] = $paymentMethod;
+		$data['add_card_is_webview'] = in_array($paymentMethod, ['juno', 'bancard']);
 
         return new GetCardsAndBalanceResource($data);
 	}
