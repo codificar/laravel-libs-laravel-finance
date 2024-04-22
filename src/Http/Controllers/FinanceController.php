@@ -977,7 +977,7 @@ class FinanceController extends Controller {
 		return new AddCreditCardResource($response);
 	}
 
-	public function AddBancardCreditCardProvider(AddBancardCreditCardProviderFormRequest $request) 
+	public function addBancardCreditCardProvider(AddBancardCreditCardProviderFormRequest $request) 
 	{	
 		$response = Payment::providerCreateCardByGatewayBancard(
 			$request->providerId, 
