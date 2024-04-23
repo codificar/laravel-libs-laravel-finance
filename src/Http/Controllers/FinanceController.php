@@ -21,6 +21,8 @@ use Codificar\Finance\Http\Requests\AddCardUserFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceWebFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceWebFormRequest;
 use Codificar\Finance\Http\Requests\AddPixBalanceFormRequest;
+use Codificar\Finance\Http\Requests\AddBancardCreditCardUserFormRequest;
+use Codificar\Finance\Http\Requests\AddBancardCreditCardProviderFormRequest;
 
 //Resource
 use Codificar\Finance\Http\Resources\ProviderProfitsResource;
@@ -36,7 +38,6 @@ use Codificar\Finance\Http\Resources\AddBancardCreditCardResource;
 use Carbon\Carbon;
 use Auth;
 use Codificar\Finance\Http\Requests\AddCardProviderFormRequest;
-use Codificar\Finance\Http\Requests\AddBancardCreditCardProviderFormRequest;
 use Codificar\Finance\Http\Requests\BalanceFormRequest;
 use Codificar\Finance\Http\Requests\GetConsolidatedStatementRequest;
 use Codificar\Finance\Http\Requests\ImportPaymentsRequest;
@@ -982,6 +983,15 @@ class FinanceController extends Controller {
 		$response = Payment::providerCreateCardByGatewayBancard(
 			$request->providerId, 
 			$request->document, 
+		);
+
+		return new AddBancardCreditCardResource($response);
+	}
+
+	public function addBancardCreditCardUser(AddBancardCreditCardUserFormRequest $request) 
+	{	
+		$response = Payment::userCreateCardByGatewayBancard(
+			$request->user_id, 
 		);
 
 		return new AddBancardCreditCardResource($response);

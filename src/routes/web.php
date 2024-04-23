@@ -34,6 +34,7 @@ Route::group(array('namespace' => 'Codificar\Finance\Http\Controllers'), functio
         Route::get('/add_pix_balance', 'FinanceController@addPixBalance');
         Route::get('/retrieve_pix', 'FinanceController@retrievePix');
         Route::post('/add_credit_card', 'FinanceController@addCreditCardUser');
+        Route::post('/add_bancard_credit_card', 'FinanceController@addBancardCreditCardUser');
         Route::get('/financial/user_summary', 'FinanceController@getProviderSummaryByTypeAndDate');
     });
     
