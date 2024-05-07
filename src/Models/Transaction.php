@@ -155,7 +155,7 @@ class Transaction extends Eloquent
 	 * 
 	 * @param string $status
 	 * @param float $value
-	 * @param int $gatewayTransactionId
+	 * @param $gatewayTransactionId
 	 * @param string $paymentGatewayError - default: null
 	 * 
 	 * @return Transaction|null
@@ -163,7 +163,7 @@ class Transaction extends Eloquent
 	public static function createTransactionAddBalance(
 		string $status, 
 		float $value, 
-		int $gatewayTransactionId, 
+		$gatewayTransactionId, 
 		string $paymentGatewayError = null
 	): Transaction|null
 	{
