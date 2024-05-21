@@ -21,6 +21,8 @@ use Codificar\Finance\Http\Requests\AddCardUserFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceWebFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceWebFormRequest;
 use Codificar\Finance\Http\Requests\AddPixBalanceFormRequest;
+use Codificar\Finance\Http\Requests\AddBancardCreditCardUserFormRequest;
+use Codificar\Finance\Http\Requests\AddBancardCreditCardProviderFormRequest;
 
 //Resource
 use Codificar\Finance\Http\Resources\ProviderProfitsResource;
@@ -30,6 +32,7 @@ use Codificar\Finance\Http\Resources\AddCreditCardBalanceResource;
 use Codificar\Finance\Http\Resources\AddBilletBalanceResource;
 use Codificar\Finance\Http\Resources\AddCardUserResource;
 use Codificar\Finance\Http\Resources\RetrievePixResource;
+use Codificar\Finance\Http\Resources\AddBancardCreditCardResource;
 
 
 use Carbon\Carbon;
@@ -570,8 +573,10 @@ class FinanceController extends Controller {
 		$data['referral_balance']			= currency_format(LibModel::getSumTotalIndication($ledgerId));
 		$data['cumulated_balance_monthly']	= currency_format(LibModel::getSumMonthlyIndication($ledgerId));
 
-		//juno gateway is webview to add card
-		$data['add_card_is_webview']		= Settings::findByKey('default_payment') == 'juno' ? true : false;
+		//juno and bancard gateways are webview to add card
+		$paymentMethod = Settings::findByKey('default_payment');
+		$data['payment_gateway'] = $paymentMethod;
+		$data['add_card_is_webview'] = in_array($paymentMethod, ['juno', 'bancard']);
 
         return new GetCardsAndBalanceResource($data);
 	}
@@ -607,8 +612,10 @@ class FinanceController extends Controller {
 		$data['referral_balance']			= currency_format(LibModel::getSumTotalIndication($ledgerId));
 		$data['cumulated_balance_monthly']	= currency_format(LibModel::getSumMonthlyIndication($ledgerId));
 
-		//juno gateway is webview to add card
-		$data['add_card_is_webview']		= Settings::findByKey('default_payment') == 'juno' ? true : false;
+		//juno and bancard gateways are webview to add card
+		$paymentMethod = Settings::findByKey('default_payment');
+		$data['payment_gateway'] = $paymentMethod;
+		$data['add_card_is_webview'] = in_array($paymentMethod, ['juno', 'bancard']);
 
         return new GetCardsAndBalanceResource($data);
 	}
@@ -973,6 +980,25 @@ class FinanceController extends Controller {
 		return new AddCreditCardResource($response);
 	}
 
+	public function addBancardCreditCardProvider(AddBancardCreditCardProviderFormRequest $request) 
+	{	
+		$response = Payment::providerCreateCardByGatewayBancard(
+			$request->providerId, 
+			$request->document, 
+		);
+
+		return new AddBancardCreditCardResource($response);
+	}
+
+	public function addBancardCreditCardUser(AddBancardCreditCardUserFormRequest $request) 
+	{	
+		$response = Payment::userCreateCardByGatewayBancard(
+			$request->user_id, 
+		);
+
+		return new AddBancardCreditCardResource($response);
+	}
+	
 	/**
 	 * Add a new credit card
 	 *
