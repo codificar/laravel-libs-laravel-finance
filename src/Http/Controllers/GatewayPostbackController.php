@@ -101,7 +101,7 @@ class GatewayPostbackController extends Controller
                             $ride->setIsPaid();
 
                             //gera saldo para o motorista
-                            if ($ride->confirmedProvider && $ride->confirmedProvider->Ledger) {
+                            if ($ride->confirmedProvider && $ride->confirmedProvider->Ledger && !$webhookRequest['transaction']['attributes']['split_rules']) {
                                 $reason = trans('financeTrans::finance.webhook_pix_ride_credit') . $ride->id;
                                 LibModel::createRideCredit(
                                     $ride->confirmedProvider->Ledger->id, 
