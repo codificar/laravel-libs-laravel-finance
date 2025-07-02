@@ -16,6 +16,7 @@ return [
     'ride_credit_machine' => 'Crédito por viaje con datáfono:',
     'ride_credit' => 'Crédito por viaje:',
     'ride_payment' => 'Pago por viaje número:',
+    'ride_pix_payment'  => 'Pago a través de Pix',
     'ride_card_payment' => 'Pago con tarjeta de crédito',
     'ride_debitCard_payment' => 'Pago con tarjeta de débito',
     'ride_crypt_payment' => 'Pago con criptomoneda',

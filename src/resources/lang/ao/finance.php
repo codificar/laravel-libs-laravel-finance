@@ -21,6 +21,7 @@ return array(
 	'ride_crypt_payment' 					=> 'Pagamento com crypto moeda',
 	'ride_carto_payment' 					=> 'Pagamento com cartão Carto',
 	'ride_card_payment_pending' 			=> 'Pagamento de pendência com cartão de crédito',
+	'ride_pix_payment'						=> 'Pagamento via Pix',
 	'ride_credit_card_payment_pending_pix'	=> 'Crédito de pendência com pix gateway',
 	'ride_debit_card_payment_pending_pix'	=> 'Débito de pendência com pix gateway',
 	'ride_payment_fail_debit' 				=> 'Débito por falha de pagamento com cartão',

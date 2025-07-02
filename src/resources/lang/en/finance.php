@@ -16,6 +16,7 @@ return array(
 	'ride_credit_machine' 					=> 'Credit for the race with the dummy:',
 	'ride_credit' 							=> 'Race credit:',
 	'ride_payment' 							=> 'Payment for race number:',
+	'ride_pix_payment'						=> 'Payment with Pix',
 	'ride_card_payment' 					=> 'Credit card payment',
 	'ride_debitCard_payment'				=> 'Debit card payment',
 	'ride_crypt_payment' 					=> 'Payment with crypto currency',

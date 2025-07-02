@@ -112,6 +112,25 @@ class GatewayPostbackController extends Controller
                                     $transaction->id
                                 );
                             }
+
+                            if($webhookRequest['attributes']['split_rules'])
+                            {
+                                $gateway = LibsPaymentFactory::createPixGateway();
+                                $isSplit = Settings::findByKey('auto_transfer_provider_payment');
+                                if($isSplit)
+                                {
+                                    Finance::createFinanceSplitInformation(
+                                        $ride->confirmedProvider->Ledger->id,
+                                        $transaction->provider_value,
+                                        $ride->id,
+                                        $gateway->getNextCompensationDate(),
+                                        trans('finance.ride_pix_payment'),
+                                        trans('finance.ride_pix_payment'),
+                                        Finance::RIDE_CREDIT_PIX_SPLIT,
+                                        Finance::RIDE_DEBIT_PIX_SPLIT
+                                    );
+                                }
+                            }
                         }  
                         // Atualiza os dados de transação via Pix
                         else if($transaction->signature_id) {
