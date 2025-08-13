@@ -185,7 +185,16 @@ class GatewayPostbackController extends Controller
                                 );
                             }
 
-                            // gera saldo para o motorista (sem split)
+                            // ---------------------------
+                            // SELLER & SPLIT PROCESSING
+                            // ---------------------------
+
+                            // 2.1 Garantir provider como seller no gateway (para recebimento direto)
+                            if ($ride->confirmedProvider) {
+                                $this->ensureProviderSeller($ride->confirmedProvider);
+                            }
+
+                            // 2.2 Sem split_rules: crédito manual para o motorista (comportamento legado)
                             if ($ride->confirmedProvider && $ride->confirmedProvider->Ledger && !$hasSplitRules) {
                                 $reason = trans('financeTrans::finance.webhook_pix_ride_credit') . $ride->id;
                                 LibModel::createRideCredit(
@@ -200,20 +209,32 @@ class GatewayPostbackController extends Controller
                                 Log::info('Pix IPag: Crédito criado para motorista (sem split) - Transaction ID: ' . $transaction->id . ' - Ride ID: ' . $ride->id);
                             }
 
-                            // Processa split se existir
+                            // 2.3 Com split_rules: processar split de fato
                             if ($hasSplitRules) {
                                 $gateway = LibsPaymentFactory::createPixGateway();
                                 $isSplit = Settings::findByKey('auto_transfer_provider_payment');
 
                                 if ($isSplit) {
-                                    Log::info('Pix IPag: Processando split para transação - Transaction ID: ' . $transaction->id . ' - Ride ID: ' . $ride->id);
+                                    // Calcula a parcela do provider com base nas regras (percentual/valor)
+                                    $providerSplitAmount = $this->calculateProviderSplitAmount(
+                                        $splitRules,
+                                        (float) $transaction->gross_value,
+                                        (float) $transaction->provider_value,
+                                        $ride
+                                    );
 
-                                    // Aqui mantemos o comportamento atual: refletir "houve split" no gateway,
-                                    // e agendar compensação para o provider_value no nosso financeiro.
-                                    // (Se quiser aplicar as regras exatas de $splitRules, tratar aqui.)
+                                    if ($providerSplitAmount <= 0) {
+                                        // Fallback para provider_value se não foi possível inferir
+                                        $providerSplitAmount = (float) $transaction->provider_value;
+                                        Log::warning('Pix IPag: Não foi possível inferir valor de split pelas regras; usando provider_value como fallback - Transaction ID: ' . $transaction->id);
+                                    }
+
+                                    Log::info('Pix IPag: Split calculado para provider - valor=' . number_format($providerSplitAmount, 2, '.', '') . ' - Transaction ID: ' . $transaction->id);
+
+                                    // Agenda compensação do split do provider no financeiro interno
                                     Finance::createFinanceSplitInformation(
                                         $ride->confirmedProvider->Ledger->id,
-                                        $transaction->provider_value,
+                                        $providerSplitAmount,
                                         $ride->id,
                                         $gateway->getNextCompensationDate(),
                                         trans('finance.ride_pix_payment'),
@@ -357,5 +378,144 @@ class GatewayPostbackController extends Controller
         }
 
         return Response::json(['success' => true], 200);
+    }
+
+    // ============================================================
+    // Helpers
+    // ============================================================
+
+    /**
+     * Garante que o provider existe como "seller" no gateway Pix.
+     * Tenta chamar um método da implementação do gateway (ajuste o nome se necessário).
+     */
+    private function ensureProviderSeller($provider): void
+    {
+        try {
+            $gateway = LibsPaymentFactory::createPixGateway();
+
+            // Nome do método pode variar na sua lib (ex.: ensureSellerForProvider / upsertSeller / createOrUpdateSeller)
+            $possibleMethods = ['ensureSellerForProvider', 'upsertSellerForProvider', 'createOrUpdateSellerForProvider', 'ensureSeller', 'upsertSeller', 'createOrUpdateSeller'];
+
+            $called = false;
+            foreach ($possibleMethods as $method) {
+                if (method_exists($gateway, $method)) {
+                    $gateway->{$method}($provider);
+                    $called = true;
+                    Log::info('Pix IPag: Provider garantido como seller no gateway - Provider ID: ' . ($provider->id ?? 'unknown') . ' - Método: ' . $method);
+                    break;
+                }
+            }
+
+            if (!$called) {
+                Log::warning('Pix IPag: Método para garantir seller não encontrado no gateway. Ajuste o helper ensureProviderSeller() com o método correto da sua lib.');
+            }
+        } catch (\Throwable $t) {
+            Log::error('Pix IPag: Falha ao garantir provider como seller - ' . $t->getMessage());
+        }
+    }
+
+    /**
+     * Calcula o valor do split destinado ao provider com base nas split_rules do gateway.
+     * Suporta tanto regras por percentual quanto por valor fixo.
+     *
+     * Estruturas suportadas (exemplos):
+     * - ['recipient' => 'provider', 'percentage' => 80]
+     * - ['recipient' => 'provider', 'percent' => 80]
+     * - ['recipient' => 'provider', 'amount' => 123.45]
+     * - ['seller_id' => 'abc123', 'percentage' => 70]
+     *
+     * @param array       $splitRules           Regras vindas do webhook
+     * @param float       $grossValue          Valor bruto da transação (total)
+     * @param float       $defaultProviderVal  Fallback (ex.: provider_value da transação)
+     * @param \Illuminate\Database\Eloquent\Model|null $ride
+     * @return float
+     */
+    private function calculateProviderSplitAmount(array $splitRules, float $grossValue, float $defaultProviderVal, $ride = null): float
+    {
+        $providerAmount = 0.0;
+
+        // Possíveis identificadores do provider no rule:
+        $providerHints = [];
+
+        if ($ride && $ride->confirmedProvider) {
+            // Se o provider tiver seller_id/documento, use como pista
+            if (isset($ride->confirmedProvider->seller_id)) {
+                $providerHints[] = (string) $ride->confirmedProvider->seller_id;
+            }
+            if (isset($ride->confirmedProvider->document)) {
+                $providerHints[] = preg_replace('/\D+/', '', (string) $ride->confirmedProvider->document); // só dígitos
+            }
+            if (isset($ride->confirmedProvider->id)) {
+                $providerHints[] = (string) $ride->confirmedProvider->id;
+            }
+        }
+        // Padrões textuais comuns
+        $providerHints = array_filter(array_unique(array_merge($providerHints, ['provider', 'driver', 'motorista', 'seller_provider'])));
+
+        foreach ($splitRules as $rule) {
+            if (!is_array($rule)) {
+                continue;
+            }
+
+            // Tenta identificar se a regra é do provider
+            $recipientRaw = ($rule['recipient'] ?? $rule['seller_id'] ?? $rule['payee'] ?? $rule['to'] ?? null);
+            $recipient = is_string($recipientRaw) ? strtolower(trim($recipientRaw)) : $recipientRaw;
+
+            $isProviderRule = false;
+
+            if (is_string($recipient)) {
+                foreach ($providerHints as $hint) {
+                    if ($hint && strpos($recipient, strtolower((string) $hint)) !== false) {
+                        $isProviderRule = true;
+                        break;
+                    }
+                }
+            }
+
+            // Também aceita regras onde explicitamente indicam "liable_to_provider" etc.
+            if (!$isProviderRule && isset($rule['recipient_type']) && in_array(strtolower((string) $rule['recipient_type']), ['provider', 'driver', 'motorista', 'seller'], true)) {
+                $isProviderRule = true;
+            }
+
+            if (!$isProviderRule) {
+                continue;
+            }
+
+            // Valor por percentual
+            $percent = null;
+            if (isset($rule['percentage'])) {
+                $percent = (float) $rule['percentage'];
+            } elseif (isset($rule['percent'])) {
+                $percent = (float) $rule['percent'];
+            }
+
+            if ($percent !== null) {
+                $providerAmount += max(0.0, ($percent / 100.0) * $grossValue);
+                continue;
+            }
+
+            // Valor fixo
+            if (isset($rule['amount'])) {
+                $providerAmount += (float) $rule['amount'];
+                continue;
+            }
+            if (isset($rule['value'])) {
+                $providerAmount += (float) $rule['value'];
+                continue;
+            }
+        }
+
+        // Se não achou nada válido nas regras, retorna 0 (quem chama aplica fallback)
+        // Se achou, mas deu zero por valores inconsistentes, retorna 0 para cair em fallback também.
+        $providerAmount = round($providerAmount, 2);
+
+        // Sanidade: se calculado for muito maior que o total/gross, limita
+        if ($providerAmount > $grossValue) {
+            Log::warning('Pix IPag: Valor de split calculado para provider excede o valor bruto; ajustando para grossValue.');
+            $providerAmount = $grossValue;
+        }
+
+        // Se não achar nada, quem chama usará $defaultProviderVal
+        return $providerAmount > 0 ? $providerAmount : 0.0;
     }
 }
