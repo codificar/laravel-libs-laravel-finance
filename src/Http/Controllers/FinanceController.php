@@ -965,8 +965,11 @@ class FinanceController extends Controller {
 		$envType = $enviroment['type'];
 		
 		// Extrair payment_method_id (suporta múltiplos formatos)
-		$paymentMethodId = $request->paymentMethodId 
-			?? $request->payment_method_id 
+		// Tentar múltiplas formas de acesso para garantir compatibilidade
+		$paymentMethodId = $request->input('paymentMethodId')
+			?? $request->input('payment_method_id')
+			?? $request->paymentMethodId
+			?? $request->payment_method_id
 			?? null;
 		
 		// Determinar se é provider ou user/corp

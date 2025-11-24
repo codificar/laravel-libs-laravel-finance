@@ -44,10 +44,11 @@ class AddCardWebFormRequest extends FormRequest {
      * @return array
      */
     public function rules() {
-        // Verificar payment_method_id em múltiplos formatos (após prepareForValidation)
-        $hasPaymentMethodId = !empty($this->paymentMethodId) 
-            || !empty(request()->payment_method_id) 
-            || !empty(request()->paymentMethodId);
+        // Verificar payment_method_id em múltiplos formatos
+        // Verificar diretamente do request, pois prepareForValidation pode não ter preenchido ainda
+        $hasPaymentMethodId = !empty(request()->payment_method_id) 
+            || !empty(request()->paymentMethodId)
+            || !empty($this->paymentMethodId);
         
         $rules = [
             'cardHolder' => 'required',
