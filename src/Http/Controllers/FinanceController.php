@@ -642,13 +642,18 @@ class FinanceController extends Controller {
 			$iframe_add_card = URL::Route('addCardJuno') . '?holder_type=' . $envtype . '&holder_id=' . $enviroment['holder']->id . '&holder_token=' . $enviroment['holder']->token;
 		}
 
+		$defaultPayment = Settings::findByKey('default_payment');
+		$stripePublishableKey = Settings::findByKey('stripe_publishable_key');
+
 		return View::make('finance::payment.payment')
 						->with('enviroment', $enviroment['type'])
 						->with('user_balance', $user_balance)
 						->with('user_cards', $user_cards)
 						->with('prepaid_settings', $this->getAddBalanceSettings())
 						->with('currency_symbol', $currency_symbol)
-						->with('iframe_add_card', $iframe_add_card);
+						->with('iframe_add_card', $iframe_add_card)
+						->with('default_payment', $defaultPayment)
+						->with('stripe_publishable_key', $stripePublishableKey);
 
 
 
@@ -966,6 +971,11 @@ class FinanceController extends Controller {
 	 */
 	public function addCreditCardProvider(AddCardProviderFormRequest $request) 
 	{	
+		// Extrair payment_method_id (suporta múltiplos formatos)
+		$paymentMethodId = $request->paymentMethodId 
+			?? $request->payment_method_id 
+			?? null;
+		
 		$response = Payment::providerCreateCardByGateway(
 			$request->providerId, 
 			$request->cardNumber, 
@@ -973,7 +983,7 @@ class FinanceController extends Controller {
 			$request->cardExpMonth, 
 			$request->cardExpYear, 
 			$request->cardCvv,
-			null,
+			$paymentMethodId, // Passar payment_method_id para Stripe
 			null,
 			$request->document ?? null
 		);
@@ -1006,6 +1016,11 @@ class FinanceController extends Controller {
 	 * @return AddCreditCardResource
 	 */
 	public function addCreditCardUser(AddCardUserFormRequest $request) {
+		// Extrair payment_method_id (suporta múltiplos formatos)
+		$paymentMethodId = $request->paymentMethodId 
+			?? $request->payment_method_id 
+			?? null;
+		
 		$response = Payment::createCardByGateway(
 			$request->userId, 
 			$request->cardNumber, 
@@ -1013,7 +1028,7 @@ class FinanceController extends Controller {
 			$request->cardExpMonth, 
 			$request->cardExpYear, 
 			$request->cardCvv,
-			null,
+			$paymentMethodId, // Passar payment_method_id para Stripe
 			null,
 			$request->document ?? null
 		);

@@ -1,6 +1,9 @@
 <script>
 import axios from "axios";
+import StripeElementsMixin from "../../mixins/stripeElements";
+
 export default {
+  mixins: [StripeElementsMixin],
   props: [
     "Enviroment",
     "user_balance",
@@ -14,7 +17,9 @@ export default {
     "delete_user_card",
     "PrepaidSettings",
     "CurrencySymbol",
-    "IframeAddCard"
+    "IframeAddCard",
+    "defaultPayment",
+    "stripePublishableKey"
   ],
   /**
    *
@@ -77,55 +82,114 @@ export default {
     addCard() {
       $("#modal-add-credit-card").modal("show");
       $("#modal-card-selected").modal("hide");
+      
+      // Se for Stripe, montar CardElement quando o modal abrir
+      if (this.isStripeGateway(this.defaultPayment)) {
+        // Se não estiver inicializado, tentar inicializar
+        if (!this.isStripeInitialized && this.stripePublishableKey) {
+          this.initStripe(this.stripePublishableKey);
+        }
+        
+        if (this.isStripeInitialized) {
+          this.$nextTick(() => {
+            setTimeout(() => {
+              if (!this.cardElement) {
+                this.mountCardElement('stripe-card-element');
+              }
+            }, 300); // Aguardar animação do modal
+          });
+        }
+      }
     },
 
     selectCardPayment() {
       $("#modal-card-selected").modal("show");
     },
 
-    submitNewCard() {
-      if (
-        !this.card_number ||
-        !this.card_holder ||
-        !this.card_cvv ||
-        !this.card_exp
-      )
+    async submitNewCard() {
+      // Validação básica
+      if (!this.card_holder) {
+        this.showErrorMsg({ error: this.trans("finance.holder_error") });
         return;
-      // if(this.card_number.endsWith(" ")) this.card_number = this.card_number.slice(0, -1);
-      new Promise((resolve, reject) => {
-        axios
-          .post(this.save_payment_route, {
+      }
+
+      // Se for Stripe, usar Payment Method
+      if (this.isStripeGateway(this.defaultPayment)) {
+        if (!this.isStripeInitialized) {
+          this.showErrorMsg({ error: "Stripe não foi inicializado corretamente" });
+          return;
+        }
+
+        // Criar Payment Method via Stripe Elements
+        const result = await this.createPaymentMethod(this.card_holder);
+        
+        if (!result.success) {
+          this.showErrorMsg({ error: result.error });
+          return;
+        }
+
+        // Enviar apenas payment_method_id e card_holder
+        try {
+          const response = await axios.post(this.save_payment_route, {
+            payment_method_id: result.paymentMethodId,
+            card_holder: this.card_holder,
+          });
+
+          if (response.data.success) {
+            this.cards_list.push(response.data.data[0]);
+            this.$swal({
+              title: this.trans("finance.card_added"),
+              type: "success",
+            });
+            this.card_holder = "";
+            $("#modal-add-credit-card").modal("hide");
+            $("#modal-card-selected").modal("show");
+          } else {
+            this.showErrorMsg(response.data);
+          }
+        } catch (error) {
+          console.error("Erro ao adicionar cartão:", error);
+          this.showErrorMsg(error.response?.data || error);
+        }
+      } else {
+        // Para outros gateways, usar dados brutos (fluxo tradicional)
+        if (
+          !this.card_number ||
+          !this.card_cvv ||
+          !this.card_exp
+        )
+          return;
+
+        try {
+          const response = await axios.post(this.save_payment_route, {
             card_number: this.card_number,
             card_holder: this.card_holder,
             card_cvv: this.card_cvv,
             card_cvc: this.card_cvv,
             card_expiration_month: this.card_expiration_month,
             card_expiration_year: this.card_expiration_year,
-          })
-          .then((response) => {
-            if (response.data.success) {
-              this.cards_list.push(response.data.data[0]);
-              this.$swal({
-                title: this.trans("finance.card_added"),
-                type: "success",
-              });
-              this.card_number = "";
-              this.card_holder = "";
-              this.card_cvv = "";
-              this.card_exp = "";
-              $("#modal-add-credit-card").modal("hide");
-              $("#modal-card-selected").modal("show");
-            } else {
-              this.showErrorMsg(response.data);
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-            reject(error);
-            this.showErrorMsg(error);
-            return false;
           });
-      });
+
+          if (response.data.success) {
+            this.cards_list.push(response.data.data[0]);
+            this.$swal({
+              title: this.trans("finance.card_added"),
+              type: "success",
+            });
+            this.card_number = "";
+            this.card_holder = "";
+            this.card_cvv = "";
+            this.card_exp = "";
+            $("#modal-add-credit-card").modal("hide");
+            $("#modal-card-selected").modal("show");
+          } else {
+            this.showErrorMsg(response.data);
+          }
+        } catch (error) {
+          console.error("Erro ao adicionar cartão:", error);
+          this.showErrorMsg(error.response?.data || error);
+        }
+      }
     },
 
     showErrorMsg(errData = null) {
@@ -387,13 +451,19 @@ export default {
     }
   },
   mounted() {
-    console.log("this.yearNow", this.yearMaks);
-    window.addEventListener("load", function(event) {
-      var card = new Card({
-        form: "#add-credit-card",
-        container: ".card-wrapper",
+    // Inicializar Stripe se for o gateway padrão
+    if (this.isStripeGateway(this.defaultPayment) && this.stripePublishableKey) {
+      this.initStripe(this.stripePublishableKey);
+    } else {
+      // Para outros gateways, usar Card.js (visualização do cartão)
+      console.log("this.yearNow", this.yearMaks);
+      window.addEventListener("load", (event) => {
+        var card = new Card({
+          form: "#add-credit-card",
+          container: ".card-wrapper",
+        });
       });
-    });
+    }
   },
   created() {
     this.cards_list = JSON.parse(this.user_cards);
@@ -615,10 +685,8 @@ export default {
           <div class="modal-body">
           	<iframe v-if="IframeAddCard" class="col-12" @load="iframeCardAdded" height="450" :src="IframeAddCard" title="Juno"></iframe>
             <div v-else class="row">
-              <div class="col-lg-6">
-                <div class="card-wrapper"></div>
-              </div>
-              <div class="col-lg-6">
+              <!-- Se for Stripe, mostrar Stripe Elements -->
+              <div v-if="isStripeGateway(defaultPayment)" class="col-lg-12">
                 <div
                   id="field-errors"
                   class="alert alert-danger alert-dismissable"
@@ -631,25 +699,12 @@ export default {
                   data-toggle="validator"
                   role="form"
                 >
-                  <input
-                    type="hidden"
-                    name="user-id"
-                    value="<?= $user->id ?>"
-                  />
                   <div class="form-group">
-                    <input
-                      v-model="card_number"
-                      id="card-number"
-                      name="number"
-                      v-mask="['#### #### #### #### ###']"
-                      type="text"
-                      class="form-control"
-                      :placeholder="trans('finance.card_number')"
-                      required
-                      :data-error="trans('finance.card_number')"
-                      aria-invalid="true"
-                    />
-                    <div class="help-block with-errors"></div>
+                    <label>{{ trans('finance.card_number') }}</label>
+                    <div id="stripe-card-element" class="form-control" style="padding: 10px;"></div>
+                    <div v-if="stripeError" class="help-block text-danger">
+                      {{ stripeError }}
+                    </div>
                   </div>
                   <div class="form-group">
                     <input
@@ -664,34 +719,6 @@ export default {
                       aria-invalid="true"
                     />
                     <div class="help-block with-errors"></div>
-                  </div>
-                  <div class="form-group">
-                    <div class="row">
-                      <div class="col-6">
-                        <input
-                          v-model="card_cvv"
-                          v-mask="['####']"
-                          id="card-cvv"
-                          name="cvv"
-                          type="text"
-                          class="form-control"
-                          :placeholder="trans('finance.cvv')"
-                          required
-                        />
-                      </div>
-                      <div class="col-6">
-                        <input
-                          v-model="card_exp"
-                          v-mask="yearMaks"
-                          id="card-exp"
-                          name="expiry"
-                          class="form-control mb-2"
-                          type="text"
-                          placeholder="MM/YYYY"
-                          required
-                        />
-                      </div>
-                    </div>
                   </div>
                   <div class="text-right">
                     <button
@@ -711,6 +738,107 @@ export default {
                     </button>
                   </div>
                 </form>
+              </div>
+              
+              <!-- Se for outro gateway, mostrar campos tradicionais -->
+              <div v-else>
+                <div class="col-lg-6">
+                  <div class="card-wrapper"></div>
+                </div>
+                <div class="col-lg-6">
+                  <div
+                    id="field-errors"
+                    class="alert alert-danger alert-dismissable"
+                    style="display:none;margin-left:0;"
+                  ></div>
+                  <form
+                    v-on:submit.prevent="submitNewCard"
+                    id="add-credit-card"
+                    method="POST"
+                    data-toggle="validator"
+                    role="form"
+                  >
+                    <input
+                      type="hidden"
+                      name="user-id"
+                      value="<?= $user->id ?>"
+                    />
+                    <div class="form-group">
+                      <input
+                        v-model="card_number"
+                        id="card-number"
+                        name="number"
+                        v-mask="['#### #### #### #### ###']"
+                        type="text"
+                        class="form-control"
+                        :placeholder="trans('finance.card_number')"
+                        required
+                        :data-error="trans('finance.card_number')"
+                        aria-invalid="true"
+                      />
+                      <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                      <input
+                        v-model="card_holder"
+                        id="card-holder"
+                        name="name"
+                        type="text"
+                        class="form-control"
+                        :placeholder="trans('finance.card_holder_name')"
+                        required
+                        :data-error="trans('finance.card_holder')"
+                        aria-invalid="true"
+                      />
+                      <div class="help-block with-errors"></div>
+                    </div>
+                    <div class="form-group">
+                      <div class="row">
+                        <div class="col-6">
+                          <input
+                            v-model="card_cvv"
+                            v-mask="['####']"
+                            id="card-cvv"
+                            name="cvv"
+                            type="text"
+                            class="form-control"
+                            :placeholder="trans('finance.cvv')"
+                            required
+                          />
+                        </div>
+                        <div class="col-6">
+                          <input
+                            v-model="card_exp"
+                            v-mask="yearMaks"
+                            id="card-exp"
+                            name="expiry"
+                            class="form-control mb-2"
+                            type="text"
+                            placeholder="MM/YYYY"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <button
+                        type="button"
+                        id="btn-cancel"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                      >
+                        {{ trans("finance.cancel") }}
+                      </button>
+                      <button
+                        type="submit"
+                        id="btn-add-card"
+                        class="btn btn-primary"
+                      >
+                        {{ trans("finance.save") }}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
@@ -742,5 +870,29 @@ export default {
 
 .default:hover {
   background: #f7f7f7;
+}
+
+/* Stripe Elements Styles */
+#stripe-card-element {
+  min-height: 40px;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: white;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#stripe-card-element:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#stripe-card-element.StripeElement--invalid {
+  border-color: #dc3545;
+}
+
+#stripe-card-element.StripeElement--complete {
+  border-color: #28a745;
 }
 </style>

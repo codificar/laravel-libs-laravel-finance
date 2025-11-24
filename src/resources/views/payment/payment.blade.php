@@ -53,6 +53,8 @@
 		prepaid-settings = "{{ json_encode($prepaid_settings)}}"
 		currency-symbol="{{ $currency_symbol }}"
 		iframe-add-card="{{ $iframe_add_card }}"
+		default-payment="{{ $default_payment }}"
+		stripe-publishable-key="{{ $stripe_publishable_key }}"
 	>
 	</payment>
 </div>
@@ -60,6 +62,9 @@
 
 @section('javascripts')
 <script src="/plugins/card/jquery.card.js"></script>
+@if($default_payment === 'stripe')
+<script type="text/javascript" src="https://js.stripe.com/v3/"></script>
+@endif
 <script type="text/javascript" src="/js/lang.trans/finance,dashboard,keywords"></script>
 <script src="/libs/finance/lang.trans/finance"> </script> 
 <script src="{{ asset('vendor/codificar/finance/finance.vue.js') }}"> </script>

@@ -24,6 +24,7 @@ class AddCardProviderFormRequest extends FormRequest {
     public $cardType;
     public $providerId;
     public $document;
+    public $paymentMethodId;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -40,15 +41,30 @@ class AddCardProviderFormRequest extends FormRequest {
      * @return array
      */
     public function rules() {
-        return [
+        // Verificar payment_method_id em múltiplos formatos (após prepareForValidation)
+        $hasPaymentMethodId = !empty($this->paymentMethodId) 
+            || !empty(request()->payment_method_id) 
+            || !empty(request()->paymentMethodId);
+        
+        $rules = [
             'cardHolder' => 'required',
-            'cardNumber' => ['required'],
-            'cardExpYear' => ['required'],
-            'cardExpMonth' => ['required'],
-            'cardCvv' => ['required'],
+            'providerId' => 'required',
             'document' => [''],
-            'providerId' => 'required'
         ];
+
+        if ($hasPaymentMethodId) {
+            // Para Stripe com Payment Method ID - validar ambos formatos
+            $rules['payment_method_id'] = 'required_without:paymentMethodId|string';
+            $rules['paymentMethodId'] = 'required_without:payment_method_id|string';
+        } else {
+            // Para outros gateways (dados brutos obrigatórios)
+            $rules['cardNumber'] = ['required'];
+            $rules['cardExpYear'] = ['required'];
+            $rules['cardExpMonth'] = ['required'];
+            $rules['cardCvv'] = ['required'];
+        }
+
+        return $rules;
     }
 
     /**
@@ -142,6 +158,10 @@ class AddCardProviderFormRequest extends FormRequest {
         $cardDate = $cardExpirationMonth . '/' . $cardExpirationYear;
         $document = str_replace(array(".","/","-"),'',request()->document);
         
+        // Extrair payment_method_id (suporta múltiplos formatos)
+        $paymentMethodId = request()->payment_method_id 
+            ?? request()->paymentMethodId 
+            ?? null;
 
         $this->cardHolder = $holder;
         $this->cardNumber = $number;
@@ -151,6 +171,7 @@ class AddCardProviderFormRequest extends FormRequest {
         $this->providerId = $providerId;
         $this->document = $document ;
         $this->cardDate = $cardDate ;
+        $this->paymentMethodId = $paymentMethodId;
         
 
         $this->merge([
@@ -162,6 +183,8 @@ class AddCardProviderFormRequest extends FormRequest {
             'providerId' =>  $this->providerId,
             'document' =>  $this->document,
             'cardDate' =>  $this->cardDate,
+            'paymentMethodId' => $this->paymentMethodId,
+            'payment_method_id' => $this->paymentMethodId, // Normalizar para snake_case também
         ]);
 
     }
