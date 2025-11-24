@@ -18,6 +18,7 @@ use Codificar\Finance\Http\Requests\UserApiFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceFormRequest;
 use Codificar\Finance\Http\Requests\AddCardUserFormRequest;
+use Codificar\Finance\Http\Requests\AddCardWebFormRequest;
 use Codificar\Finance\Http\Requests\AddCreditCardBalanceWebFormRequest;
 use Codificar\Finance\Http\Requests\AddBilletBalanceWebFormRequest;
 use Codificar\Finance\Http\Requests\AddPixBalanceFormRequest;
@@ -952,15 +953,52 @@ class FinanceController extends Controller {
 	}
 
 	/**
-	 * Add a new credit card
-	 * @deprecated use now addCreditCardProvider or addCreditCardUser
+	 * Add a new credit card via web panel (corp/user/provider)
+	 * Obtém userId da sessão autenticada, não do request.
 	 * 
-	 * @param AddCardUserFormRequest $request
-	 * @return NewCreditCard ($enviroment['holder'], $enviroment['type'], $request)
+	 * @param AddCardWebFormRequest $request
+	 * @return AddCreditCardResource
 	 */
-	public function addCreditCard(AddCardUserFormRequest $request) {
+	public function addCreditCard(AddCardWebFormRequest $request) {
 		$enviroment = $this->getEnviroment();
-		return $this->newCreditCard($enviroment['holder'], $enviroment['type'], $request);
+		$holder = $enviroment['holder'];
+		$envType = $enviroment['type'];
+		
+		// Extrair payment_method_id (suporta múltiplos formatos)
+		$paymentMethodId = $request->paymentMethodId 
+			?? $request->payment_method_id 
+			?? null;
+		
+		// Determinar se é provider ou user/corp
+		if ($envType === 'provider') {
+			// Provider usa ledger_id
+			$response = Payment::providerCreateCardByGateway(
+				$holder->id,
+				$request->cardNumber,
+				$request->cardHolder,
+				$request->cardExpMonth,
+				$request->cardExpYear,
+				$request->cardCvv,
+				$paymentMethodId,
+				null,
+				$request->document ?? null
+			);
+		} else {
+			// User/Corp usa user_id
+			$response = Payment::createCardByGateway(
+				$holder->id,
+				$request->cardNumber,
+				$request->cardHolder,
+				$request->cardExpMonth,
+				$request->cardExpYear,
+				$request->cardCvv,
+				$paymentMethodId,
+				null,
+				$request->document ?? null
+			);
+		}
+		
+		return new AddCreditCardResource($response);
 	}
 
 	/**
