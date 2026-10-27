@@ -821,7 +821,7 @@ class LibModel extends Eloquent
 	 * @param Integer|null $cardId -
 	 * @return array  $data;
 	 */
-	public static function addCreditCardUserBalance(float $value, \User $user, int $cardId = null) {
+	public static function addCreditCardUserBalance(float $value, \User $user, ?int $cardId = null) {
 		$ledgerId = $user->ledger->id;
 		$payment = LibModel::findDefaultOrFirstByUserId($user->id, $cardId);
 

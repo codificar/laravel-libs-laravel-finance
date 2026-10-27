@@ -485,11 +485,11 @@ class FinancialController extends Controller
 		// csv header
 		fputcsv($handle, array(
 			trans('finance.title_statement', array(
-			'start' => strftime(trans('finance.stringDatePattern'), strtotime($startDate)),
-			'end' => strftime(trans('finance.stringDatePattern'), strtotime(explode(' ', $endDate)[0]))
-			))), ";"
+			'start' => date('d/m/Y', strtotime($startDate)),
+			'end' => date('d/m/Y', strtotime(explode(' ', $endDate)[0]))
+			))), ";", '"', "\\"
 		);				
-		fputcsv($handle, array(),";");
+		fputcsv($handle, array(),";", '"', "\\");
 		fputcsv($handle,
 			array(
 				trans("finance.finance_date"),
@@ -498,7 +498,7 @@ class FinancialController extends Controller
 				trans("finance.reason"),
 				trans("finance.finance_value"),
 			),
-			";"
+			";", '"', "\\"
 		);
 		
 		if(sizeof($entries) > 0){					
@@ -507,21 +507,21 @@ class FinancialController extends Controller
 				$hour = str_split($date[1], 5);
 				fputcsv($handle,
 					array(
-						strftime('%d %b %Y', strtotime($date[0])),
+						date('d M Y', strtotime($date[0])),
 						$hour[0],
 						$entry['reason'],
 						$entry['description'],
 						$entry['value'],
 					),
-					";"
+					";", '"', "\\"
 				);
 			}
-			fputcsv($handle, array(trans('financeTrans::finance.current_balance'), $currentBalance),";");
+			fputcsv($handle, array(trans('financeTrans::finance.current_balance'), $currentBalance),";", '"', "\\");
 		}
 		if(sizeof($futureCompensations) > 0){
-			fputcsv($handle, array(),";");
-			fputcsv($handle, array(trans('finance.title_future_compensation')),";");
-			fputcsv($handle, array(),";");
+			fputcsv($handle, array(),";", '"', "\\");
+			fputcsv($handle, array(trans('finance.title_future_compensation')),";", '"', "\\");
+			fputcsv($handle, array(),";", '"', "\\");
 			foreach ($futureCompensations as $entry) {
 				$totalFuture += $entry['value'];
 				$date = explode(' ', $entry['compensation_date']);
@@ -530,20 +530,20 @@ class FinancialController extends Controller
 				$hour = str_split($date[1], 5);
 				fputcsv($handle,
 					array(
-						strftime('%d %b %Y', strtotime($date[0])),
+						date('d M Y', strtotime($date[0])),
 						$hour[0],
 						$entry['reason'],
 						$entry['description'],
 						$entry['value'],
 					),
-					";"
+					";", '"', "\\"
 				);
 			}
-			fputcsv($handle, array(trans('finance.total'), $totalFuture),";");
+			fputcsv($handle, array(trans('finance.total'), $totalFuture),";", '"', "\\");
 		}
 		if(sizeof($futureCompensations) > 0){
-			fputcsv($handle, array(),";");
-			fputcsv($handle, array(trans('finance.future_balance'), $currentBalance+$totalFuture),";");
+			fputcsv($handle, array(),";", '"', "\\");
+			fputcsv($handle, array(trans('finance.future_balance'), $currentBalance+$totalFuture),";", '"', "\\");
 		}
 		fclose($handle);
 		$headers = array(
@@ -805,7 +805,7 @@ class FinancialController extends Controller
                 trans('billing.finance_compensation_date'),
                 trans('billing.status'),
             ),
-            ";"
+            ";", '"', "\\"
         );
 
         foreach ($query as $finance) {
@@ -824,7 +824,7 @@ class FinancialController extends Controller
                     date_format(date_create($finance->finance_compensation_date), 'd/m/Y H:i:s'),
                     $key == false ? '' : trans(Config('enum.status_invoice')[$key]['name'])
                 ),
-                ";"
+                ";", '"', "\\"
             );
         }
 

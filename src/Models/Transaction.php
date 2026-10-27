@@ -164,7 +164,7 @@ class Transaction extends Eloquent
 		string $status, 
 		float $value, 
 		$gatewayTransactionId, 
-		string $paymentGatewayError = null
+		?string $paymentGatewayError = null
 	): Transaction|null
 	{
 		try {

@@ -402,7 +402,7 @@ class FinanceController extends Controller {
 			array_push($vars , ' Chave PIX ');
 		}
 		// Setting the csv header
-		fputcsv($handle, $vars, ";" );
+		fputcsv($handle, $vars, ";", '"', "\\" );
 
 		$providers = $providers->get();
 		$locations = $this->locationModel->get();
@@ -512,7 +512,7 @@ class FinanceController extends Controller {
 				array_push($vars , $provider->getPix());
 			}
 			// Formats the csv file
-			fputcsv($handle, $vars ,";");
+			fputcsv($handle, $vars ,";", '"', "\\");
 		}
 		// Close the pointer file
 		fclose($handle);
@@ -1128,7 +1128,7 @@ class FinanceController extends Controller {
 			trans('financeTrans::finance.hit_value')
 		];
 
-		fputcsv($handle, $vars, ";" );
+		fputcsv($handle, $vars, ";", '"', "\\" );
 
 		foreach ($ledgers as $item) {
 			$vars = [
@@ -1143,7 +1143,7 @@ class FinanceController extends Controller {
 				$item['balances']['payment_value_text'],
 			];
 
-			fputcsv($handle, $vars ,";");
+			fputcsv($handle, $vars ,";", '"', "\\");
 		}
 
 		fclose($handle);
