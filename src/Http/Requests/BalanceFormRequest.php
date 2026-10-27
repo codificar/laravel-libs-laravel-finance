@@ -8,6 +8,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use User;
 
+#[\AllowDynamicProperties]
 class BalanceFormRequest extends FormRequest
 {
 

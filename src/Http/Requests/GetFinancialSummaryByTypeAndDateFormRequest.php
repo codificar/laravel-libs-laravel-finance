@@ -14,6 +14,7 @@ use User;
 use Provider;
 use Input;
 
+#[\AllowDynamicProperties]
 class GetFinancialSummaryByTypeAndDateFormRequest extends FormRequest
 {    
     /**
