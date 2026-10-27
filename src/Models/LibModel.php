@@ -707,7 +707,7 @@ class LibModel extends Eloquent
 		}
 
 		foreach ($leders as $item) {
-			$start = $startDate != '' ? date('Y-m-d H:i:s', strtotime($startDate)) : date('Y-m-d H:i:s', strtotime($item->created_at));
+			$start = $startDate != '' ? date('Y-m-d H:i:s', strtotime($startDate)) : date('Y-m-d H:i:s', strtotime($item->created_at ?? ''));
 			$end = $endDate != '' ? date('Y-m-d 23:59:59', strtotime($endDate)) :  date('Y-m-d 23:59:59');
 			
 			$balances = [

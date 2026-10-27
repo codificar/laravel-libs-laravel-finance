@@ -18,6 +18,7 @@ trait PartnerFilter
 	private $providersModel;
 	private $userModel;
 	private $partners;
+	public $partnersId;
 
 	/**
 	 * If is a partner profile, filter the results by a partner
